@@ -8,7 +8,7 @@ class WebSocketService {
 
     connect(onConnect, onError) {
         this.client = new Client({
-            brokerURL: "ws://localhost:8080/ws-game/websocket",
+            brokerURL: "wss://xo-clash-tad8.onrender.com/ws-game/websocket",
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             debug: (str) => {

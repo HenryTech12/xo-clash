@@ -37,7 +37,7 @@ const Dashboard = () => {
                     // Fetch main dashboard data
                     try {
                         const dashResFallback = await fetch(
-                            `http://localhost:8080/api/v1/players/${user.username}/stats`,
+                            `https://xo-clash-tad8.onrender.com/api/v1/players/${user.username}/stats`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${localStorage.getItem(
@@ -120,7 +120,7 @@ const Dashboard = () => {
         try {
             // Call API to activate power-up
             const response = await fetch(
-                "http://localhost:8080/api/v1/powerups/activate",
+                "https://xo-clash-tad8.onrender.com/api/v1/powerups/activate",
                 {
                     method: "POST",
                     headers: {

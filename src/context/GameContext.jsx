@@ -69,7 +69,7 @@ export const GameProvider = ({ children }) => {
         if (user?.username) {
             // Fetch unlocked powerups with counts
             fetch(
-                `http://localhost:8080/api/v1/players/${user.username}/powerups`,
+                `https://xo-clash-tad8.onrender.com/api/v1/players/${user.username}/powerups`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem(
