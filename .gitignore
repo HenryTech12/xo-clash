@@ -34,3 +34,11 @@ build/
 
 .env
 .env
+
+
+.env
+.env.*
+target/
+*.log
+.idea/
+.vscode/
