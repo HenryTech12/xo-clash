@@ -52,7 +52,7 @@ public class TrackProgressService {
         userService.updateLastActive(playerId);
 
         // 2. Calculate rank once
-        int rankPoints = progressionService.calculateRankPoint((int) counts.wins(), (int) counts.losses());
+        int rankPoints = progressionService.calculateRankPoint(counts.wins().intValue(), counts.losses().intValue());
         PlayerRank rank = PlayerRank.getRankByWins(rankPoints);
 
         // 3. Return response
@@ -93,25 +93,25 @@ public class TrackProgressService {
     @CachePut(value = "powerups", key = "#playerId")
     public List<String> getPowerUps(String playerId) {
         PlayerStatsCount statsCount = getPlayersCountDetails(playerId);
-        if(Objects.equals(PlayerRank.BRONZE, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.BRONZE, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name());
         }
-        if(Objects.equals(PlayerRank.SILVER, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.SILVER, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name());
         }
-        if(Objects.equals(PlayerRank.GOLD, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.GOLD, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name(), PowerUp.EXTRA_MOVE.name());
         }
-        if(Objects.equals(PlayerRank.PLATINUM, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.PLATINUM, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name(), PowerUp.EXTRA_MOVE.name(), PowerUp.BLOCK_CELL.name());
         }
-        if(Objects.equals(PlayerRank.DIAMOND, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.DIAMOND, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name(), PowerUp.EXTRA_MOVE.name(), PowerUp.BLOCK_CELL.name(), PowerUp.UNDO_MOVE.name());
         }
-        if(Objects.equals(PlayerRank.MASTER, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.MASTER, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name(), PowerUp.EXTRA_MOVE.name(), PowerUp.BLOCK_CELL.name(), PowerUp.UNDO_MOVE.name(), PowerUp.SWAP_CELL.name());
         }
-        if(Objects.equals(PlayerRank.GRANDMASTER, PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) statsCount.wins(), (int) statsCount.losses())))) {
+        if(Objects.equals(PlayerRank.GRANDMASTER, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name(), PowerUp.EXTRA_MOVE.name(), PowerUp.BLOCK_CELL.name(), PowerUp.UNDO_MOVE.name(), PowerUp.SWAP_CELL.name(), PowerUp.GHOST_MOVE.name());
         }
         return new ArrayList<>();
@@ -123,7 +123,7 @@ public class TrackProgressService {
 
         System.out.println("Total wins: "+playerStatsCount.wins());
         UserDTO user = userService.getUserByUsername(playerUsername);
-        PlayerRank playerRank = PlayerRank.getRankByWins(progressionService.calculateRankPoint((int) playerStatsCount.wins(), (int) playerStatsCount.losses()));
+        PlayerRank playerRank = PlayerRank.getRankByWins(progressionService.calculateRankPoint(playerStatsCount.wins().intValue(), playerStatsCount.losses().intValue()));
         int totalPowerUpsUsed = playerPowerupRepository.sumTotalUsedByPlayerName(playerUsername).orElse(0);
 
         // Use a HashMap instead of Map.of() to allow null values
@@ -133,8 +133,8 @@ public class TrackProgressService {
         stats.put("totalLosses", playerStatsCount.losses());
         stats.put("totalDraws", playerStatsCount.draws());
         stats.put("rank", playerRank != null ? playerRank.name() : "UNRANKED");
-        stats.put("rankPoints", progressionService.calculateRankPoint((int) playerStatsCount.wins(), (int) playerStatsCount.losses()));
-        stats.put("experience", progressionService.calculateMatchXP((int) playerStatsCount.wins(), totalPowerUpsUsed));
+        stats.put("rankPoints", progressionService.calculateRankPoint(playerStatsCount.wins().intValue(), playerStatsCount.losses().intValue()));
+        stats.put("experience", progressionService.calculateMatchXP(playerStatsCount.wins().intValue(), totalPowerUpsUsed));
         stats.put("lastActive", user.getLastActive()); // Now safe even if null
         stats.put("joinedDate", user.getJoined());     // Now safe even if null
 
@@ -143,7 +143,7 @@ public class TrackProgressService {
 
     // Helper to avoid repeating logic and bugs
     private PlayerRank getRank(PlayerStatsCount stats) {
-        int points = progressionService.calculateRankPoint((int) stats.wins(), (int) stats.losses());
+        int points = progressionService.calculateRankPoint(stats.wins().intValue(), stats.losses().intValue());
         return PlayerRank.getRankByWins(points);
     }
 
@@ -155,9 +155,9 @@ public class TrackProgressService {
         PlayerRank rank = getRank(stats); // Use the helper!
 
         dbLeaderboard.setWinRate(calculateWinRate(stats));
-        dbLeaderboard.setWins((int) stats.wins());
-        dbLeaderboard.setLosses((int) stats.losses());
-        dbLeaderboard.setDraws((int) stats.draws());
+        dbLeaderboard.setWins(stats.wins().intValue());
+        dbLeaderboard.setLosses(stats.losses().intValue());
+        dbLeaderboard.setDraws(stats.draws().intValue());
         dbLeaderboard.setUsername(playerUsername);
 
         if(dbLeaderboard.getJoinedDate() == null) {
@@ -165,7 +165,7 @@ public class TrackProgressService {
         }
 
         dbLeaderboard.setRank(rank.name());
-        dbLeaderboard.setRankPoints(progressionService.calculateRankPoint((int) stats.wins(), (int) stats.losses()));
+        dbLeaderboard.setRankPoints(progressionService.calculateRankPoint(stats.wins().intValue(), stats.losses().intValue()));
         dbLeaderboard.setBadge(PlayerRank.getBadgeIcon(rank)); // Fixed bug here
 
         leaderboardRepository.save(dbLeaderboard);
