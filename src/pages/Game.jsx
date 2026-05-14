@@ -12,6 +12,8 @@ import {
     RefreshCcw,
     Home,
     Zap,
+    Check,
+    X,
 } from "lucide-react";
 import { gameService } from "../services/api";
 import confetti from "canvas-confetti";
