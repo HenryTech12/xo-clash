@@ -49,6 +49,10 @@ public class TrackProgressService {
     public DashboardResponse getDashboardData(String playerId) {
         // 1. Single DB hit for all counts
         PlayerStatsCount counts = playsRepository.getCountsForPlayer(playerId);
+        // If the query returns null because the player has no games yet
+        if (counts == null) {
+            counts = new PlayerStatsCount(0L, 0L, 0L, 0L);
+        }
         userService.updateLastActive(playerId);
 
         // 2. Calculate rank once
@@ -93,6 +97,10 @@ public class TrackProgressService {
     @CachePut(value = "powerups", key = "#playerId")
     public List<String> getPowerUps(String playerId) {
         PlayerStatsCount statsCount = getPlayersCountDetails(playerId);
+        // If the query returns null because the player has no games yet
+        if (statsCount == null) {
+            statsCount = new PlayerStatsCount(0L, 0L, 0L, 0L);
+        }
         if(Objects.equals(PlayerRank.BRONZE, PlayerRank.getRankByWins(progressionService.calculateRankPoint(statsCount.wins().intValue(), statsCount.losses().intValue())))) {
             return List.of(PowerUp.HINT.name());
         }
@@ -120,6 +128,10 @@ public class TrackProgressService {
     public Map<String, Object> getPlayerStats(String playerUsername) {
 
         PlayerStatsCount playerStatsCount = getPlayersCountDetails(playerUsername);
+        // If the query returns null because the player has no games yet
+        if (playerStatsCount == null) {
+            playerStatsCount = new PlayerStatsCount(0L, 0L, 0L, 0L);
+        }
 
         System.out.println("Total wins: "+playerStatsCount.wins());
         UserDTO user = userService.getUserByUsername(playerUsername);
@@ -152,6 +164,10 @@ public class TrackProgressService {
                 .orElse(new Leaderboard());
 
         PlayerStatsCount stats = getPlayersCountDetails(playerUsername);
+        // If the query returns null because the player has no games yet
+        if (stats == null) {
+            stats = new PlayerStatsCount(0L, 0L, 0L, 0L);
+        }
         PlayerRank rank = getRank(stats); // Use the helper!
 
         dbLeaderboard.setWinRate(calculateWinRate(stats));
