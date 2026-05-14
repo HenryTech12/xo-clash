@@ -17,13 +17,13 @@ const VoiceOverlay = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+                    className="fixed inset-0 z-50 flex items-end justify-center p-4 md:p-8 pointer-events-none"
                 >
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        initial={{ scale: 0.9, opacity: 0, y: 50 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className={`relative w-full max-w-md overflow-hidden bg-slate-900 border-2 rounded-3xl shadow-2xl ${
+                        exit={{ scale: 0.9, opacity: 0, y: 50 }}
+                        className={`relative w-full max-w-lg overflow-hidden bg-slate-900/90 backdrop-blur-xl border-2 rounded-3xl shadow-2xl pointer-events-auto ${
                             error ? "border-red-500/50" : "border-blue-500/50"
                         }`}
                     >
@@ -36,16 +36,16 @@ const VoiceOverlay = ({
                             }`}
                         />
 
-                        <div className="relative p-8 flex flex-col items-center text-center">
+                        <div className="relative p-6 flex flex-row items-center gap-6 text-left">
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors"
+                                className="absolute top-2 right-2 p-2 text-slate-400 hover:text-white transition-colors"
                             >
                                 <X size={20} />
                             </button>
 
                             {/* Status Icon */}
-                            <div className="relative mb-6">
+                            <div className="relative flex-shrink-0">
                                 <AnimatePresence mode="wait">
                                     {isProcessing ? (
                                         <motion.div
@@ -123,47 +123,51 @@ const VoiceOverlay = ({
                                 )}
                             </div>
 
-                            <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">
-                                {isProcessing
-                                    ? "Analyzing Command"
-                                    : error
-                                    ? "Error Occurred"
-                                    : "Listening..."}
-                            </h3>
+                            <div className="flex-grow">
+                                <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">
+                                    {isProcessing
+                                        ? "Analyzing Command"
+                                        : error
+                                        ? "Error Occurred"
+                                        : "Listening..."}
+                                </h3>
 
-                            <div className="min-h-[4rem] flex flex-col justify-center">
-                                {transcript ? (
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="text-lg text-blue-200 italic font-medium"
-                                    >
-                                        "{transcript}"
-                                    </motion.p>
-                                ) : (
-                                    !error && (
-                                        <p className="text-slate-400 text-sm">
-                                            Try saying "Row 1 Column 2" or "Top
-                                            Left"
-                                        </p>
-                                    )
-                                )}
+                                <div className="min-h-[2rem] flex flex-col justify-center">
+                                    {transcript ? (
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-lg text-blue-200 italic font-medium line-clamp-1"
+                                        >
+                                            "{transcript}"
+                                        </motion.p>
+                                    ) : (
+                                        !error && (
+                                            <p className="text-slate-400 text-sm">
+                                                Say "Row 1 Column 2" or "Top
+                                                Left"
+                                            </p>
+                                        )
+                                    )}
 
-                                {error && (
-                                    <motion.p
-                                        initial={{ x: -10 }}
-                                        animate={{ x: [0, -10, 10, -10, 0] }}
-                                        className="text-red-400 font-bold"
-                                    >
-                                        {error}
-                                    </motion.p>
-                                )}
+                                    {error && (
+                                        <motion.p
+                                            initial={{ x: -10 }}
+                                            animate={{
+                                                x: [0, -10, 10, -10, 0],
+                                            }}
+                                            className="text-red-400 font-bold"
+                                        >
+                                            {error}
+                                        </motion.p>
+                                    )}
+                                </div>
                             </div>
 
                             {error && (
                                 <button
                                     onClick={onClose}
-                                    className="mt-6 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors font-bold text-sm"
+                                    className="flex-shrink-0 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors font-bold text-sm"
                                 >
                                     TRY AGAIN
                                 </button>
