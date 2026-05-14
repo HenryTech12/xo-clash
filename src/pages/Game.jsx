@@ -4,7 +4,15 @@ import { useGame } from "../hooks/useGame";
 import { useVoiceInput } from "../hooks/useVoiceInput";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, LogOut, Mic, Lock, RefreshCcw, Home } from "lucide-react";
+import {
+    ArrowLeft,
+    LogOut,
+    Mic,
+    Lock,
+    RefreshCcw,
+    Home,
+    Zap,
+} from "lucide-react";
 import { gameService } from "../services/api";
 import confetti from "canvas-confetti";
 import { toast } from "react-hot-toast";
