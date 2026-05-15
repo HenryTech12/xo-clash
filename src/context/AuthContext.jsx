@@ -34,7 +34,7 @@ const refreshAccessToken = async () => {
 
     try {
         const response = await axios.get(
-            "https://xo-clash-tad8.onrender.com/api/v1/auth/refresh",
+            `https://xo-clash-tad8.onrender.com/api/v1/auth/refresh`,
             {
                 headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -44,7 +44,13 @@ const refreshAccessToken = async () => {
 
         if (response.data && response.data.accessToken) {
             localStorage.setItem("token", response.data.accessToken);
-            return response.data.accessToken;
+            if (response.data.refreshToken) {
+                localStorage.setItem(
+                    "refreshToken",
+                    response.data.refreshToken
+                );
+            }
+            return response.data;
         }
         throw new Error("No access token in refresh response");
     } catch (error) {

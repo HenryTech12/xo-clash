@@ -6,6 +6,20 @@ const api = axios.create({
     baseURL: API_URL,
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -19,47 +33,81 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If error is 401 and we haven't retried yet
         if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise(function (resolve, reject) {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return api(originalRequest);
+                    })
+                    .catch((err) => {
+                        return Promise.reject(err);
+                    });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
-            try {
-                const refreshToken = localStorage.getItem("refreshToken");
+            const refreshToken = localStorage.getItem("refreshToken");
 
-                if (!refreshToken) {
-                    throw new Error("No refresh token available");
-                }
-
-                // Call refresh endpoint using GET and Authorization header
-                const response = await axios.get(`${API_URL}/auth/refresh`, {
-                    headers: {
-                        Authorization: `Bearer ${refreshToken}`,
-                    },
-                });
-
-                if (response.data && response.data.accessToken) {
-                    const newToken = response.data.accessToken;
-                    const returnedRefreshToken =
-                        response.data.refreshToken || refreshToken;
-
-                    localStorage.setItem("token", newToken);
-                    localStorage.setItem("refreshToken", returnedRefreshToken);
-
-                    // Update header and retry original request
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                    return api(originalRequest);
-                } else {
-                    throw new Error("No access token in refresh response");
-                }
-            } catch (refreshError) {
-                console.error("Token refresh failed:", refreshError);
-                // If refresh fails, clear auth and redirect to login
+            if (!refreshToken) {
+                isRefreshing = false;
+                processQueue(new Error("No refresh token"), null);
+                // Auth failure - clear session
                 localStorage.removeItem("token");
                 localStorage.removeItem("refreshToken");
                 localStorage.removeItem("user");
-                window.location.href = "/login";
-                return Promise.reject(refreshError);
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
+                return Promise.reject(error);
             }
+
+            return new Promise(function (resolve, reject) {
+                axios
+                    .get(`${API_URL}/auth/refresh`, {
+                        headers: {
+                            Authorization: `Bearer ${refreshToken}`,
+                        },
+                    })
+                    .then(({ data }) => {
+                        if (data && data.accessToken) {
+                            const newToken = data.accessToken;
+                            const returnedRefreshToken =
+                                data.refreshToken || refreshToken;
+
+                            localStorage.setItem("token", newToken);
+                            localStorage.setItem(
+                                "refreshToken",
+                                returnedRefreshToken
+                            );
+
+                            api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+                            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+                            processQueue(null, newToken);
+                            resolve(api(originalRequest));
+                        } else {
+                            throw new Error("Invalid response from refresh");
+                        }
+                    })
+                    .catch((err) => {
+                        processQueue(err, null);
+                        // Clear session on refresh failure
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("refreshToken");
+                        localStorage.removeItem("user");
+                        if (window.location.pathname !== "/login") {
+                            window.location.href = "/login";
+                        }
+                        reject(err);
+                    })
+                    .finally(() => {
+                        isRefreshing = false;
+                    });
+            });
         }
 
         return Promise.reject(error);
