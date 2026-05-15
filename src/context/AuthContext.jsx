@@ -80,38 +80,30 @@ export const AuthProvider = ({ children }) => {
                         await authService.validateToken();
                         // Token is valid
                         setUser(JSON.parse(savedUser));
-                    } catch {
+                    } catch (err) {
                         console.log(
                             "Token validation failed, attempting refresh..."
                         );
-                        // If validation fails, try to refresh
-                        if (isTokenExpired(token)) {
-                            try {
-                                await refreshAccessToken();
+                        // If validation fails (including 401), try to refresh
+                        try {
+                            const refreshData = await refreshAccessToken();
+                            if (refreshData && refreshData.accessToken) {
                                 setUser(JSON.parse(savedUser));
-                            } catch (refreshError) {
-                                console.error(
-                                    "Token refresh failed:",
-                                    refreshError
-                                );
+                            } else {
                                 logout();
                             }
-                        } else {
-                            // Token not expired locally but validation failed (server rejected it)
-                            try {
-                                console.log(
-                                    "Token technically valid but rejected, trying force refresh..."
-                                );
-                                await refreshAccessToken();
-                                setUser(JSON.parse(savedUser));
-                            } catch (e) {
-                                console.error(
-                                    "Forced refresh failed after validation error"
-                                );
-                                logout();
-                            }
+                        } catch (refreshError) {
+                            console.error(
+                                "Token refresh failed during init:",
+                                refreshError
+                            );
+                            logout();
                         }
                     }
+                } else {
+                    // No session found
+                    setLoading(false);
+                    return;
                 }
             } catch (error) {
                 console.error("Auth initialization error:", error);
