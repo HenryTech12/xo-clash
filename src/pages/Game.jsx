@@ -211,7 +211,14 @@ const Game = () => {
         const requiredRank = config?.unlockRank || "Bronze";
         const requiredPoints = RANK_THRESHOLDS[requiredRank] || 0;
 
-        if (userPoints < requiredPoints) {
+        // Note: The UI lock icons display requirements, but we allow clicking
+        // if user has points OR if the backend specifically provided this power-up.
+        // If the power-up is in availablePowerUps with count > 0, we trust the backend.
+        const isActuallyUnlocked = availablePowerUps.some(
+            (up) => up.id === powerUp && up.count > 0
+        );
+
+        if (userPoints < requiredPoints && !isActuallyUnlocked) {
             toast.error(
                 `Locked! You need ${requiredPoints} rank points (${requiredRank} rank) to use ${
                     config?.name || powerUp
@@ -225,7 +232,7 @@ const Game = () => {
         } else if (powerUp === "HINT") {
             calculateHint();
         } else {
-            // Target needed
+            // Target needed for BLOCK_CELL, SWAP_CELL, and GHOST_MOVE
             setActivePowerUp(powerUp === activePowerUp ? null : powerUp);
         }
     };
@@ -333,7 +340,8 @@ const Game = () => {
             activePowerUp &&
             activePowerUp !== "EXTRA_MOVE" &&
             activePowerUp !== "UNDO_MOVE" &&
-            activePowerUp !== "HINT";
+            activePowerUp !== "HINT" &&
+            activePowerUp !== "GHOST_MOVE";
 
         // Only allow click if turn matches, cell is empty, and game not over
         // UNLESS we are targeting a power-up (e.g. BLOCK_CELL) which might target ANY cell
@@ -755,30 +763,32 @@ const Game = () => {
                         // We no longer return null for count <= 0 because we want to show it as locked
                         // if (count <= 0) return null;
 
+                        // Standardized points check for locking UI
+                        // Use the combined calculation to match handlePowerUpClick logic
+                        const pointsForUI =
+                            (playerStats &&
+                                (playerStats.rankPoints ??
+                                    playerStats.points ??
+                                    0)) ||
+                            Number(localStorage.getItem("rankPoints")) ||
+                            user?.rankPoints ||
+                            0;
+                        const reqRankForUI =
+                            POWER_UP_CONFIG[powerUp]?.unlockRank || "Bronze";
+                        const reqPointsForUI =
+                            RANK_THRESHOLDS[reqRankForUI] || 0;
+                        const isLockedUI = pointsForUI < reqPointsForUI;
+
                         return (
                             <motion.button
                                 key={idx}
                                 whileHover={
-                                    isMyTurn &&
-                                    count > 0 &&
-                                    !(
-                                        (user?.rankPoints || 0) <
-                                        (RANK_THRESHOLDS[
-                                            POWER_UP_CONFIG[powerUp]?.unlockRank
-                                        ] || 0)
-                                    )
+                                    isMyTurn && count > 0 && !isLockedUI
                                         ? { scale: 1.05 }
                                         : {}
                                 }
                                 whileTap={
-                                    isMyTurn &&
-                                    count > 0 &&
-                                    !(
-                                        (user?.rankPoints || 0) <
-                                        (RANK_THRESHOLDS[
-                                            POWER_UP_CONFIG[powerUp]?.unlockRank
-                                        ] || 0)
-                                    )
+                                    isMyTurn && count > 0 && !isLockedUI
                                         ? { scale: 0.95 }
                                         : {}
                                 }
@@ -791,30 +801,15 @@ const Game = () => {
                                             ? "bg-purple-600 text-white border-purple-400 shadow-purple-500/50 ring-2 ring-purple-400 ring-offset-2 ring-offset-slate-900"
                                             : isMyTurn &&
                                               count > 0 &&
-                                              !(
-                                                  (user?.rankPoints || 0) <
-                                                  (RANK_THRESHOLDS[
-                                                      POWER_UP_CONFIG[powerUp]
-                                                          ?.unlockRank
-                                                  ] || 0)
-                                              )
+                                              !isLockedUI
                                             ? "bg-slate-800/80 text-blue-300 border-slate-700 hover:bg-slate-700/80 hover:text-blue-200"
-                                            : count <= 0 ||
-                                              (user?.rankPoints || 0) <
-                                                  (RANK_THRESHOLDS[
-                                                      POWER_UP_CONFIG[powerUp]
-                                                          ?.unlockRank
-                                                  ] || 0)
+                                            : count <= 0 || isLockedUI
                                             ? "bg-slate-900/60 text-slate-600 border-slate-800 cursor-not-allowed grayscale"
                                             : "bg-slate-900/40 text-slate-500 border-slate-800 cursor-not-allowed"
                                     }
                                 `}
                             >
-                                {count <= 0 ||
-                                (user?.rankPoints || 0) <
-                                    (RANK_THRESHOLDS[
-                                        POWER_UP_CONFIG[powerUp]?.unlockRank
-                                    ] || 0) ? (
+                                {count <= 0 || isLockedUI ? (
                                     <Lock
                                         size={14}
                                         className="text-slate-600"
@@ -824,17 +819,13 @@ const Game = () => {
                                 )}
                                 <span
                                     className={
-                                        count <= 0 ||
-                                        (user?.rankPoints || 0) <
-                                            (RANK_THRESHOLDS[
-                                                POWER_UP_CONFIG[powerUp]
-                                                    ?.unlockRank
-                                            ] || 0)
+                                        count <= 0 || isLockedUI
                                             ? "opacity-50"
                                             : ""
                                     }
                                 >
-                                    {powerUp.replace("_", " ")}
+                                    {POWER_UP_CONFIG[powerUp]?.name ||
+                                        powerUp.replace("_", " ")}
                                 </span>
                                 <span
                                     className={`px-2 py-0.5 rounded text-xs ml-1 ${
