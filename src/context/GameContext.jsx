@@ -494,7 +494,16 @@ export const GameProvider = ({ children }) => {
     ]);
 
     const startMatchmaking = async () => {
-        if (matchmaking || (gameState && gameState.sessionId)) return; // Prevent multiple start calls or starting while in game
+        // If we have a game session that is over, clear it so we can start a new match
+        if (gameState && gameState.gameOver) {
+            resetGame();
+        }
+
+        if (
+            matchmaking ||
+            (gameState && gameState.sessionId && !gameState.gameOver)
+        )
+            return;
         setMatchmaking(true);
         try {
             const initialStatus = await gameService.join();
