@@ -200,12 +200,11 @@ const Game = () => {
 
         // Rank validation logic
         const config = POWER_UP_CONFIG[powerUp];
-        // Use rankPoints if available, otherwise fallback to rank_points or user object
+        // Match the logic in PlayerStatsCard with Added localStorage fallback
         const userPoints =
             (playerStats &&
-                (playerStats.rankPoints !== undefined
-                    ? playerStats.rankPoints
-                    : playerStats.rank_points)) ||
+                (playerStats.rankPoints ?? playerStats.points ?? 0)) ||
+            Number(localStorage.getItem("rankPoints")) ||
             user?.rankPoints ||
             0;
 

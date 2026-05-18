@@ -50,6 +50,12 @@ const Dashboard = () => {
                             const data = await dashResFallback.json();
                             setDashboardData(data);
                             setPlayerStats(data);
+                            // Store rank points in localStorage for consistency across components
+                            const points = data.rankPoints ?? data.points ?? 0;
+                            localStorage.setItem(
+                                "rankPoints",
+                                points.toString()
+                            );
                         } else {
                             throw new Error("Stats endpoint not OK");
                         }
@@ -62,6 +68,15 @@ const Dashboard = () => {
                             if (dashRes && dashRes.dashboardData) {
                                 setDashboardData(dashRes.dashboardData);
                                 setPlayerStats(dashRes.dashboardData);
+                                // Store rank points in localStorage for consistency across components
+                                const points =
+                                    dashRes.dashboardData.rankPoints ??
+                                    dashRes.dashboardData.points ??
+                                    0;
+                                localStorage.setItem(
+                                    "rankPoints",
+                                    points.toString()
+                                );
                             }
                         } catch (fallbackErr) {
                             console.error(

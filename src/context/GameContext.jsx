@@ -91,6 +91,7 @@ export const GameProvider = ({ children }) => {
             trackService
                 .getDashboardData(user.username)
                 .then((data) => {
+                    console.log("Player stats data received:", data);
                     if (data && data.dashboardData) {
                         setPlayerStats(data.dashboardData);
                     } else if (data) {

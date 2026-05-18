@@ -134,6 +134,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("rankPoints");
         setUser(null);
     };
 
