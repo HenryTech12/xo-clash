@@ -105,6 +105,7 @@ const Game = () => {
         makeMove,
         usePowerUp: activatePowerUp,
         availablePowerUps,
+        playerStats,
         activePowerUp,
         setActivePowerUp,
         resetGame,
@@ -199,7 +200,14 @@ const Game = () => {
 
         // Rank validation logic
         const config = POWER_UP_CONFIG[powerUp];
-        const userPoints = user?.rankPoints || 0; // Assuming rankPoints or similar exists in user object
+        // Use rankPoints if available, otherwise fallback to rank_points or user object
+        const userPoints =
+            (playerStats &&
+                (playerStats.rankPoints !== undefined
+                    ? playerStats.rankPoints
+                    : playerStats.rank_points)) ||
+            user?.rankPoints ||
+            0;
 
         const requiredRank = config?.unlockRank || "Bronze";
         const requiredPoints = RANK_THRESHOLDS[requiredRank] || 0;

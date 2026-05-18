@@ -54,6 +54,7 @@ export const GameProvider = ({ children }) => {
         { id: "UNDO_MOVE", count: 1 },
         { id: "HINT", count: 5 },
     ]);
+    const [playerStats, setPlayerStats] = useState(null);
     const [activePowerUp, setActivePowerUp] = useState(null); // Power-up currently selected to be used
 
     const resetGame = () => {
@@ -85,6 +86,20 @@ export const GameProvider = ({ children }) => {
                     }
                 })
                 .catch((err) => console.error("Error fetching powerups:", err));
+
+            // Fetch player stats to get actual rank points
+            trackService
+                .getDashboardData(user.username)
+                .then((data) => {
+                    if (data && data.dashboardData) {
+                        setPlayerStats(data.dashboardData);
+                    } else if (data) {
+                        setPlayerStats(data);
+                    }
+                })
+                .catch((err) =>
+                    console.error("Error fetching player stats:", err)
+                );
         }
     }, [user?.username]);
 
@@ -676,11 +691,12 @@ export const GameProvider = ({ children }) => {
     const powerUpValue = useMemo(
         () => ({
             availablePowerUps,
+            playerStats,
             activePowerUp,
             setActivePowerUp,
             usePowerUp,
         }),
-        [availablePowerUps, activePowerUp]
+        [availablePowerUps, playerStats, activePowerUp]
     );
 
     return (
