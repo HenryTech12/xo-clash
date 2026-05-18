@@ -17,12 +17,14 @@ public enum PlayerRank {
     }
 
     public static PlayerRank getRankByWins(long rankPoint) {
-        for (PlayerRank playerRank : PlayerRank.values()) {
-            if (rankPoint >= playerRank.rank) {
-                return playerRank;
+        PlayerRank[] ranks = PlayerRank.values();
+        // Loop backward from GRANDMASTER (length - 1) down to BRONZE (0)
+        for (int i = ranks.length - 1; i >= 0; i--) {
+            if (rankPoint >= ranks[i].rank) {
+                return ranks[i];
             }
         }
-        return BRONZE; // Default rank if no other rank matches
+        return BRONZE;
     }
 
     public static String getBadgeIcon(PlayerRank tier) {
