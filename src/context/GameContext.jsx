@@ -496,7 +496,11 @@ export const GameProvider = ({ children }) => {
     const startMatchmaking = async () => {
         // If we have a game session that is over, clear it so we can start a new match
         if (gameState && gameState.gameOver) {
-            resetGame();
+            setGameState(null);
+            setMatchmaking(false);
+            setPlayAgainRequest(null);
+            setPlayAgainFrom(null);
+            setActivePowerUp(null);
         }
 
         if (
