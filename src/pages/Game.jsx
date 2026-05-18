@@ -25,7 +25,17 @@ import VoiceOverlay from "../components/VoiceOverlay";
 
 // Memoized Board Cell Component for performance
 const BoardCell = memo(
-    ({ row, col, value, isSuggested, isTargeting, canClick, onClick }) => {
+    ({
+        row,
+        col,
+        value,
+        isSuggested,
+        isTargeting,
+        isBlocked,
+        isGhosted,
+        canClick,
+        onClick,
+    }) => {
         return (
             <motion.button
                 layoutId={`cell-${row}-${col}`}
@@ -44,7 +54,7 @@ const BoardCell = memo(
                 whileTap={canClick ? { scale: 0.85 } : {}}
                 onClick={onClick}
                 disabled={!canClick}
-                className={`w-full h-24 md:h-32 rounded-2xl flex items-center justify-center text-5xl md:text-7xl font-black transition-all border-2
+                className={`w-full h-24 md:h-32 rounded-2xl flex items-center justify-center text-5xl md:text-7xl font-black transition-all border-2 relative overflow-hidden
       ${
           isTargeting
               ? "bg-pink-500/10 border-pink-500/50 cursor-crosshair hover:border-pink-400"
@@ -63,6 +73,21 @@ const BoardCell = memo(
       }
     `}
             >
+                {/* Visual indicator for Blocked (B) or Ghosted (G) cells */}
+                {isBlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500/20 backdrop-blur-[2px]">
+                        <Lock className="text-red-400 opacity-60" size={40} />
+                    </div>
+                )}
+                {isGhosted && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 backdrop-blur-[1px]">
+                        <Zap
+                            className="text-blue-300 opacity-40 animate-pulse"
+                            size={40}
+                        />
+                    </div>
+                )}
+
                 <AnimatePresence mode="wait">
                     {value && (
                         <motion.span
@@ -332,6 +357,11 @@ const Game = () => {
         ];
         const value = board[row][col];
 
+        // Ghost and Block cell visual overrides
+        const displayValue = value === "B" || value === "G" ? "" : value;
+        const isBlocked = value === "B";
+        const isGhosted = value === "G";
+
         // Hint logic
         const isSuggested = suggestedMove === `${row}-${col}`;
 
@@ -340,24 +370,25 @@ const Game = () => {
             activePowerUp &&
             activePowerUp !== "EXTRA_MOVE" &&
             activePowerUp !== "UNDO_MOVE" &&
-            activePowerUp !== "HINT" &&
-            activePowerUp !== "GHOST_MOVE";
+            activePowerUp !== "HINT";
 
         // Only allow click if turn matches, cell is empty, and game not over
         // UNLESS we are targeting a power-up (e.g. BLOCK_CELL) which might target ANY cell
         const canClick =
             isMyTurn &&
             !gameState.gameOver &&
-            (isTargeting || value === "" || value === null || !value);
+            (isTargeting || !value || value === "");
 
         return (
             <BoardCell
                 key={`${row}-${col}`}
                 row={row}
                 col={col}
-                value={value}
+                value={displayValue}
                 isSuggested={isSuggested}
                 isTargeting={isTargeting}
+                isBlocked={isBlocked}
+                isGhosted={isGhosted}
                 canClick={canClick}
                 onClick={() =>
                     onCellClick(
