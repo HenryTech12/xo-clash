@@ -120,6 +120,7 @@ public class GameController {
         }
         gameService.leaveGame(leaveGameRequest);
         matchMakingService.leaveQueue(username);
+        matchMakingService.removeActivePlayers(username);
 
         log.info("Player with id: {} left the game",leaveGameRequest.playerId());
         return new ResponseEntity<>(Map.of("message", "Player: ".concat(leaveGameRequest.playerId()).concat("left the game")), HttpStatus.OK);

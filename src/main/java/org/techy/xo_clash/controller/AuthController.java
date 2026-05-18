@@ -74,6 +74,7 @@ public class AuthController {
         String token = extractToken(request);
         if(token != null) {
             jwtService.invalidateToken(token);
+
             return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
         }
         return new ResponseEntity<>("No token provided", HttpStatus.BAD_REQUEST);
