@@ -95,9 +95,8 @@ public class GameService {
                 boardState = state;
             }
 
-            if(isSpaceBlocked(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol()) && verifyMove(gameMoveRequest.getPlayer(), PowerUp.BLOCK_CELL.name())) {
+            if(isSpaceBlocked(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol())) {
                 rabbitMQProducer.handlePowerUp("powerUps.blocked", "Spaces is blocked, choose another box",gameMoveRequest.getPlayer(), PowerUp.BLOCK_CELL.name());
-                updateBoard(gameMoveRequest.getRow(), gameMoveRequest.getCol(), "B", gameMoveRequest.getSessionId());
                 result.put("sessionId", gameMoveRequest.getSessionId());
                 result.put("board", boardState.getBoard());
                 result.put("currentPlayer", gameSession.getCurrentPlayer());
@@ -107,9 +106,8 @@ public class GameService {
                 result.put("message", "Space is blocked by a power-up, choose another box");
                 return result;
             }
-            if(isGhostMove(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol()) && verifyMove(gameMoveRequest.getPlayer(), PowerUp.GHOST_MOVE.name())) {
+            if(isGhostMove(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol())) {
                 rabbitMQProducer.handlePowerUp("powerUps.ghost", "Spaces is haunted, choose another box",gameMoveRequest.getPlayer(), PowerUp.GHOST_MOVE.name());
-                updateBoard(gameMoveRequest.getRow(), gameMoveRequest.getCol(), "G", gameMoveRequest.getSessionId());
                 result.put("sessionId", gameMoveRequest.getSessionId());
                 result.put("board", boardState.getBoard());
                 result.put("currentPlayer", gameSession.getCurrentPlayer());
@@ -249,15 +247,6 @@ public class GameService {
     public boolean isAllSpacesFilled(String[][] board, int row, int col) {
        return (Objects.equals(board[row][col], "X") || Objects.equals(board[row][col], "O"));
     }
-
-    public void updateBoard(int row, int col, String symbol, String sessionId) {
-        BoardState boardState = boardStates.get(sessionId);
-        String[][] board = boardState.getBoard();
-        board[row][col] = symbol;
-        boardState.setBoard(board);
-        boardStates.replace(sessionId, boardState);
-    }
-
 
     public Map<String, Object> activateGhostMove(String sessionId, int row, int col, String powerUpName) {
         BoardState boardState = boardStates.get(sessionId);

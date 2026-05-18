@@ -38,28 +38,30 @@ public class PowerUpsService {
     private PlayerPowerupRepository playerPowerupRepository;
 
     public Map<String,Object> handlePowerUp(UsePowerUpsRequest usePowerUpsRequest) {
-        if(Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.UNDO_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
-            updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
-            return gameService.canUndoOpponentMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(),PowerUp.UNDO_MOVE.name());
-        }
+        if(gameService.verifyMove(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+            if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.UNDO_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
+                return gameService.canUndoOpponentMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(), PowerUp.UNDO_MOVE.name());
+            }
 
-        if(Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.EXTRA_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
-            updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
-            return gameService.canPlayExtraMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(),PowerUp.EXTRA_MOVE.name());
-        }
+            if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.EXTRA_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
+                return gameService.canPlayExtraMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(), PowerUp.EXTRA_MOVE.name());
+            }
 
-        if(Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.SWAP_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
-            return gameService.canSwapCell(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(),PowerUp.SWAP_CELL.name());
-        }
+            if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.SWAP_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                return gameService.canSwapCell(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.SWAP_CELL.name());
+            }
 
-        if(Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.GHOST_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
-            updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
-            return gameService.activateGhostMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetRow(),PowerUp.GHOST_MOVE.name()
-            );
-        }
-        if(Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.BLOCK_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
-            updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
-            return gameService.activateBlockMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(),PowerUp.BLOCK_CELL.name());
+            if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.GHOST_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
+                return gameService.activateGhostMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetRow(), PowerUp.GHOST_MOVE.name()
+                );
+            }
+            if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.BLOCK_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
+                return gameService.activateBlockMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.BLOCK_CELL.name());
+            }
         }
         return null;
     }
