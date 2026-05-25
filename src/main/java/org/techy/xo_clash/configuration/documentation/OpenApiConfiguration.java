@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         description = "Local development server"
                 ),
                 @Server(
-                        url = "https://xo-clash-tad8.onrender.com",
+                        url = "https://xo-clash-8ysf.onrender.com/",
                         description = "Production development server"
                 )
         }
