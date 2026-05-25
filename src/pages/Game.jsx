@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, useCallback } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useGame } from "../hooks/useGame";
 import { useVoiceInput } from "../hooks/useVoiceInput";
@@ -151,7 +151,6 @@ const Game = () => {
         transcript,
         error,
         startListening,
-        stopListening,
         setProcessingState,
         setExternalError,
     } = useVoiceInput((command) => {
@@ -188,7 +187,7 @@ const Game = () => {
     const activePowerUpsDisplay = [];
 
     // Provide hint logic purely generated on frontend
-    const calculateHint = () => {
+    const calculateHint = useCallback(() => {
         if (!gameState || !gameState.board) return;
         const board = gameState.board;
         // Simple Minimax or random empty cell detection
@@ -202,65 +201,119 @@ const Game = () => {
         }
         if (available.length > 0) {
             // Picking a random available spot as hint, could be upgraded to minimax
-            // eslint-disable-next-line
             const randomSpot =
                 available[Math.floor(Math.random() * available.length)];
             setSuggestedMove(`${randomSpot.r}-${randomSpot.c}`);
             setTimeout(() => setSuggestedMove(null), 3000); // Clear after 3 seconds
         }
-    };
+    }, [gameState]);
+
+    // Derived state for the game
+    const board = gameState?.board || [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
+    ];
+
+    const mySymbol = gameState?.players ? gameState.players[user.username] : null;
+
+    const currentTurnIdentifier = String(
+        gameState?.currentPlayer || ""
+    ).toUpperCase();
+    const isMyTurn =
+        user?.username &&
+        (currentTurnIdentifier === user.username.toUpperCase() ||
+            currentTurnIdentifier === String(mySymbol).toUpperCase());
+
+    const opponentName = gameState?.players
+        ? Object.keys(gameState.players).find(
+              (username) => username !== user.username
+          )
+        : null;
+
+    const isWinner =
+        gameState?.winner === user.username ||
+        (gameState?.winner && gameState.winner === mySymbol);
 
     // Handle PowerUp triggering
-    const handlePowerUpClick = (powerUp, count) => {
-        // Prevent selecting power-ups during opponent's turn
-        if (!isMyTurn) {
-            toast.error("Wait for your turn to use power-ups!");
-            return;
-        }
+    const handlePowerUpClick = useCallback(
+        (powerUp, count) => {
+            // Prevent selecting power-ups during opponent's turn
+            if (!isMyTurn) {
+                toast.error("Wait for your turn to use power-ups!");
+                return;
+            }
 
-        if (count <= 0) {
-            toast.error("You don't have any of this power-up left!");
-            return;
-        }
+            if (count <= 0) {
+                toast.error("You don't have any of this power-up left!");
+                return;
+            }
 
-        // Rank validation logic
-        const config = POWER_UP_CONFIG[powerUp];
-        // Match the logic in PlayerStatsCard with Added localStorage fallback
-        const userPoints =
-            (playerStats &&
-                (playerStats.rankPoints ?? playerStats.points ?? 0)) ||
-            Number(localStorage.getItem("rankPoints")) ||
-            user?.rankPoints ||
-            0;
+            // Rank validation logic
+            const config = POWER_UP_CONFIG[powerUp];
+            // Match the logic in PlayerStatsCard with Added localStorage fallback
+            const userPoints =
+                (playerStats &&
+                    (playerStats.rankPoints ?? playerStats.points ?? 0)) ||
+                Number(localStorage.getItem("rankPoints")) ||
+                user?.rankPoints ||
+                0;
 
-        const requiredRank = config?.unlockRank || "Bronze";
-        const requiredPoints = RANK_THRESHOLDS[requiredRank] || 0;
+            const requiredRank = config?.unlockRank || "Bronze";
+            const requiredPoints = RANK_THRESHOLDS[requiredRank] || 0;
 
-        // Note: The UI lock icons display requirements, but we allow clicking
-        // if user has points OR if the backend specifically provided this power-up.
-        // If the power-up is in availablePowerUps with count > 0, we trust the backend.
-        const isActuallyUnlocked = availablePowerUps.some(
-            (up) => up.id === powerUp && up.count > 0
-        );
-
-        if (userPoints < requiredPoints && !isActuallyUnlocked) {
-            toast.error(
-                `Locked! You need ${requiredPoints} rank points (${requiredRank} rank) to use ${
-                    config?.name || powerUp
-                }. Your points: ${userPoints}`
+            // Note: The UI lock icons display requirements, but we allow clicking
+            // if user has points OR if the backend specifically provided this power-up.
+            // If the power-up is in availablePowerUps with count > 0, we trust the backend.
+            const isActuallyUnlocked = availablePowerUps.some(
+                (up) => up.id === powerUp && up.count > 0
             );
-            return;
-        }
 
-        if (powerUp === "EXTRA_MOVE" || powerUp === "UNDO_MOVE") {
-            activatePowerUp(powerUp); // No target needed
-        } else if (powerUp === "HINT") {
-            calculateHint();
-        } else {
-            // Target needed for BLOCK_CELL, SWAP_CELL, and GHOST_MOVE
-            setActivePowerUp(powerUp === activePowerUp ? null : powerUp);
-        }
-    };
+            if (userPoints < requiredPoints && !isActuallyUnlocked) {
+                toast.error(
+                    `Locked! You need ${requiredPoints} rank points (${requiredRank} rank) to use ${
+                        config?.name || powerUp
+                    }. Your points: ${userPoints}`
+                );
+                return;
+            }
+
+            if (powerUp === "EXTRA_MOVE" || powerUp === "UNDO_MOVE") {
+                activatePowerUp(powerUp); // No target needed
+            } else if (powerUp === "HINT") {
+                calculateHint();
+            } else {
+                // Target needed for BLOCK_CELL, SWAP_CELL, and GHOST_MOVE
+                setActivePowerUp(powerUp === activePowerUp ? null : powerUp);
+            }
+        },
+        [
+            isMyTurn,
+            playerStats,
+            user?.rankPoints,
+            availablePowerUps,
+            activatePowerUp,
+            calculateHint,
+            activePowerUp,
+            setActivePowerUp,
+        ]
+    );
+
+    const onCellClick = useCallback(
+        (row, col, canClick, isTargeting, value, activePowerUp) => {
+            console.log(
+                `Cell Click Handler triggered for [${row}, ${col}], canClick: ${canClick}`
+            );
+            if (canClick) {
+                if (isTargeting) {
+                    activatePowerUp(activePowerUp, row, col);
+                } else {
+                    makeMove(row, col);
+                }
+            }
+        },
+        [activatePowerUp, makeMove]
+    );
 
     // Handle ending the game session and returning to lobby
     const handleReturnToLobby = async () => {
@@ -279,75 +332,22 @@ const Game = () => {
         }
     };
 
+    // Trigger confetti on win
+    useEffect(() => {
+        if (gameState?.gameOver && isWinner) {
+            confetti({
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.5 },
+                colors: ["#3B82F6", "#A855F7", "#EC4899"],
+                gravity: 0.8,
+                decay: 0.95,
+            });
+        }
+    }, [gameState?.gameOver, isWinner]);
+
     // Final check for standard fields
     if (!gameState || !gameState.players) return null;
-
-    // Use actual board or empty 3x3 if missing
-    const board = gameState.board || [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-    ];
-
-    const playerX = Object.keys(gameState.players).find(
-        (key) => gameState.players[key] === "X"
-    );
-
-    const playerO = Object.keys(gameState.players).find(
-        (key) => gameState.players[key] === "O"
-    );
-
-    playerX; // Keep for usage
-    playerO; // Keep for usage
-
-    const mySymbol = gameState.players[user.username];
-    // Allow turn check to work with either Username OR Symbol
-    const currentTurnIdentifier = String(gameState.currentPlayer).toUpperCase();
-    const isMyTurn =
-        currentTurnIdentifier === user.username.toUpperCase() ||
-        currentTurnIdentifier === String(mySymbol).toUpperCase();
-
-    console.log("Turn check:", {
-        isMyTurn,
-        currentPlayer: gameState.currentPlayer,
-        username: user.username,
-        mySymbol,
-    });
-
-    const opponentName = Object.keys(gameState.players).find(
-        (username) => username !== user.username
-    );
-
-    const isWinner =
-        gameState.winner === user.username ||
-        (gameState.winner && gameState.winner === mySymbol);
-
-    if (gameState.gameOver && isWinner) {
-        confetti({
-            particleCount: 200,
-            spread: 90,
-            origin: { y: 0.5 },
-            colors: ["#3B82F6", "#A855F7", "#EC4899"],
-            gravity: 0.8,
-            decay: 0.95,
-        });
-    }
-
-    const onCellClick = useCallback(
-        (row, col, canClick, isTargeting, value, activePowerUp) => {
-            console.log(
-                `Cell Click Handler triggered for [${row}, ${col}], canClick: ${canClick}`
-            );
-            if (canClick) {
-                if (isTargeting) {
-                    activatePowerUp(activePowerUp, row, col);
-                } else {
-                    makeMove(row, col);
-                }
-            }
-        },
-        [activatePowerUp, makeMove]
-    );
 
     const renderCell = (row, col) => {
         const board = gameState.board || [

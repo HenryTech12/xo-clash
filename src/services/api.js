@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "https://xo-clash-tad8.onrender.com/api/v1";
+const API_URL = `${
+    import.meta.env.VITE_API_URL || "https://xo-clash-8ysf.onrender.com"
+}/api/v1`;
 
 const api = axios.create({
     baseURL: API_URL,

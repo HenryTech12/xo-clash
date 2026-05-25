@@ -34,7 +34,10 @@ const refreshAccessToken = async () => {
 
     try {
         const response = await axios.get(
-            `https://xo-clash-tad8.onrender.com/api/v1/auth/refresh`,
+            `${
+                import.meta.env.VITE_API_URL ||
+                "https://xo-clash-8ysf.onrender.com"
+            }/api/v1/auth/refresh`,
             {
                 headers: {
                     Authorization: `Bearer ${refreshToken}`,
@@ -66,6 +69,14 @@ const refreshAccessToken = async () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const logout = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("rankPoints");
+        setUser(null);
+    };
 
     useEffect(() => {
         const initAuth = async () => {
@@ -128,14 +139,6 @@ export const AuthProvider = ({ children }) => {
         powerUpService.initPlayerPowerUps().catch((err) => {
             console.warn("Failed to initialize player power-ups:", err);
         });
-    };
-
-    const logout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("rankPoints");
-        setUser(null);
     };
 
     return (

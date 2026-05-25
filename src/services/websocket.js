@@ -7,8 +7,13 @@ class WebSocketService {
     }
 
     connect(onConnect, onError) {
+        const baseUrl =
+            import.meta.env.VITE_API_URL ||
+            "https://xo-clash-8ysf.onrender.com";
+        const brokerURL = `${baseUrl.replace(/^http/, "ws")}/ws-game/websocket`;
+
         this.client = new Client({
-            brokerURL: "wss://xo-clash-tad8.onrender.com/ws-game/websocket",
+            brokerURL,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             debug: (str) => {

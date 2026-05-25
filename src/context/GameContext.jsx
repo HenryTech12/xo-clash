@@ -70,7 +70,10 @@ export const GameProvider = ({ children }) => {
         if (user?.username) {
             // Fetch unlocked powerups with counts
             fetch(
-                `https://xo-clash-tad8.onrender.com/api/v1/players/${user.username}/powerups`,
+                `${
+                    import.meta.env.VITE_API_URL ||
+                    "https://xo-clash-8ysf.onrender.com"
+                }/api/v1/players/${user.username}/powerups`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem(

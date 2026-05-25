@@ -37,7 +37,10 @@ const Dashboard = () => {
                     // Fetch main dashboard data
                     try {
                         const dashResFallback = await fetch(
-                            `https://xo-clash-tad8.onrender.com/api/v1/players/${user.username}/stats`,
+                            `${
+                                import.meta.env.VITE_API_URL ||
+                                "https://xo-clash-8ysf.onrender.com"
+                            }/api/v1/players/${user.username}/stats`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${localStorage.getItem(
@@ -135,7 +138,10 @@ const Dashboard = () => {
         try {
             // Call API to activate power-up
             const response = await fetch(
-                "https://xo-clash-tad8.onrender.com/api/v1/powerups/activate",
+                `${
+                    import.meta.env.VITE_API_URL ||
+                    "https://xo-clash-8ysf.onrender.com"
+                }/api/v1/powerups/activate`,
                 {
                     method: "POST",
                     headers: {
