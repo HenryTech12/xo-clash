@@ -334,7 +334,6 @@ public class GameService {
         else {
             gameSessions.remove(sessionId);
             boardStates.remove(sessionId);
-            state = null;
             rabbitMQProducer.handleNotifications("notifications.ended", "Game Session Ended",sessionId);
             actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(sessionId), GameAction.GAME_ENDED);
         }
@@ -388,7 +387,6 @@ public class GameService {
         if (!Objects.isNull(otherPlayer)) {
             // Reset Board State
             boardStates.remove(sessionId);
-            state = null;
             initBoard(sessionId);
             // Reset Game Session State
             gameSession.setCurrentPlayer(otherPlayer); // Let the other player start
