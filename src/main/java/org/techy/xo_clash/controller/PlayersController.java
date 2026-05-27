@@ -31,7 +31,7 @@ public class PlayersController {
     }
 
     @GetMapping("/{username}/powerups")
-    public ResponseEntity<List<PlayerPowerUps>> fetchPlayerPowerUps(String username) {
+    public ResponseEntity<List<PlayerPowerUps>> fetchPlayerPowerUps(@PathVariable String username) {
         return ResponseEntity.ok().body(powerUpsService.fetchPlayerPowerUps(username));
     }
 

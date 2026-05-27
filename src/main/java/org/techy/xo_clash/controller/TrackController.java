@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.techy.xo_clash.dto.PlaysDTO;
 import org.techy.xo_clash.service.TrackProgressService;
 
+import jakarta.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -16,7 +17,7 @@ public class TrackController {
     private TrackProgressService trackProgressService;
 
     @PostMapping("/result")
-    public ResponseEntity<PlaysDTO> trackProgress(@RequestBody PlaysDTO playsDTO) {
+    public ResponseEntity<PlaysDTO> trackProgress(@Valid @RequestBody PlaysDTO playsDTO) {
         // Placeholder for tracking logic
         return ResponseEntity.ok(trackProgressService.createProgressTrack(playsDTO));
     }
@@ -28,7 +29,7 @@ public class TrackController {
     }
 
     @GetMapping("/result/{id}")
-    public ResponseEntity<PlaysDTO> getProgressTrackById(Long id) {
+    public ResponseEntity<PlaysDTO> getProgressTrackById(@PathVariable Long id) {
         // Placeholder for retrieving progress track by ID logic
         return ResponseEntity.ok(trackProgressService.getProgressTrackById(id));
     }

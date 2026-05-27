@@ -56,7 +56,10 @@ The game orchestrates a complex flow between real-time messaging, asynchronous e
 Once running, view the interactive Swagger docs at:
 `http://localhost:8080/swagger-ui.html`
 
-## 🤝 Contributing
+## � Testing
+⚠️ **Note**: Automated test cases for this application have not been written yet. Contributions in this area are highly encouraged!
+
+## �🤝 Contributing
 Contributions are welcome! Please open an issue or submit a pull request for any improvements.
 
 ## ⚖️ License

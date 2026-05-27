@@ -46,12 +46,20 @@ public class GameController {
     public ResponseEntity<GameSession> joinGame(HttpServletRequest request) {
 
         String token =  AuthController.extractToken(request);
-        if(jwtService.isTokenInvalidated(token) && jwtService.isTokenInvalidated(token)) {
+        if(token == null || jwtService.isTokenInvalidated(token)) {
             throw new InvalidateTokenException("Invalid Token...");
         }
         String username = jwtService.extractUsername(token);
-        System.out.println("Username extracted from token: " + username);
-        return new ResponseEntity<>(matchMakingService.matchPlayers(username), HttpStatus.OK);
+        log.info("Player {} joining matchmaking queue", username);
+        
+        GameSession session = matchMakingService.matchPlayers(username);
+        
+        if (session == null) {
+            // Player added to waiting queue
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }
+        
+        return new ResponseEntity<>(session, HttpStatus.OK);
     }
 
 
