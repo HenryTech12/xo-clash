@@ -188,16 +188,16 @@ public class TrackProgressService {
     }
 
     @Transactional
-    @CacheEvict(value = {"counts", "dashboards"}, key = "#playerUsername")
+    @CacheEvict(value = {"counts", "dashboards", "leaderboard"}, allEntries = true)
     public void handleWins(String playerUsername ,PlaysDTO playsDTO) {
         createProgressTrack(playsDTO);
         createAndUpdateLeaderboard(playerUsername);
     }
 
+    @Cacheable(value = "leaderboard", key = "'top10'")
     public Map<String,Object> fetchLeaderboard(int limit) {
         Map<String,Object> response = new HashMap<>();
-        List<Leaderboard> leaderboards = leaderboardRepository.findAll()
-                .stream().limit(limit).toList();
+        List<Leaderboard> leaderboards = leaderboardRepository.findTop10ByOrderByRankPointsDesc();
         response.put("rankings", leaderboards);
         response.put("totalPlayers",leaderboards.size());
         response.put("generatedAt", Instant.now());

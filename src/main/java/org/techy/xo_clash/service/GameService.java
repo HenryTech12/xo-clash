@@ -18,6 +18,7 @@ import org.techy.xo_clash.request.LeaveGameRequest;
 import org.techy.xo_clash.response.GameStateResponse;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Setter
 @Getter
@@ -25,10 +26,9 @@ import java.util.*;
 @Slf4j
 public class GameService {
 
-    Map<String,GameSession> gameSessions = new LinkedHashMap<>();
-    Map<String,BoardState> boardStates = new LinkedHashMap<>();
-    Map<String, int[]> lastMoves = new LinkedHashMap<>(); // To track the last move of each player for undo functionality
-    private BoardState state;
+    Map<String,GameSession> gameSessions = new ConcurrentHashMap<>();
+    Map<String,BoardState> boardStates = new ConcurrentHashMap<>();
+    Map<String, int[]> lastMoves = new ConcurrentHashMap<>(); // To track the last move of each player for undo functionality
     @Autowired
     private RabbitMQProducer rabbitMQProducer;
     @Autowired
@@ -39,12 +39,11 @@ public class GameService {
     private TrackProgressService trackProgressService;
 
 
-    public void initBoard(String sessionId) {
-        if(state == null) {
-            state = new BoardState();
-            state.setBoard(new String[3][3]);
-            boardStates.put(sessionId, state);
-        }
+    public BoardState initBoard(String sessionId) {
+        BoardState boardState = new BoardState();
+        boardState.setBoard(new String[3][3]);
+        boardStates.put(sessionId, boardState);
+        return boardState;
     }
     public GameSession createGameSession(String opponent, String playerId) {
         GameSession gameSession = new GameSession();
@@ -81,8 +80,8 @@ public class GameService {
         GameSession gameSession = gameSessions.get(gameMoveRequest.getSessionId());
         Map<String,Object> result = new HashMap<>();
 
-        if(gameSession == null) {
-            throw new RuntimeException("Game session not found, Invalid Game");
+        if(gameSession == null || gameSession.isGameOver()) {
+            throw new RuntimeException("Game session not found or game already over");
         }
         BoardState boardState = boardStates.get(gameMoveRequest.getSessionId());
         String gameTurn = gameSession.getPlayers().get(gameMoveRequest.getPlayer());
@@ -91,66 +90,95 @@ public class GameService {
         if((gameTurn.equalsIgnoreCase("X") || gameTurn.equalsIgnoreCase("O")) && gameMoveRequest.getPlayer().
                 equals(gameSession.getCurrentPlayer())) {
             if(boardState == null) {
-                initBoard(gameMoveRequest.getSessionId());
-                boardState = state;
+                boardState = initBoard(gameMoveRequest.getSessionId());
             }
 
             if(isSpaceBlocked(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol())) {
                 rabbitMQProducer.handlePowerUp("powerUps.blocked", "Spaces is blocked, choose another box",gameMoveRequest.getPlayer(), PowerUp.BLOCK_CELL.name());
-                result.put("sessionId", gameMoveRequest.getSessionId());
-                result.put("board", boardState.getBoard());
-                result.put("currentPlayer", gameSession.getCurrentPlayer());
-                result.put("currentPlayerSymbol", (gameTurn.equalsIgnoreCase("X")) ? "O" : "X");
-                result.put("gameOver", gameSession.isGameOver());
-                result.put("winner", null);
-                result.put("message", "Space is blocked by a power-up, choose another box");
-                return result;
+                return invalidMoveResponse(gameMoveRequest, boardState, gameSession, gameTurn, "Space is blocked by a power-up, choose another box");
             }
             if(isGhostMove(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol())) {
                 rabbitMQProducer.handlePowerUp("powerUps.ghost", "Spaces is haunted, choose another box",gameMoveRequest.getPlayer(), PowerUp.GHOST_MOVE.name());
-                result.put("sessionId", gameMoveRequest.getSessionId());
-                result.put("board", boardState.getBoard());
-                result.put("currentPlayer", gameSession.getCurrentPlayer());
-                result.put("currentPlayerSymbol", (gameTurn.equalsIgnoreCase("X")) ? "O" : "X");
-                result.put("gameOver", gameSession.isGameOver());
-                result.put("winner", null);
-                result.put("message", "Space is haunted by a power-up, choose another box");
-                return result;
+                return invalidMoveResponse(gameMoveRequest, boardState, gameSession, gameTurn, "Space is haunted by a power-up, choose another box");
             }
-            if(isAllSpacesFilled(boardState.getBoard(), gameMoveRequest.getRow(), gameMoveRequest.getCol())) {
-                rabbitMQProducer.handleNotifications("notifications.filled", "Spaces is filled, choose another box",gameMoveRequest.getSessionId());
-                actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(gameMoveRequest.getSessionId()), GameAction.SPACE_TAKEN);
+            
+            String[][] board = boardState.getBoard();
+            if (!Objects.equals(board[gameMoveRequest.getRow()][gameMoveRequest.getCol()], null) && 
+                !board[gameMoveRequest.getRow()][gameMoveRequest.getCol()].isEmpty()) {
+                rabbitMQProducer.handleNotifications("notifications.unavailable", "Spaces is filled, choose another box",gameMoveRequest.getSessionId());
+                return invalidMoveResponse(gameMoveRequest, boardState, gameSession, gameTurn, "Space is already filled");
             }
-            else {
 
-                String[][] board = boardState.getBoard();
-                if (!Objects.equals(board[gameMoveRequest.getRow()][gameMoveRequest.getCol()], null)) {
-                    rabbitMQProducer.handleNotifications("notifications.unavailable", "Spaces is filled, choose another box",gameMoveRequest.getSessionId());
-                } else {
-                    board[gameMoveRequest.getRow()][gameMoveRequest.getCol()] = gameTurn;
-                    rabbitMQProducer.handleNotifications("notifications.available", "Move Made, Next Player Make your move",gameMoveRequest.getSessionId());
-                }
-                boardState.setBoard(board);
-                boardStates.replace(gameMoveRequest.getSessionId(), boardState);
+            // Valid Move
+            board[gameMoveRequest.getRow()][gameMoveRequest.getCol()] = gameTurn;
+            boardState.setBoard(board);
+            boardStates.replace(gameMoveRequest.getSessionId(), boardState);
+            
+            String winner = checkWinner(board);
+            if (winner != null) {
+                gameSession.setGameOver(true);
+                result.put("winner", gameMoveRequest.getPlayer());
+                result.put("message", "Game Over! Winner: " + gameMoveRequest.getPlayer());
+            } else if (isBoardFull(board)) {
+                gameSession.setGameOver(true);
+                result.put("winner", "DRAW");
+                result.put("message", "Game Over! It's a DRAW");
+            } else {
                 gameSession.setCurrentPlayer(getTheOtherPlayer(gameSession.getPlayers(), gameSession.getCurrentPlayer()));
-
                 rabbitMQProducer.handleNotifications("notifications.turn", "Move Made, Player:".concat(gameSession.getCurrentPlayer()).concat(" Make your move..."),gameSession.getSessionId());
-                result.put("sessionId", gameMoveRequest.getSessionId());
-                result.put("board", boardState.getBoard());
-                result.put("currentPlayer", gameSession.getCurrentPlayer());
-                result.put("currentPlayerSymbol", (gameTurn.equalsIgnoreCase("X")) ? "O" : "X");
-                result.put("gameOver", gameSession.isGameOver());
                 result.put("winner", null);
                 result.put("message", "Move accepted");
-                storeLastMove(gameMoveRequest.getSessionId(), gameMoveRequest.getRow(), gameMoveRequest.getCol());
-                actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(gameMoveRequest.getSessionId()), result);
             }
+
+            result.put("sessionId", gameMoveRequest.getSessionId());
+            result.put("board", boardState.getBoard());
+            result.put("currentPlayer", gameSession.getCurrentPlayer());
+            result.put("currentPlayerSymbol", (gameTurn.equalsIgnoreCase("X")) ? "O" : "X");
+            result.put("gameOver", gameSession.isGameOver());
+            
+            storeLastMove(gameMoveRequest.getSessionId(), gameMoveRequest.getRow(), gameMoveRequest.getCol());
+            actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(gameMoveRequest.getSessionId()), result);
         }
         else {
             rabbitMQProducer.handleNotifications("notifications.turn", "Invalid Game Turn, Player ".concat(gameTurn).concat(" Make your move"),gameMoveRequest.getSessionId());
         }
 
         gameSessions.replace(gameMoveRequest.getSessionId(),gameSession);
+        return result;
+    }
+
+    private Map<String, Object> invalidMoveResponse(GameMoveRequest request, BoardState boardState, GameSession session, String turn, String message) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", request.getSessionId());
+        result.put("board", boardState.getBoard());
+        result.put("currentPlayer", session.getCurrentPlayer());
+        result.put("currentPlayerSymbol", turn);
+        result.put("gameOver", session.isGameOver());
+        result.put("winner", null);
+        result.put("message", message);
+        return result;
+    }
+
+    private String checkWinner(String[][] board) {
+        // Rows and Columns
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] != null && !board[i][0].isEmpty() && board[i][0].equals(board[i][1]) && board[i][0].equals(board[i][2])) return board[i][0];
+            if (board[0][i] != null && !board[0][i].isEmpty() && board[0][i].equals(board[1][i]) && board[0][i].equals(board[2][i])) return board[0][i];
+        }
+        // Diagonals
+        if (board[0][0] != null && !board[0][0].isEmpty() && board[0][0].equals(board[1][1]) && board[0][0].equals(board[2][2])) return board[0][0];
+        if (board[0][2] != null && !board[0][2].isEmpty() && board[0][2].equals(board[1][1]) && board[0][2].equals(board[2][0])) return board[0][2];
+        return null;
+    }
+
+    private boolean isBoardFull(String[][] board) {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (board[r][c] == null || board[r][c].isEmpty() || board[r][c].equals("G") || board[r][c].equals("B")) return false;
+            }
+        }
+        return true;
+    }
         return result;
     }
 
@@ -313,16 +341,17 @@ public class GameService {
     }
 
     public void leaveGame(LeaveGameRequest leaveGameRequest) {
-        GameSession gameSession = gameSessions.get(leaveGameRequest.sessionId());
+        String sessionId = leaveGameRequest.sessionId();
+        GameSession gameSession = gameSessions.remove(sessionId);
+        boardStates.remove(sessionId);
+        lastMoves.remove(sessionId);
 
         if(gameSession == null) {
-            rabbitMQProducer.handleNotifications("notifications.leave", "Invalid Game Session Id",leaveGameRequest.sessionId());
+            rabbitMQProducer.handleNotifications("notifications.leave", "Invalid Game Session Id", sessionId);
         }
         else {
-            gameSessions.remove(leaveGameRequest.sessionId());
-
-            rabbitMQProducer.handleNotifications("notifications.left", "Game has ended, Player: ".concat(leaveGameRequest.playerId()),leaveGameRequest.sessionId());
-            actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(leaveGameRequest.sessionId()), GameAction.PLAYER_LEFT);
+            rabbitMQProducer.handleNotifications("notifications.left", "Game has ended, Player: ".concat(leaveGameRequest.playerId()), sessionId);
+            actionsMessagingTemplate.convertAndSend("/topic/actions/".concat(sessionId), GameAction.PLAYER_LEFT);
         }
     }
 

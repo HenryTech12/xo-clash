@@ -13,8 +13,10 @@ import org.techy.xo_clash.request.VoiceMoveRequest;
 import org.techy.xo_clash.response.VoiceMoveResponse;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
+@Slf4j
 public class AiService {
     private final ChatClient chatClient;
 
@@ -37,15 +39,30 @@ public class AiService {
 
         Sentence: "%s"
         """.formatted(voiceMoveRequest.getCommand());
+        
         SystemMessage systemMessage = new SystemMessage(systemPrompt);
         Prompt prompt = new Prompt(systemMessage);
-        String response = chatClient.prompt(prompt).call().chatResponse().
-                getResult().getOutput().getText();
+        
         try {
-            VoiceMoveResponse voiceMoveResponse = objectMapper.readValue(response, VoiceMoveResponse.class);
-            return new GameMoveRequest(voiceMoveRequest.getSessionId(),voiceMoveResponse.getRow(), voiceMoveResponse.getCol(), voiceMoveRequest.getPlayer());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            // Add a timeout of 10 seconds to AI calls to prevent system hanging
+            return CompletableFuture.supplyAsync(() -> {
+                String response = chatClient.prompt(prompt).call().chatResponse()
+                        .getResult().getOutput().getText();
+                try {
+                    String jsonPart = response.substring(response.indexOf("{"), response.lastIndexOf("}") + 1);
+                    VoiceMoveResponse voiceMoveResponse = objectMapper.readValue(jsonPart, VoiceMoveResponse.class);
+                    return new GameMoveRequest(voiceMoveRequest.getSessionId(), voiceMoveResponse.getRow(), voiceMoveResponse.getCol(), voiceMoveRequest.getPlayer());
+                } catch (Exception e) {
+                    log.error("Failed to parse AI response: {}", response, e);
+                    return null;
+                }
+            }).get(10, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            log.error("AI service timed out for command: {}", voiceMoveRequest.getCommand());
+            return null;
+        } catch (Exception e) {
+            log.error("AI service error for command: {}", voiceMoveRequest.getCommand(), e);
+            return null;
         }
     }
 }

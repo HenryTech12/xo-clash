@@ -1,38 +1,35 @@
 package org.techy.xo_clash.service.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
 import org.springframework.stereotype.Service;
 import org.techy.xo_clash.dto.UserRole;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.function.Function;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
 
+    @org.springframework.beans.factory.annotation.Value("${jwt.secret:defaultSecretKeyForDevelopmentPurposeOnly}")
     private String secretKey;
     private long accessTokenExpiryInMinutes = 15;
     private long refreshTokenExpiryInDays = 7;
     Set<String> invalidatedTokens = Collections.synchronizedSet(new HashSet<>());
 
     public JwtService() {
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey key = keyGenerator.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(key.getEncoded());
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
-
 
     public SecretKey getKey() {
         return Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));

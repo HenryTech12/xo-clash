@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.techy.xo_clash.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 public interface UserRepository extends JpaRepository<User, Long> {
    Optional<User> findByUsername(String username);

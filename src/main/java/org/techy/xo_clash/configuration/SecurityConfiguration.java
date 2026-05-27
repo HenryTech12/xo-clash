@@ -1,8 +1,8 @@
 package org.techy.xo_clash.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -21,17 +20,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.techy.xo_clash.configuration.principal.UserPrincipal;
-import org.techy.xo_clash.dto.UserDTO;
 import org.techy.xo_clash.filter.AuthFilter;
 import org.techy.xo_clash.filter.JwtFilter;
-import org.techy.xo_clash.handlers.UsernameNotFoundException;
 import org.techy.xo_clash.model.User;
-import org.techy.xo_clash.repository.UserRepository;
 import org.techy.xo_clash.service.UserService;
 import org.techy.xo_clash.service.security.JwtService;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -43,7 +41,6 @@ public class SecurityConfiguration {
             "/swagger-ui.html",
             "/webjars/**",
             "/favicon.ico",
-            "/actuator/**",
             "/error",
             "/ws-game/**",
             "/api/v1/auth/**"

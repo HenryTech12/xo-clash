@@ -1,7 +1,12 @@
 package org.techy.xo_clash.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,13 +17,7 @@ import org.techy.xo_clash.model.PowerUpEntity;
 import org.techy.xo_clash.repository.PlayerPowerupRepository;
 import org.techy.xo_clash.repository.PlaysRepository;
 import org.techy.xo_clash.repository.PowerUpRepository;
-import org.techy.xo_clash.request.UpdatePowerUpRequest;
 import org.techy.xo_clash.request.UsePowerUpsRequest;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static java.util.Map.entry;
 
 
 @Service
@@ -84,19 +83,26 @@ public class PowerUpsService {
     }
 
 
+    @Transactional
     public void createPlayerPowerUps(String playerUsername) {
-        List<String> playerPowerUps = trackProgressService.getPowerUps(playerUsername);
-        System.out.println("Player powerups created ".concat(""+playerPowerUps.size()));
-        if(playerPowerupRepository.count() != playerPowerUps.size()) {
-            System.out.println("Yo Mehn");
-            for(String playerPowers : playerPowerUps) {
+        List<String> playerPowerUpsNames = trackProgressService.getPowerUps(playerUsername);
+        System.out.println("Player powerups requested for " + playerUsername + ": " + playerPowerUpsNames.size());
+        
+        List<PlayerPowerUps> existingPowerUps = playerPowerupRepository.findByPlayerName(playerUsername);
+        if (existingPowerUps.isEmpty()) {
+            System.out.println("Initializing power-ups for user: " + playerUsername);
+            List<PlayerPowerUps> toSave = new ArrayList<>();
+            for(String powerUpName : playerPowerUpsNames) {
                 PlayerPowerUps powerUps = new PlayerPowerUps();
                 powerUps.setPlayerName(playerUsername);
-                powerUps.setPowerupId(playerPowers);
-                powerUps.setPowerupName(playerPowers);
+                powerUps.setPowerupId(powerUpName);
+                powerUps.setPowerupName(powerUpName);
                 powerUps.setCount(1);
-                playerPowerupRepository.save(powerUps);
+                toSave.add(powerUps);
             }
+            playerPowerupRepository.saveAll(toSave);
+        }
+    }
         }
     }
 
