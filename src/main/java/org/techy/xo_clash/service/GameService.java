@@ -179,8 +179,6 @@ public class GameService {
         }
         return true;
     }
-        return result;
-    }
 
     public void storeLastMove(String sessionId, int rows, int cols) {
         lastMoves.put(sessionId, new int[]{rows, cols});

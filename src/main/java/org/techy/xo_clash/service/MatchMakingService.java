@@ -56,14 +56,6 @@ public class MatchMakingService {
             return gameSession;
         }
     }
-            activePlayers.put(opponent, Map.of("opponent", playerId, "sessionId", sessionId));
-
-            rabbitMQProducer.produceMappingForGameBetweenUsers("mappers.joined", "MATCH FOUND", playerId);
-            rabbitMQProducer.produceMappingForGameBetweenUsers("mappers.joined", "MATCH FOUND", opponent);
-
-            return gameSession;
-        }
-    }
 
     public Map<String,String> getActiveGameForPlayer(String playerId) {
         return activePlayers.get(playerId);

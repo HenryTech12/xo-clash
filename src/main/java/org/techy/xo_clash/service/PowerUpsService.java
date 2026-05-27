@@ -103,8 +103,6 @@ public class PowerUpsService {
             playerPowerupRepository.saveAll(toSave);
         }
     }
-        }
-    }
 
     @Transactional
     public void updatePlayerPowerUps(String playerUsername, String powerUp) {

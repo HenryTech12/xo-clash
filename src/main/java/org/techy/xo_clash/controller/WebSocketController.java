@@ -1,8 +1,5 @@
 package org.techy.xo_clash.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,33 +8,21 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.techy.xo_clash.dto.PlaysDTO;
-import org.techy.xo_clash.model.GameSession;
-import org.techy.xo_clash.model.Leaderboard;
 import org.techy.xo_clash.request.GameMoveRequest;
 import org.techy.xo_clash.request.UsePowerUpsRequest;
 import org.techy.xo_clash.request.VoiceMoveRequest;
-import org.techy.xo_clash.response.VoiceMoveResponse;
 import org.techy.xo_clash.service.*;
 
-import java.security.Principal;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 @RestController
 public class WebSocketController {
 
     @Autowired
     private TrackProgressService trackProgressService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private GameService gameService;

@@ -7,10 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.techy.xo_clash.dto.UserDTO;
-import org.techy.xo_clash.dto.UserRole;
 import org.techy.xo_clash.handlers.InvalidateTokenException;
 import org.techy.xo_clash.request.LoginRequest;
-import org.techy.xo_clash.service.MatchMakingService;
 import org.techy.xo_clash.service.UserService;
 import org.techy.xo_clash.service.security.JwtService;
 

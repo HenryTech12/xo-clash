@@ -47,6 +47,9 @@ management:
 rabbitmq:
   uri: ${rabbitmq_url}
 
+jwt:
+  secret: ${jwt_secret}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
