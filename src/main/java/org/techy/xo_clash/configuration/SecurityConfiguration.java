@@ -43,7 +43,9 @@ public class SecurityConfiguration {
             "/favicon.ico",
             "/error",
             "/ws-game/**",
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/health",
+            "/actuator/health"
     };
 
     @Autowired
