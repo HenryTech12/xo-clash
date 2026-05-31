@@ -110,7 +110,7 @@ const PowerUpActivationModal = ({
                     </div>
 
                     {/* Decorations */}
-                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-plasma-blue/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-plasma-blue/20 to-transparent" />
                 </motion.div>
             </motion.div>
         </AnimatePresence>

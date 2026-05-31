@@ -244,7 +244,7 @@ const Dashboard = () => {
                         initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
                         animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
                         exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-arena-dark/60"
+                        className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-arena-dark/60"
                         style={{ pointerEvents: 'auto' }}
                     >
                         <motion.div

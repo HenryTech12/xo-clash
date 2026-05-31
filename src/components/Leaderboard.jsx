@@ -164,7 +164,7 @@ const Leaderboard = ({ username }) => {
             )}
 
             {/* Rankings List */}
-            <div className="overflow-y-auto max-h-[450px] p-4 bg-arena-dark/30">
+            <div className="overflow-y-auto max-h-112.5 p-4 bg-arena-dark/30">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
                         <motion.div
