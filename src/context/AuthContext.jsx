@@ -34,10 +34,7 @@ const refreshAccessToken = async () => {
 
     try {
         const response = await axios.get(
-            `${
-                import.meta.env.VITE_API_URL ||
-                "https://xo-clash-8ysf.onrender.com"
-            }/api/v1/auth/refresh`,
+            `${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`,
             {
                 headers: {
                     Authorization: `Bearer ${refreshToken}`,

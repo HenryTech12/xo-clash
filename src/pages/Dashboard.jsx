@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useGame } from "../hooks/useGame";
 import { LogOut, Play, Zap, Trophy, Flame, Lock } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { trackService, powerUpService } from "../services/api";
 import PlayerStatsCard from "../components/PlayerStatsCard";
 import PowerUpCard from "../components/PowerUpCard";
@@ -37,10 +37,7 @@ const Dashboard = () => {
                     // Fetch main dashboard data
                     try {
                         const dashResFallback = await fetch(
-                            `${
-                                import.meta.env.VITE_API_URL ||
-                                "https://xo-clash-8ysf.onrender.com"
-                            }/api/v1/players/${user.username}/stats`,
+                            `${import.meta.env.VITE_API_URL}/api/v1/players/${user.username}/stats`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${localStorage.getItem(
@@ -138,10 +135,7 @@ const Dashboard = () => {
         try {
             // Call API to activate power-up
             const response = await fetch(
-                `${
-                    import.meta.env.VITE_API_URL ||
-                    "https://xo-clash-8ysf.onrender.com"
-                }/api/v1/powerups/activate`,
+                `${import.meta.env.VITE_API_URL}/api/v1/powerups/activate`,
                 {
                     method: "POST",
                     headers: {
@@ -170,453 +164,326 @@ const Dashboard = () => {
 
     if (matchmaking) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-xo p-4 text-center overflow-hidden relative">
-                {/* Animated Background */}
+            <div className="min-h-screen flex items-center justify-center bg-arena-dark p-4 text-center overflow-hidden relative font-rajdhani">
+                {/* Holographic Grid floor */}
+                <div className="fixed inset-0 holo-grid pointer-events-none opacity-40" />
+                <div className="fixed inset-0 scanlines pointer-events-none" />
+
+                {/* Animated Background Orbs */}
                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
                     <motion.div
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.6, 0.3],
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="absolute inset-0 bg-blue-500/10 blur-[120px]"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-0 bg-plasma-blue/20 blur-[120px] rounded-full"
                     />
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                     transition={{ duration: 0.6 }}
-                    className="bg-slate-900/90 shadow-2xl border border-slate-800/50 backdrop-blur-xl p-12 rounded-3xl max-w-md w-full relative z-10"
+                    className="bg-arena-mid/90 shadow-[0_0_60px_rgba(0,212,255,0.2)] border border-plasma-blue/30 backdrop-blur-xl p-12 rounded-3xl max-w-md w-full relative z-10"
+                    style={{ transform: "perspective(1000px) rotateX(4deg)" }}
                 >
-                    <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="relative mb-8 w-20 h-20 mx-auto"
-                    >
+                    <div className="relative mb-8 w-24 h-24 mx-auto">
                         <motion.div
-                            className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 rounded-full blur-lg opacity-50"
-                            animate={{
-                                scale: [0.8, 1.2, 0.8],
-                            }}
+                            className="absolute inset-0 bg-plasma-blue/30 rounded-full blur-xl"
+                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
                             transition={{ repeat: Infinity, duration: 2 }}
                         />
-                        <Zap
-                            size={64}
-                            className="text-blue-400 relative z-10"
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                            className="absolute inset-0 border-2 border-dashed border-plasma-blue rounded-full"
                         />
-                    </motion.div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Zap size={48} className="text-plasma-blue drop-shadow-[0_0_10px_#00D4FF]" />
+                        </div>
+                    </div>
 
                     <motion.h2
-                        initial={{ y: -20 }}
-                        animate={{ y: 0 }}
-                        className="text-4xl font-black mb-4 text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-purple-400 italic"
+                        className="text-4xl font-black font-orbitron mb-4 text-plasma-blue drop-shadow-[0_0_10px_rgba(0,212,255,0.5)] tracking-tighter"
                     >
                         SCANNING ARENA
                     </motion.h2>
-                    <motion.p
-                        animate={{ opacity: [0.6, 1, 0.6] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="text-slate-400 mb-8 text-lg font-medium"
-                    >
-                        Searching for a worthy opponent...
-                    </motion.p>
+                    <p className="text-slate-400 mb-8 text-sm uppercase tracking-[0.3em] font-bold">
+                        Locating Hostile Signals...
+                    </p>
 
-                    <div className="flex gap-3 mb-6">
-                        {[0, 1, 2].map((i) => (
+                    <div className="flex gap-2 mb-10 overflow-hidden px-4">
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
                             <motion.div
                                 key={i}
-                                animate={{ scaleY: [0.5, 1, 0.5] }}
+                                animate={{ 
+                                    scaleY: [0.3, 1, 0.3],
+                                    backgroundColor: ['#00D4FF', '#BF5FFF', '#00D4FF']
+                                }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 1,
-                                    delay: i * 0.15,
+                                    duration: 0.8,
+                                    delay: i * 0.1,
                                 }}
-                                className="flex-1 h-10 bg-linear-to-t from-blue-500 to-purple-500 rounded-lg"
+                                className="flex-1 h-12 rounded-full opacity-60 shadow-[0_0_10px_currentColor]"
                             />
                         ))}
                     </div>
 
                     <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,45,120,0.4)" }}
                         whileTap={{ scale: 0.95 }}
                         onClick={cancelMatchmaking}
-                        className="px-8 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/50 rounded-lg transition-all font-bold shadow-lg"
+                        className="w-full py-4 bg-transparent border-2 border-plasma-pink text-plasma-pink rounded-xl transition-all font-orbitron font-bold text-xs tracking-widest uppercase hover:bg-plasma-pink hover:text-white"
                     >
-                        Cancel Search
+                        Abort Protocol
                     </motion.button>
                 </motion.div>
-            </div>
+            {/* Leaderboard overlay placed at top-level to avoid stacking context issues */}
+            <AnimatePresence>
+                {showLeaderboard && (
+                    <motion.div 
+                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-arena-dark/60"
+                        style={{ pointerEvents: 'auto' }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                            className="w-full max-w-4xl bg-arena-mid border border-plasma-purple/30 rounded-3xl shadow-[0_0_50px_rgba(191,95,255,0.2)] overflow-hidden relative h-[80vh] flex flex-col"
+                        >
+                            <div className="absolute inset-0 scanlines opacity-20 pointer-events-none" />
+                            
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-arena-dark/50">
+                                <div className="flex items-center gap-3">
+                                    <Trophy className="text-plasma-gold" size={24} />
+                                    <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">GLOBAL STANDINGS</h2>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.1, color: '#FF2D78' }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => setShowLeaderboard(false)}
+                                    className="text-slate-500 font-black font-orbitron text-xs tracking-widest uppercase p-2"
+                                >
+                                    [ CLOSE SIGNAL ]
+                                </motion.button>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                                <Leaderboard username={user?.username} />
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+        </div>
         );
     }
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-        },
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.5, ease: "easeOut" },
-        },
-    };
-
     return (
-        <div className="min-h-screen bg-gradient-xo p-6 overflow-hidden relative">
-            {/* Animated Background Elements */}
+        <div className="min-h-screen bg-arena-dark p-6 overflow-hidden relative font-rajdhani">
+            {/* Holographic grid floor simulation */}
+            <div className="fixed inset-0 holo-grid pointer-events-none opacity-20" />
+            <div className="fixed inset-0 scanlines pointer-events-none" />
+
+            {/* Animated Background Orbs */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <motion.div
-                    animate={{
-                        x: [0, 100, 0],
-                        y: [0, 50, 0],
-                    }}
-                    transition={{ duration: 20, repeat: Infinity }}
-                    className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/15 blur-[120px] rounded-full"
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-plasma-blue blur-[120px] rounded-full"
                 />
                 <motion.div
-                    animate={{
-                        x: [0, -100, 0],
-                        y: [0, -50, 0],
-                    }}
-                    transition={{ duration: 25, repeat: Infinity }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/15 blur-[120px] rounded-full"
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.08, 0.05] }}
+                    transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                    className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-plasma-purple blur-[120px] rounded-full"
                 />
             </div>
 
             <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="max-w-5xl mx-auto relative z-10"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-7xl mx-auto relative z-10"
             >
                 {/* Header */}
-                <motion.div
-                    variants={itemVariants}
-                    className="flex justify-between items-center mb-12"
-                >
+                <div className="flex justify-between items-end mb-12 border-b border-plasma-blue/20 pb-6">
                     <div>
-                        <motion.h1 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-purple-500 mb-2">
-                            XO CLASH
-                        </motion.h1>
-                        <p className="text-slate-400 text-lg italic">
-                            ⚔️ The Ultimate Tic-Tac-Toe Arena
+                         <motion.div className="flex items-center gap-2 mb-1">
+                             <motion.h1 
+                                className="text-5xl font-black font-orbitron text-plasma-blue drop-shadow-[0_0_10px_#00D4FF]"
+                            >XO</motion.h1>
+                            <div className="h-8 w-0.5 bg-plasma-blue/30 rotate-12" />
+                            <motion.h1 
+                                className="text-5xl font-black font-orbitron text-plasma-purple drop-shadow-[0_0_10px_#BF5FFF]"
+                            >CLASH</motion.h1>
+                        </motion.div>
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.4em] ml-1">
+                             Command Center // v2.0.4-beta
                         </p>
                     </div>
                     <motion.button
-                        whileHover={{ scale: 1.1 }}
+                        whileHover={{ scale: 1.05, x: 5 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={logout}
-                        className="flex items-center gap-2 px-6 py-3 bg-slate-800/50 hover:bg-red-900/40 text-slate-300 hover:text-red-400 rounded-xl transition-all font-bold border border-slate-700/50 shadow-lg"
+                        className="flex items-center gap-3 px-6 py-2 bg-plasma-pink/10 hover:bg-plasma-pink/20 text-plasma-pink rounded-lg transition-all font-orbitron font-bold text-[10px] tracking-widest border border-plasma-pink/30 uppercase"
                     >
-                        <LogOut size={20} />
-                        Logout
+                        Disconnect <LogOut size={16} />
                     </motion.button>
-                </motion.div>
+                </div>
 
-                {/* Welcome Card */}
-                <motion.div
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-linear-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 p-8 rounded-3xl mb-10 flex items-center gap-6 backdrop-blur-xl shadow-xl"
-                >
-                    <motion.div
-                        animate={{ rotate: [0, 5, -5, 0] }}
-                        transition={{ repeat: Infinity, duration: 3 }}
-                        className="w-24 h-24 bg-linear-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-4xl font-black shadow-lg shadow-blue-500/30"
-                    >
-                        {user?.username?.charAt(0).toUpperCase()}
-                    </motion.div>
-                    <div className="flex-1">
-                        <motion.h2 className="text-3xl font-black text-white mb-2">
-                            Welcome back, Champion!
-                        </motion.h2>
-                        <motion.p className="text-blue-300 italic text-lg font-semibold">
-                            @{user?.username}
-                        </motion.p>
-                        <motion.div className="flex gap-4 mt-3">
-                            <div className="flex items-center gap-2">
-                                <Trophy size={18} className="text-yellow-400" />
-                                <span className="text-slate-400">
-                                    {dashboardData.rank || "Unranked"}
-                                </span>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Left Column: Player Identity */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <motion.div 
+                            whileHover={{ rotateY: 5, rotateX: -2, translateZ: 10 }}
+                            style={{ perspective: 1000 }}
+                            className="bg-arena-mid/80 border border-plasma-blue/30 p-6 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(0,212,255,0.05)] relative overflow-hidden group"
+                        >
+                            <div className="absolute top-0 right-0 p-4">
+                                <Trophy size={20} className="text-plasma-gold drop-shadow-[0_0_10px_#FFD700]" />
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Flame size={18} className="text-orange-400" />
-                                <span className="text-slate-400">
-                                    {dashboardData.numOfWins > 0
-                                        ? "On Fire!"
-                                        : "Ready to start"}
-                                </span>
+                            
+                            <div className="flex items-center gap-5 mt-4">
+                                <div className="relative">
+                                    <div className="w-20 h-20 bg-arena-surface border-2 border-plasma-blue rounded-xl flex items-center justify-center text-4xl font-black font-orbitron text-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+                                        {user?.username?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <motion.div 
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                        className="absolute -bottom-2 -right-2 bg-plasma-gold text-arena-dark text-[10px] font-black px-2 py-1 rounded border border-arena-dark uppercase"
+                                    >
+                                        Lvl {dashboardData.level || 1}
+                                    </motion.div>
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">
+                                        {user?.username}
+                                    </h2>
+                                    <p className="text-plasma-gold font-bold text-xs uppercase tracking-widest mt-1">
+                                         {dashboardData.rank || "Unranked"} Signal
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 mt-8">
+                                <div className="bg-arena-dark/50 border border-white/5 p-3 rounded-lg text-center">
+                                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Rank Points</p>
+                                    <p className="text-xl font-orbitron text-plasma-blue">{dashboardData.rankPoints || 0}</p>
+                                </div>
+                                <div className="bg-arena-dark/50 border border-white/5 p-3 rounded-lg text-center">
+                                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Win Rate</p>
+                                    <p className="text-xl font-orbitron text-plasma-purple">{dashboardData.winRate || 0}%</p>
+                                </div>
                             </div>
                         </motion.div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                             {[
+                                { label: 'Wins', value: dashboardData.numOfWins, color: 'text-green-400' },
+                                { label: 'Losses', value: dashboardData.numOfLosses, color: 'text-plasma-pink' },
+                                { label: 'Stalemates', value: dashboardData.numOfDraws, color: 'text-slate-400' }
+                             ].map((stat, i) => (
+                                <div key={i} className="bg-arena-mid/30 border border-white/5 p-3 rounded-lg text-center backdrop-blur-sm">
+                                    <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{stat.label}</p>
+                                    <p className={`text-lg font-orbitron ${stat.color}`}>{stat.value}</p>
+                                </div>
+                             ))}
+                        </div>
+
+                         <motion.button
+                            whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 0 40px rgba(0,212,255,0.4)" }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => startMatchmaking()}
+                            className="w-full h-20 hero-plasma-glow p-0.5 rounded-2xl font-orbitron font-black text-xl tracking-[0.3em] mt-4 shadow-2xl transition-all"
+                        >
+                            <div className="bg-arena-dark hover:bg-transparent transition-all w-full h-full rounded-[14px] flex items-center justify-center gap-3 relative z-10 text-white">
+                                ENTER THE ARENA <Play size={24} fill="currentColor" />
+                            </div>
+                        </motion.button>
+                        
+                        <motion.button
+                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(191, 95, 255, 0.1)' }}
+                            onClick={() => setShowLeaderboard(!showLeaderboard)}
+                            className="w-full py-4 border border-plasma-purple/30 text-plasma-purple rounded-xl font-orbitron font-bold text-[10px] tracking-[0.3em] uppercase flex items-center justify-center gap-2"
+                        >
+                            <Trophy size={16} /> Global Standings
+                        </motion.button>
                     </div>
-                </motion.div>
 
-                {/* Action Grid */}
-                <motion.div className="grid md:grid-cols-2 gap-8">
-                    <motion.button
-                        variants={itemVariants}
-                        whileHover={{
-                            scale: 1.05,
-                            boxShadow:
-                                "0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(168, 85, 247, 0.2)",
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={startMatchmaking}
-                        className="group relative bg-linear-to-br from-blue-600 to-indigo-700 p-10 rounded-3xl text-left overflow-hidden shadow-2xl shadow-blue-500/20 border border-blue-500/20 hover:border-blue-400/50 transition-all"
-                    >
-                        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Play size={140} />
+                    {/* Right Column: Tactical Power-ups */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+                        <div className="flex items-center gap-3 px-2">
+                            <Zap size={20} className="text-plasma-blue" />
+                            <h3 className="font-orbitron font-bold text-sm tracking-[0.2em] uppercase text-white">Tactical Loadout</h3>
+                            <div className="flex-1 h-px bg-plasma-blue/20" />
                         </div>
 
-                        <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className="relative z-10"
-                        >
-                            <Play className="mb-4 text-blue-200" size={40} />
-                            <h3 className="text-3xl font-black mb-3 text-white">
-                                Play Ranked
-                            </h3>
-                            <p className="text-blue-100/80 text-lg font-medium">
-                                Challenge an opponent and prove your tactical
-                                mastery
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            className="absolute top-4 right-4 px-4 py-2 bg-blue-500/30 rounded-full backdrop-blur-md border border-blue-400/50"
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                        >
-                            <span className="text-blue-200 font-bold text-sm">
-                                LIVE
-                            </span>
-                        </motion.div>
-                    </motion.button>
-
-                    <motion.button
-                        variants={itemVariants}
-                        whileHover={{
-                            scale: 1.05,
-                            boxShadow:
-                                "0 0 40px rgba(168, 85, 247, 0.4), 0 0 80px rgba(59, 130, 246, 0.2)",
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowLeaderboard(!showLeaderboard)}
-                        className="group relative bg-linear-to-br from-purple-600 to-pink-700 p-10 rounded-3xl text-left overflow-hidden shadow-2xl shadow-purple-500/20 border border-purple-500/20 hover:border-purple-400/50 transition-all"
-                    >
-                        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Trophy size={140} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {Object.keys(POWER_UP_CONFIG).map((powerUpKey) => {
+                                const config = POWER_UP_CONFIG[powerUpKey];
+                                const unlocked = unlockedPowerUps[powerUpKey];
+                                const isAvailable = availablePowerUps.includes(powerUpKey);
+                                
+                                return (
+                                    <motion.div
+                                        key={powerUpKey}
+                                        whileHover={{ rotateY: 8, rotateX: -4, translateZ: 15, scale: 1.03 }}
+                                        style={{ transformPerspective: 800 }}
+                                        onClick={() => handlePowerUpSelect(powerUpKey)}
+                                        className={`cursor-pointer p-5 rounded-2xl border transition-all relative overflow-hidden group ${
+                                            unlocked 
+                                                ? 'bg-arena-mid/80 border-plasma-blue/20 hover:border-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.05)]' 
+                                                : 'bg-arena-surface/40 border-white/5 opacity-60 grayscale'
+                                        }`}
+                                    >
+                                        {!unlocked && (
+                                            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-arena-dark/60 backdrop-blur-sm">
+                                                <Lock size={24} className="text-slate-500 mb-2" />
+                                                <p className="text-[10px] font-black font-orbitron uppercase text-slate-400">Locked</p>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-3 bg-arena-dark rounded-xl border border-white/5 group-hover:border-plasma-blue/50 transition-colors">
+                                                <Zap size={20} className={unlocked ? "text-plasma-blue" : "text-slate-600"} />
+                                            </div>
+                                            {unlocked && (
+                                                <div className="bg-plasma-blue/20 text-plasma-blue text-[10px] font-black px-2 py-1 rounded">
+                                                    x{unlocked.quantity || 0}
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <h4 className="font-orbitron font-bold text-xs tracking-wider mb-2 text-white">
+                                            {config.name}
+                                        </h4>
+                                        <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2">
+                                            {config.description}
+                                        </p>
+                                        
+                                        {unlocked && (
+                                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-plasma-blue opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#00D4FF]" />
+                                        )}
+                                    </motion.div>
+                                );
+                            })}
                         </div>
+                    </div>
+                </div>
 
-                        <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className="relative z-10"
-                        >
-                            <Trophy
-                                className="mb-4 text-purple-200"
-                                size={40}
-                            />
-                            <h3 className="text-3xl font-black mb-3 text-white">
-                                Leaderboard
-                            </h3>
-                            <p className="text-purple-100/80 text-lg font-medium">
-                                Check global rankings and climb the ladder
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            className="absolute top-4 right-4 px-4 py-2 bg-purple-500/30 rounded-full backdrop-blur-md border border-purple-400/50"
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                        >
-                            <span className="text-purple-200 font-bold text-sm">
-                                ACTIVE
-                            </span>
-                        </motion.div>
-                    </motion.button>
-                </motion.div>
-
-                {/* Leaderboard View */}
-                {showLeaderboard && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        variants={itemVariants}
-                        className="mt-12"
-                    >
-                        <div className="mb-6 flex items-center justify-between">
-                            <h2 className="text-2xl font-black text-white">
-                                🏆 Global Rankings
-                            </h2>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setShowLeaderboard(false)}
-                                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold transition"
-                            >
-                                Close
-                            </motion.button>
-                        </div>
-                        <Leaderboard username={user?.username} />
-                    </motion.div>
-                )}
+                
+                
+                <PowerUpActivationModal
+                    isOpen={!!selectedPowerUp}
+                    powerUp={selectedPowerUp}
+                    onClose={() => setSelectedPowerUp(null)}
+                    onActivate={handlePowerUpActivate}
+                    loading={activatingPowerUp}
+                />
             </motion.div>
-
-            {/* Main Content (shown when not viewing leaderboard) */}
-            {!showLeaderboard && (
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="max-w-5xl mx-auto relative z-10 w-full"
-                >
-                    {/* Player Stats Card */}
-                    <motion.div variants={itemVariants} className="mt-12">
-                        <h2 className="text-2xl font-black text-white mb-6">
-                            📊 Your Stats
-                        </h2>
-                        <PlayerStatsCard stats={playerStats} />
-                    </motion.div>
-
-                    {/* Power-ups Section */}
-                    <motion.div variants={itemVariants} className="mt-12">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-black text-white">
-                                ⚡ Power-ups Arsenal
-                            </h2>
-                            <span className="text-sm text-slate-400">
-                                {Object.keys(unlockedPowerUps).length} Unlocked
-                            </span>
-                        </div>
-
-                        {availablePowerUps.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {availablePowerUps.map((powerup) => {
-                                    // availablePowerUps is now an array of objects
-                                    const powerupId =
-                                        typeof powerup === "string"
-                                            ? powerup
-                                            : powerup.id;
-                                    const powerUpData =
-                                        unlockedPowerUps[powerupId];
-                                    const isUnlocked = !!powerUpData;
-                                    return (
-                                        <PowerUpCard
-                                            key={powerupId}
-                                            powerupType={powerupId}
-                                            isUnlocked={isUnlocked}
-                                            count={
-                                                powerUpData
-                                                    ? powerUpData.count
-                                                    : 0
-                                            }
-                                            isActive={
-                                                selectedPowerUp?.id ===
-                                                powerupId
-                                            }
-                                            onActivate={handlePowerUpSelect}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="bg-slate-800/40 border border-slate-700/50 p-12 rounded-2xl text-center"
-                            >
-                                <Zap
-                                    size={48}
-                                    className="mx-auto text-slate-600 mb-4"
-                                />
-                                <p className="text-slate-400">
-                                    Power-ups system loading...
-                                </p>
-                            </motion.div>
-                        )}
-                    </motion.div>
-
-                    {/* Stats Footer */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="mt-12 grid grid-cols-3 gap-4 text-center"
-                    >
-                        {[
-                            {
-                                label: "Matches",
-                                value:
-                                    (dashboardData.totalWins ??
-                                        dashboardData.numOfWins ??
-                                        0) +
-                                    (dashboardData.totalLosses ??
-                                        dashboardData.numOfLosses ??
-                                        0) +
-                                    (dashboardData.totalDraws ??
-                                        dashboardData.numOfDraws ??
-                                        0),
-                            },
-                            {
-                                label: "Wins",
-                                value:
-                                    dashboardData.totalWins ??
-                                    dashboardData.numOfWins ??
-                                    0,
-                            },
-                            {
-                                label: "Winrate",
-                                value: (() => {
-                                    const w =
-                                        dashboardData.totalWins ??
-                                        dashboardData.numOfWins ??
-                                        0;
-                                    const l =
-                                        dashboardData.totalLosses ??
-                                        dashboardData.numOfLosses ??
-                                        0;
-                                    const total = w + l;
-
-                                    // Some backend APIs send winRate as 0.75, some send numeric, some don't send it.
-                                    // We'll calculate it manually to be safe.
-                                    const rate =
-                                        total > 0 ? (w / total) * 100 : 0;
-                                    return `${rate.toFixed(1)}%`;
-                                })(),
-                            },
-                        ].map((stat, i) => (
-                            <motion.div
-                                key={i}
-                                whileHover={{ scale: 1.05 }}
-                                className="bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl backdrop-blur-sm"
-                            >
-                                <p className="text-2xl font-black text-blue-400 mb-1">
-                                    {stat.value}
-                                </p>
-                                <p className="text-slate-400 font-medium">
-                                    {stat.label}
-                                </p>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </motion.div>
-            )}
-
-            {/* Power-up Activation Modal */}
-            <PowerUpActivationModal
-                powerup={selectedPowerUp}
-                onClose={() => setSelectedPowerUp(null)}
-                onConfirm={handlePowerUpActivate}
-                isLoading={activatingPowerUp}
-            />
         </div>
     );
 };

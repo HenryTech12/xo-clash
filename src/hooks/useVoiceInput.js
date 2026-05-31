@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
-export const useVoiceInput = (onCommandRecognized) => {
+export const useVoiceInput = (onCommandRecognized, lang = "en-US") => {
     const [isListening, setIsListening] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
@@ -21,7 +21,7 @@ export const useVoiceInput = (onCommandRecognized) => {
 
         try {
             const recognition = new SpeechRecognition();
-            recognition.lang = "en-US";
+            recognition.lang = lang;
             recognition.continuous = true; // Stay active
             recognition.interimResults = true;
 
@@ -95,7 +95,7 @@ export const useVoiceInput = (onCommandRecognized) => {
             setError("Failed to initialize voice recognition.");
             console.error(e);
         }
-    }, [onCommandRecognized, isVoiceActive]);
+    }, [onCommandRecognized, isVoiceActive, lang]);
 
     const stopListening = useCallback(() => {
         setIsVoiceActive(false);

@@ -1,16 +1,9 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
-    Sword,
     Zap,
-    Clock,
-    Sparkles,
-    Trophy,
 } from "lucide-react";
 import {
     POWER_UP_CONFIG,
-    RARITY_COLORS,
-    RARITY_BORDERS,
 } from "../config/powerUpConfig";
 
 const PowerUpCard = ({
@@ -25,8 +18,6 @@ const PowerUpCard = ({
     if (!powerupConfig) return null;
 
     const IconComponent = powerupConfig.icon || Zap;
-    const rarityColor = RARITY_COLORS[powerupConfig.rarity] || RARITY_COLORS.common;
-    const rarityBorder = RARITY_BORDERS[powerupConfig.rarity] || RARITY_BORDERS.common;
 
     const isUsable = isUnlocked && count > 0;
 
@@ -38,123 +29,77 @@ const PowerUpCard = ({
 
     return (
         <motion.div
-            whileHover={isUsable ? { scale: 1.05 } : {}}
-            className={`relative h-64 rounded-lg border-2 ${rarityBorder} overflow-hidden cursor-pointer transition-all ${
-                !isUsable && "opacity-50 cursor-not-allowed"
-            } ${isActive && "ring-4 ring-yellow-400"}`}
+            whileHover={isUsable ? { 
+                scale: 1.05, 
+                rotateY: 10,
+                rotateX: -5,
+                boxShadow: "0 0 30px rgba(0, 212, 255, 0.2)"
+            } : {}}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={`relative h-72 rounded-xl border transition-all cursor-pointer font-rajdhani overflow-hidden group ${
+                !isUsable ? "opacity-30 grayscale cursor-not-allowed border-white/5" : "border-plasma-blue/20 bg-arena-mid/90"
+            } ${isActive ? "border-plasma-blue ring-1 ring-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.3)]" : ""}`}
             onClick={handleClick}
+            style={{ perspective: 1000, transformStyle: "preserve-3d" }}
         >
+            <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
+            
             {/* Background Gradient */}
-            <div
-                className={`absolute inset-0 bg-gradient-to-b ${rarityColor} opacity-20`}
-            />
-
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-slate-900/80" />
+            <div className={`absolute inset-0 bg-linear-to-b from-plasma-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
 
             {/* Content */}
-            <div className="relative h-full flex flex-col p-4">
-                {/* Icon area */}
-                <div className="flex justify-center mb-2">
+            <div className="relative h-full flex flex-col p-5 z-10">
+                {/* Header: Icon & Quantity */}
+                <div className="flex justify-between items-start mb-6">
                     <motion.div
                         animate={isActive ? { rotate: 360 } : {}}
-                        transition={{
-                            repeat: isActive ? Infinity : 0,
-                            duration: 2,
-                        }}
-                        className={`p-3 rounded-full bg-gradient-to-br ${rarityColor}`}
+                        transition={{ repeat: isActive ? Infinity : 0, duration: 3, ease: "linear" }}
+                        className={`p-3 rounded-xl bg-arena-dark border border-white/10 ${isUsable ? 'text-plasma-blue shadow-[0_0_15px_rgba(0,212,255,0.2)]' : 'text-slate-600'}`}
                     >
-                        <IconComponent size={32} className="text-white" />
+                        <IconComponent size={28} />
                     </motion.div>
+                    
+                    {isUnlocked && (
+                        <div className="bg-arena-dark px-3 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
+                            <span className="text-[8px] font-black font-orbitron text-slate-500 uppercase">Qty</span>
+                            <span className="text-sm font-black font-orbitron text-plasma-blue">{count}</span>
+                        </div>
+                    )}
                 </div>
 
-                {/* Name */}
-                <h3 className="text-center font-bold text-white text-sm mb-1 truncate">
-                    {powerupConfig.name}
-                </h3>
-
-                {/* Rarity badge */}
-                <div className="text-center mb-2">
-                    <span
-                        className={`inline-block px-2 py-1 text-xs font-bold rounded bg-gradient-to-r ${rarityColor} text-white uppercase`}
-                    >
-                        {powerupConfig.rarity}
-                    </span>
+                {/* Body: Title & Meta */}
+                <div className="mb-4">
+                    <p className="text-[8px] font-black font-orbitron text-plasma-blue/60 uppercase tracking-[0.3em] mb-1">Tactical Module</p>
+                    <h3 className="font-black font-orbitron text-white text-sm tracking-widest uppercase">
+                        {powerupConfig.name}
+                    </h3>
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-300 text-center mb-2 flex-grow line-clamp-2">
+                <p className="text-[11px] font-medium text-slate-400 mb-6 grow leading-relaxed">
                     {powerupConfig.description}
                 </p>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-1 mb-2 text-xs">
-                    {powerupConfig.attackBoost > 0 && (
-                        <div className="flex items-center gap-1 bg-red-500/20 px-2 py-1 rounded">
-                            <Sword size={12} className="text-red-400" />
-                            <span className="text-red-300">
-                                +{powerupConfig.attackBoost}%
-                            </span>
-                        </div>
-                    )}
-                    {powerupConfig.defenseBoost > 0 && (
-                        <div className="flex items-center gap-1 bg-blue-500/20 px-2 py-1 rounded">
-                            <Trophy size={12} className="text-blue-400" />
-                            <span className="text-blue-300">
-                                +{powerupConfig.defenseBoost}%
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Duration & Cooldown */}
-                <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-700 pt-2">
-                    {powerupConfig.duration > 0 && (
-                        <div className="flex items-center gap-1">
-                            <Zap size={12} className="text-yellow-400" />
-                            <span className="text-slate-300">
-                                {powerupConfig.duration}s active
-                            </span>
-                        </div>
-                    )}
-                    {powerupConfig.cooldown > 0 && (
-                        <div className="flex items-center gap-1">
-                            <Clock size={12} className="text-purple-400" />
-                            <span className="text-slate-300">
-                                {powerupConfig.cooldown}s CD
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Unlock/Active status & Count */}
-                {isUnlocked && (
-                    <div className="absolute top-2 left-2 bg-slate-800/80 px-2 py-0.5 rounded text-xs font-bold text-white border border-slate-600">
-                        x{count}
+                {/* Footer: Requirements or Status */}
+                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                         <div className={`w-2 h-2 rounded-full ${isUsable ? 'bg-plasma-blue animate-pulse' : 'bg-slate-700'}`} />
+                         <span className="text-[9px] font-black font-orbitron text-slate-500 uppercase tracking-widest">
+                            {isUsable ? 'System Integrated' : 'Locked'}
+                         </span>
                     </div>
-                )}
-                
-                <div className="absolute top-2 right-2">
-                    {!isUnlocked ? (
-                        <div className="bg-slate-700 rounded-full p-1 group-hover:bg-slate-600 transition-colors" title="Not Unlocked">
-                            <Trophy size={16} className="text-gray-400" />
-                        </div>
-                    ) : count <= 0 ? (
-                        <div className="bg-red-500/80 rounded-full p-1" title="Out of Uses">
-                            <Clock size={16} className="text-white" />
-                        </div>
-                    ) : isActive ? (
-                        <motion.div
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ repeat: Infinity, duration: 1 }}
-                            className="bg-yellow-500 rounded-full p-1"
-                            title="Active"
-                        >
-                            <Sparkles size={16} className="text-white" />
-                        </motion.div>
-                    ) : null}
+                    {powerupConfig.unlockRank && (
+                         <span className="text-[9px] font-black font-orbitron text-plasma-gold">
+                            {powerupConfig.unlockRank.toUpperCase()}
+                         </span>
+                    )}
                 </div>
             </div>
+
+            {/* Action overlay on hover */}
+            {isUsable && (
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-plasma-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 shadow-[0_0_10px_#00D4FF]" />
+            )}
         </motion.div>
     );
 };

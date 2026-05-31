@@ -11,11 +11,16 @@ class WebSocketService {
             import.meta.env.VITE_API_URL ||
             "https://xo-clash-8ysf.onrender.com";
         const brokerURL = `${baseUrl.replace(/^http/, "ws")}/ws-game/websocket`;
+        const token = localStorage.getItem("token");
 
         this.client = new Client({
             brokerURL,
+            connectHeaders: {
+                Authorization: `Bearer ${token}`,
+            },
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
+            reconnectDelay: 5000,
             debug: (str) => {
                 if (process.env.NODE_ENV !== "production") {
                     console.log(str);

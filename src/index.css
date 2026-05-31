@@ -3,12 +3,119 @@
 body {
     @apply bg-slate-950 text-slate-100;
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        "Helvetica Neue", sans-serif;
+    font-family: 'Rajdhani', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+}
+
+/* Holographic grid background */
+.holo-grid {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-drift 20s linear infinite;
+}
+@keyframes grid-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 40px; }
+}
+
+/* Plasma border orbit animation */
+@keyframes plasma-orbit {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.plasma-border {
+  background: linear-gradient(270deg, #00D4FF, #BF5FFF, #FF2D78, #00D4FF);
+  background-size: 400% 400%;
+  animation: plasma-orbit 3s ease infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-plasma-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-plasma-glow::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #00D4FF,
+    transparent 25%,
+    #BF5FFF,
+    transparent 50%,
+    #FF2D78,
+    transparent 75%,
+    #00D4FF
+  );
+  animation: spin 4s linear infinite;
+}
+
+/* Glitch effect for DEFEATED text */
+@keyframes glitch {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: translateX(0); }
+  20% { clip-path: inset(20% 0 40% 0); transform: translateX(-4px); }
+  40% { clip-path: inset(60% 0 10% 0); transform: translateX(4px); }
+  60% { clip-path: inset(80% 0 5% 0); transform: translateX(-2px); }
+  80% { clip-path: inset(10% 0 70% 0); transform: translateX(2px); }
+}
+.glitch-text {
+  position: relative;
+}
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  color: #FF2D78;
+  animation: glitch 0.4s infinite;
+}
+.glitch-text::after {
+  color: #00D4FF;
+  animation-delay: 0.1s;
+}
+
+/* Scanlines overlay */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 212, 255, 0.015) 2px,
+    rgba(0, 212, 255, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure react-hot-toast toasts appear above holographic overlays */
+.react-hot-toast {
+  z-index: 99999 !important;
+}
+
+.font-orbitron {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.font-rajdhani {
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .bg-gradient-xo {

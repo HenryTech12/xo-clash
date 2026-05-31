@@ -31,7 +31,7 @@ const Leaderboard = ({ username }) => {
     const fetchRankings = async () => {
         setLoading(true);
         try {
-            const data = await powerUpService.getRankings(50);
+            const data = await powerUpService.getRankings(10);
             const rankingsData = data.rankings || data || []; // Handle both {rankings: []} and [] formats
 
             // Sort by rankPoints in descending order
@@ -87,242 +87,155 @@ const Leaderboard = ({ username }) => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-4xl bg-arena-mid/95 backdrop-blur-2xl rounded-2xl border border-plasma-blue/20 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] font-rajdhani"
         >
+            <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
+            
             {/* Header */}
-            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-6">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                        <Trophy size={32} className="text-white" />
-                        <h2 className="text-3xl font-black text-white">
-                            Global Rankings
-                        </h2>
+            <div className="bg-arena-dark px-8 py-8 border-b border-plasma-blue/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-r from-plasma-blue/5 to-transparent pointer-events-none" />
+                <div className="flex items-center justify-between mb-6 relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-plasma-blue/10 rounded-xl border border-plasma-blue/30 shadow-[0_0_15px_rgba(0,212,255,0.2)]">
+                            <Trophy size={32} className="text-plasma-blue" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-black font-orbitron text-white tracking-tighter">
+                                SECTOR RANKINGS
+                            </h2>
+                            <p className="text-[10px] font-black font-orbitron text-plasma-blue tracking-[0.4em] uppercase">
+                                Global Tactical Standings
+                            </p>
+                        </div>
                     </div>
                     <motion.button
-                        whileHover={{ rotate: 180 }}
+                        whileHover={{ rotate: 180, scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={fetchRankings}
                         disabled={loading}
-                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition disabled:opacity-50"
+                        className="p-3 bg-arena-surface border border-white/10 hover:border-plasma-blue/50 rounded-xl transition-all disabled:opacity-50"
                     >
-                        <RefreshCw size={20} className="text-white" />
+                        <RefreshCw size={20} className="text-plasma-blue" />
                     </motion.button>
                 </div>
 
                 {/* Search */}
-                <div className="relative">
+                <div className="relative max-w-md">
                     <Search
                         size={18}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-plasma-blue/40"
                     />
                     <input
                         type="text"
-                        placeholder="Search player..."
+                        placeholder="SEARCH COMBATANT..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        className="w-full pl-12 pr-4 py-3 bg-arena-dark/50 border border-plasma-blue/20 rounded-xl text-white font-orbitron text-xs tracking-widest placeholder-slate-600 focus:outline-none focus:border-plasma-blue focus:ring-1 focus:ring-plasma-blue/30 transition-all"
                     />
                 </div>
             </div>
 
-            {/* Current Player Info */}
+            {/* Current Player Status Bar */}
             {playerRank && (
                 <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-blue-900/30 border-b border-blue-500/30 px-6 py-4 flex items-center gap-4"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-plasma-blue/10 border-b border-plasma-blue/20 px-8 py-4 flex items-center gap-6 relative"
                 >
-                    <Flame size={24} className="text-orange-400" />
+                    <div className="absolute inset-0 scanlines opacity-5 pointer-events-none" />
+                    <div className="h-10 w-10 rounded-lg bg-arena-dark border border-plasma-blue/30 flex items-center justify-center font-orbitron font-black text-plasma-blue">
+                        #{playerRank.rank}
+                    </div>
                     <div className="flex-1">
-                        <p className="text-xs font-semibold text-blue-300 uppercase">
-                            Your Position
-                        </p>
-                        <p className="text-xl font-black text-white">
-                            #{playerRank.rank} {playerRank.username}
+                        <p className="text-[10px] font-black text-plasma-blue/60 uppercase tracking-widest mb-0.5">Your Current Standing</p>
+                        <p className="text-xl font-black text-white font-orbitron">
+                            {playerRank.username?.toUpperCase()}
                         </p>
                     </div>
-                    <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="text-right"
-                    >
-                        <p className="text-2xl font-black text-orange-400">
+                    <div className="text-right">
+                        <p className="text-2xl font-black text-plasma-gold font-orbitron drop-shadow-[0_0_10px_#FFD700]">
                             {playerRank.rankPoints}
                         </p>
-                        <p className="text-xs text-blue-300">Points</p>
-                    </motion.div>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Combat Points</p>
+                    </div>
                 </motion.div>
             )}
 
             {/* Rankings List */}
-            <div className="overflow-y-auto max-h-96">
+            <div className="overflow-y-auto max-h-[450px] p-4 bg-arena-dark/30">
                 {loading ? (
-                    <div className="flex items-center justify-center py-12">
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
                         <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{
-                                repeat: Infinity,
-                                duration: 1,
-                            }}
-                            className="w-8 h-8 border-4 border-slate-600 border-t-blue-500 rounded-full"
+                            animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+                            transition={{ repeat: Infinity, duration: 2 }}
+                            className="w-12 h-12 border-2 border-dashed border-plasma-blue rounded-full"
                         />
+                        <p className="text-[10px] font-black font-orbitron text-plasma-blue tracking-[0.3em] animate-pulse">
+                            DOWNLOADING DATA...
+                        </p>
                     </div>
                 ) : filteredRankings.length > 0 ? (
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="divide-y divide-slate-700"
+                        className="space-y-3"
                     >
                         {filteredRankings.map((rankObj, index) => {
                             const position = index + 1;
                             const isTop3 = position <= 3;
-                            const currUsername =
-                                rankObj.username ||
-                                rankObj.playerId ||
-                                rankObj.id ||
-                                "Unknown";
-                            const isCurrentPlayer = currUsername === username; // We compare to the 'username' prop
-                            const wins =
-                                rankObj.wins ??
-                                rankObj.totalWins ??
-                                rankObj.numOfWins ??
-                                0;
-                            const losses =
-                                rankObj.losses ??
-                                rankObj.totalLosses ??
-                                rankObj.numOfLosses ??
-                                0;
-                            const draws =
-                                rankObj.draws ??
-                                rankObj.totalDraws ??
-                                rankObj.numOfDraws ??
-                                0;
-                            const rankPoints =
-                                rankObj.rankPoints ?? rankObj.points ?? 0;
-                            const tier = rankObj.rank || "Unranked";
-                            const totalGames = wins + losses + draws;
-                            const winRate =
-                                totalGames > 0
-                                    ? ((wins / totalGames) * 100).toFixed(1) +
-                                      "%"
-                                    : "0.0%";
-
-                            const rankColor =
-                                RANK_COLORS[position] ||
-                                "from-blue-400 to-blue-600";
+                            const currUsername = rankObj.username || rankObj.playerId || rankObj.id || "Unknown";
+                            const isMe = currUsername === username;
 
                             return (
                                 <motion.div
-                                    key={currUsername + "-" + index}
+                                    key={index}
                                     variants={itemVariants}
-                                    whileHover={{ x: 10 }}
-                                    className={`px-6 py-4 flex items-center gap-4${
-                                        isCurrentPlayer
-                                            ? " bg-blue-900/30"
-                                            : isTop3
-                                            ? " bg-slate-800/50"
-                                            : " hover:bg-slate-800/30 transition"
+                                    whileHover={{ x: 10, backgroundColor: 'rgba(0, 212, 255, 0.05)' }}
+                                    className={`px-6 py-4 rounded-xl border flex items-center gap-6 transition-all group ${
+                                        isMe 
+                                            ? 'bg-plasma-blue/10 border-plasma-blue/40 shadow-[0_0_20px_rgba(0,212,255,0.1)]' 
+                                            : 'bg-arena-mid/40 border-white/5 hover:border-plasma-blue/20'
                                     }`}
                                 >
-                                    {/* Rank badge */}
-                                    {isTop3 ? (
-                                        <motion.div
-                                            animate={{
-                                                rotate: [0, 10, -10, 0],
-                                            }}
-                                            transition={{
-                                                duration: 3,
-                                                repeat: Infinity,
-                                            }}
-                                            className={`text-2xl w-12 flex justify-center font-black`}
-                                        >
-                                            {RANK_ICONS[position]}
-                                        </motion.div>
-                                    ) : (
-                                        <div className="text-lg font-black text-slate-400 w-12 text-center">
-                                            #{position}
-                                        </div>
-                                    )}
-
-                                    {/* Player info */}
-                                    <div className="flex-1 min-w-[120px]">
-                                        <p className="font-bold text-white text-lg">
-                                            {currUsername}
-                                        </p>
-                                        <p className="text-xs flex items-center gap-1 mt-1 text-slate-400 capitalize">
-                                            Tier:{" "}
-                                            {typeof tier === "string"
-                                                ? tier.toLowerCase()
-                                                : String(tier)}
-                                        </p>
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-orbitron font-black text-sm relative ${
+                                        position === 1 ? 'bg-plasma-gold/20 text-plasma-gold border border-plasma-gold/40 shadow-[0_0_10px_#FFD700]' :
+                                        position === 2 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/40' :
+                                        position === 3 ? 'bg-orange-400/20 text-orange-400 border border-orange-400/40' :
+                                        'bg-arena-dark border border-white/5 text-slate-500'
+                                    }`}>
+                                        {position}
                                     </div>
 
-                                    {/* Stats grid */}
-                                    <div className="flex space-x-6 items-center flex-1 justify-center">
-                                        <div className="text-center">
-                                            <p className="font-bold text-green-400">
-                                                {wins}
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <p className={`font-orbitron font-bold tracking-wider ${isMe ? 'text-plasma-blue' : 'text-slate-200'}`}>
+                                                {currUsername.toUpperCase()}
                                             </p>
-                                            <p className="text-xs text-slate-500">
-                                                Wins
-                                            </p>
+                                            {isMe && <span className="text-[8px] bg-plasma-blue text-arena-dark px-1.5 py-0.5 rounded font-black">YOU</span>}
                                         </div>
-                                        <div className="text-center">
-                                            <p className="font-bold text-red-400">
-                                                {losses}
-                                            </p>
-                                            <p className="text-xs text-slate-500">
-                                                Losses
-                                            </p>
-                                        </div>
-                                        <div className="text-center w-16">
-                                            <p className="font-bold text-blue-300">
-                                                {winRate}
-                                            </p>
-                                            <p className="text-xs text-slate-500">
-                                                Win Rate
-                                            </p>
+                                        <div className="flex gap-4 mt-1 opacity-60">
+                                            <span className="text-[10px] text-slate-500">W: <span className="text-green-400 font-bold">{rankObj.numOfWins || 0}</span></span>
+                                            <span className="text-[10px] text-slate-500">L: <span className="text-plasma-pink font-bold">{rankObj.numOfLosses || 0}</span></span>
+                                            <span className="text-[10px] text-slate-500">WR: <span className="text-white font-bold">{rankObj.winRate || 0}%</span></span>
                                         </div>
                                     </div>
 
-                                    {/* Rank points */}
-                                    <motion.div
-                                        whileHover={{ scale: 1.1 }}
-                                        className={`px-4 py-2 bg-gradient-to-r ${rankColor} rounded-lg text-right ml-4 min-w-[80px]`}
-                                    >
-                                        <p className="font-black text-white text-sm">
-                                            {rankPoints}
+                                    <div className="text-right">
+                                        <p className={`text-xl font-black font-orbitron ${isTop3 ? 'text-plasma-gold' : 'text-plasma-blue/80'}`}>
+                                            {rankObj.rankPoints || 0}
                                         </p>
-                                        <p className="text-xs text-white/80">
-                                            Points
-                                        </p>
-                                    </motion.div>
-
-                                    {/* Current player indicator */}
-                                    {isCurrentPlayer && (
-                                        <motion.div
-                                            animate={{ scale: [1, 1.2, 1] }}
-                                            transition={{
-                                                repeat: Infinity,
-                                                duration: 1,
-                                            }}
-                                            className="ml-2"
-                                        >
-                                            <Crown
-                                                size={20}
-                                                className="text-yellow-400"
-                                            />
-                                        </motion.div>
-                                    )}
+                                        <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Points</p>
+                                    </div>
                                 </motion.div>
                             );
                         })}
                     </motion.div>
                 ) : (
-                    <div className="flex items-center justify-center py-8 text-slate-400">
-                        No players found
+                    <div className="text-center py-20">
+                        <p className="text-slate-500 font-orbitron text-xs tracking-widest uppercase">No combatants found in this sector</p>
                     </div>
                 )}
             </div>

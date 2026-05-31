@@ -20,18 +20,17 @@ const PlayerStatsCard = ({ stats }) => {
 
     // Determine rank color and icon
     const getRankInfo = (rank) => {
-        // Convert to Title Case for safety (e.g. "BRONZE" -> "Bronze")
         const safeRank = rank
             ? rank.charAt(0).toUpperCase() + rank.slice(1).toLowerCase()
             : "Bronze";
 
         const rankMap = {
-            Bronze: { color: "from-amber-700 to-amber-900", icon: "🥉" },
-            Silver: { color: "from-gray-400 to-gray-600", icon: "🥈" },
-            Gold: { color: "from-yellow-400 to-yellow-600", icon: "🥇" },
-            Platinum: { color: "from-blue-300 to-cyan-500", icon: "💎" },
-            Diamond: { color: "from-purple-400 to-purple-600", icon: "👑" },
-            Legend: { color: "from-red-400 to-orange-600", icon: "⭐" },
+            Bronze: { color: "from-amber-700/20 to-amber-900/40", plasma: "text-amber-500", glow: "shadow-amber-500/20", icon: "🥉" },
+            Silver: { color: "from-slate-400/20 to-slate-600/40", plasma: "text-slate-300", glow: "shadow-slate-300/20", icon: "🥈" },
+            Gold: { color: "from-plasma-gold/20 to-plasma-gold/40", plasma: "text-plasma-gold", glow: "shadow-plasma-gold/20", icon: "🥇" },
+            Platinum: { color: "from-plasma-blue/20 to-plasma-blue/40", plasma: "text-plasma-blue", glow: "shadow-plasma-blue/20", icon: "💎" },
+            Diamond: { color: "from-plasma-purple/20 to-plasma-purple/40", plasma: "text-plasma-purple", glow: "shadow-plasma-purple/20", icon: "👑" },
+            Legend: { color: "from-plasma-pink/20 to-plasma-pink/40", plasma: "text-plasma-pink", glow: "shadow-plasma-pink/20", icon: "⭐" },
         };
         return rankMap[safeRank] || rankMap["Bronze"];
     };
@@ -43,7 +42,6 @@ const PlayerStatsCard = ({ stats }) => {
     const losses = stats.totalLosses ?? stats.numOfLosses ?? 0;
     const draws = stats.totalDraws ?? stats.numOfDraws ?? 0;
     const points = stats.rankPoints ?? stats.points ?? 0;
-    const experience = stats.experience ?? stats.xp ?? 0;
 
     const winRate =
         wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0;
@@ -52,161 +50,99 @@ const PlayerStatsCard = ({ stats }) => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-2xl border border-slate-700/50 shadow-2xl"
+            className="relative overflow-hidden rounded-2xl border border-white/10 bg-arena-mid/90 backdrop-blur-xl shadow-2xl font-rajdhani"
         >
-            {/* Background gradient */}
-            <div
-                className={`absolute inset-0 bg-gradient-to-br ${rankInfo.color} opacity-10`}
-            />
-
-            {/* Animated background effects */}
-            <motion.div
-                animate={{
-                    scale: [1, 1.1, 1],
-                    opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className={`absolute inset-0 bg-gradient-to-br ${rankInfo.color} opacity-5`}
-            />
-
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-slate-900/80" />
+            <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
+            
+            {/* Background gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${rankInfo.color} opacity-30`} />
 
             {/* Content */}
             <div className="relative z-10 p-6">
                 {/* Header with rank */}
-                <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start justify-between mb-8">
                     <div>
-                        <h3 className="text-sm font-semibold text-slate-400 mb-1">
-                            Player Rank
-                        </h3>
-                        <p className="text-4xl font-black text-white">
-                            {stats.rank
-                                ? stats.rank.charAt(0).toUpperCase() +
-                                  stats.rank.slice(1).toLowerCase()
-                                : "Bronze"}
+                        <p className="text-[10px] font-black font-orbitron text-slate-500 uppercase tracking-[0.4em] mb-1">
+                            Current Standing
                         </p>
+                        <h3 className={`text-4xl font-black font-orbitron tracking-tighter ${rankInfo.plasma} drop-shadow-[0_0_10px_currentColor]`}>
+                            {stats.rank?.toUpperCase() || "BRONZE"}
+                        </h3>
                     </div>
                     <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className={`text-5xl p-3 rounded-xl bg-gradient-to-br ${rankInfo.color}`}
+                        animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                        className={`text-5xl p-4 rounded-xl bg-arena-dark border border-white/10 shadow-xl ${rankInfo.glow}`}
                     >
                         {rankInfo.icon}
                     </motion.div>
                 </div>
 
-                {/* Rank section */}
-                <div
-                    className={`bg-gradient-to-r ${rankInfo.color} rounded-lg px-4 py-2 mb-6`}
-                >
-                    <p className="text-xs font-semibold text-gray-200 uppercase tracking-wider">
-                        {stats.rank} Rank
+                {/* Technical points readout */}
+                <div className="bg-arena-dark/80 border border-white/5 rounded-xl p-5 mb-8 relative group overflow-hidden">
+                    <div className="absolute top-0 right-0 p-2 opacity-20"><Crown size={40} className={rankInfo.plasma} /></div>
+                    <p className="text-[9px] font-black font-orbitron text-slate-600 uppercase tracking-widest mb-1">
+                        Combat Points Accumulation
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                        <Crown size={16} className="text-yellow-300" />
-                        <p className="text-xl font-bold text-white">
-                            {points} Points
-                        </p>
+                    <div className="flex items-end gap-2">
+                        <span className={`text-4xl font-black font-orbitron ${rankInfo.plasma}`}>{points}</span>
+                        <span className="text-xs font-bold text-slate-500 mb-1.5 uppercase">CP</span>
+                    </div>
+                    
+                    {/* Fake progress bar */}
+                    <div className="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(points % 100)}%` }} // Just for visual
+                            className={`h-full bg-linear-to-r from-transparent via-current to-transparent ${rankInfo.plasma}`}
+                        />
                     </div>
                 </div>
 
                 {/* Stats grid */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                    {/* Wins */}
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-green-900/30 border border-green-500/30 rounded-lg p-3 text-center cursor-pointer hover:bg-green-900/50 transition"
-                    >
-                        <div className="flex justify-center mb-2">
-                            <TrendingUp size={20} className="text-green-400" />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <TrendingUp size={16} className="text-green-400" />
+                            </div>
+                            <div>
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Victories</p>
+                                <p className="text-xl font-black font-orbitron text-green-400">{wins}</p>
+                            </div>
                         </div>
-                        <p className="text-xs font-semibold text-green-300 mb-1">
-                            Wins
-                        </p>
-                        <p className="text-2xl font-black text-green-400">
-                            {wins}
-                        </p>
-                    </motion.div>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-plasma-pink/10 rounded-lg border border-plasma-pink/20">
+                                <TrendingDown size={16} className="text-plasma-pink" />
+                            </div>
+                            <div>
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Defeats</p>
+                                <p className="text-xl font-black font-orbitron text-plasma-pink">{losses}</p>
+                            </div>
+                        </div>
+                    </div>
 
-                    {/* Losses */}
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-center cursor-pointer hover:bg-red-900/50 transition"
-                    >
-                        <div className="flex justify-center mb-2">
-                            <TrendingDown size={20} className="text-red-400" />
+                    <div className="bg-area-dark/40 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative group">
+                        <Target size={40} className="absolute opacity-5 text-plasma-blue group-hover:scale-150 transition-transform duration-1000" />
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Success Rate</p>
+                        <div className="relative">
+                            <svg viewBox="0 0 100 100" className="w-20 h-20">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                                <motion.circle 
+                                    cx="50" cy="50" r="45" fill="none" stroke="#00D4FF" strokeWidth="8"
+                                    strokeDasharray="283"
+                                    initial={{ strokeDashoffset: 283 }}
+                                    animate={{ strokeDashoffset: 283 - (283 * winRate) / 100 }}
+                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                    strokeLinecap="round"
+                                />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-lg font-black font-orbitron text-white">{winRate}%</span>
+                            </div>
                         </div>
-                        <p className="text-xs font-semibold text-red-300 mb-1">
-                            Losses
-                        </p>
-                        <p className="text-2xl font-black text-red-400">
-                            {losses}
-                        </p>
-                    </motion.div>
-
-                    {/* Draws */}
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3 text-center cursor-pointer hover:bg-blue-900/50 transition"
-                    >
-                        <div className="flex justify-center mb-2">
-                            <Target size={20} className="text-blue-400" />
-                        </div>
-                        <p className="text-xs font-semibold text-blue-300 mb-1">
-                            Draws
-                        </p>
-                        <p className="text-2xl font-black text-blue-400">
-                            {draws}
-                        </p>
-                    </motion.div>
+                    </div>
                 </div>
-
-                {/* Win rate */}
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                            <Zap size={18} className="text-purple-400" />
-                            <span className="font-semibold text-purple-300">
-                                Win Rate
-                            </span>
-                        </div>
-                        <span className="text-2xl font-black text-purple-400">
-                            {winRate}%
-                        </span>
-                    </div>
-                    {/* Win rate bar */}
-                    <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${winRate}%` }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
-                        />
-                    </div>
-                </motion.div>
-
-                {/* Experience */}
-                <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-indigo-900/30 border border-indigo-500/30 rounded-lg p-4 mt-3"
-                >
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Crown size={18} className="text-indigo-400" />
-                            <span className="font-semibold text-indigo-300">
-                                Experience (XP)
-                            </span>
-                        </div>
-                        <span className="text-2xl font-black text-indigo-400">
-                            {experience.toLocaleString()} XP
-                        </span>
-                    </div>
-                </motion.div>
             </div>
         </motion.div>
     );

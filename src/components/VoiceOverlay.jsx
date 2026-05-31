@@ -20,132 +20,126 @@ const VoiceOverlay = ({
                     className="fixed inset-0 z-50 flex items-end justify-center p-4 md:p-8 pointer-events-none"
                 >
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 50 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 50 }}
-                        className={`relative w-full max-w-lg overflow-hidden bg-slate-900/90 backdrop-blur-xl border-2 rounded-3xl shadow-2xl pointer-events-auto ${
-                            error ? "border-red-500/50" : "border-blue-500/50"
+                        initial={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
+                        animate={{ scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        exit={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
+                        className={`relative w-full max-w-lg overflow-hidden bg-arena-mid/95 backdrop-blur-xl border-t-2 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] pointer-events-auto font-rajdhani ${
+                            error ? "border-plasma-pink shadow-[0_0_30px_rgba(255,45,120,0.3)]" : "border-plasma-blue shadow-[0_0_30_rgba(0,212,255,0.2)]"
                         }`}
                     >
+                        {/* Scanlines layer */}
+                        <div className="absolute inset-0 scanlines opacity-30 pointer-events-none" />
+                        
                         {/* Background Glow */}
                         <div
-                            className={`absolute inset-0 opacity-20 bg-gradient-to-br transition-colors duration-500 ${
+                            className={`absolute inset-0 opacity-10 bg-linear-to-br transition-colors duration-500 ${
                                 error
-                                    ? "from-red-600 to-transparent"
-                                    : "from-blue-600 to-purple-600"
+                                    ? "from-plasma-pink to-transparent"
+                                    : "from-plasma-blue to-plasma-purple"
                             }`}
                         />
 
-                        <div className="relative p-6 flex flex-row items-center gap-6 text-left">
+                        <div className="relative p-8 flex flex-row items-center gap-8 text-left">
                             <button
                                 onClick={onClose}
-                                className="absolute top-2 right-2 p-2 text-slate-400 hover:text-white transition-colors"
+                                className="absolute top-4 right-4 z-10 p-2 text-slate-500 hover:text-white transition-colors"
                             >
                                 <X size={20} />
                             </button>
 
                             {/* Status Icon */}
-                            <div className="relative flex-shrink-0">
+                            <div className="relative shrink-0">
                                 <AnimatePresence mode="wait">
                                     {isProcessing ? (
                                         <motion.div
                                             key="processing"
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1, rotate: 360 }}
-                                            exit={{ scale: 0 }}
-                                            transition={{
-                                                duration: 0.5,
-                                                repeat: Infinity,
-                                                ease: "linear",
-                                            }}
-                                            className="p-4 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)]"
+                                            className="relative"
                                         >
-                                            <Loader2
-                                                size={40}
-                                                className="text-white"
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "linear",
+                                                }}
+                                                className="absolute -inset-2 border-2 border-dashed border-plasma-blue rounded-full"
                                             />
+                                            <div className="p-5 bg-arena-dark rounded-full border border-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.4)]">
+                                                <Loader2
+                                                    size={40}
+                                                    className="text-plasma-blue animate-spin"
+                                                />
+                                            </div>
                                         </motion.div>
                                     ) : error ? (
                                         <motion.div
                                             key="error"
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            className="p-4 bg-red-500 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.6)]"
+                                            className="p-5 bg-plasma-pink/20 rounded-full border border-plasma-pink shadow-[0_0_20px_rgba(255,45,120,0.4)]"
                                         >
                                             <X
                                                 size={40}
-                                                className="text-white"
+                                                className="text-plasma-pink"
                                             />
                                         </motion.div>
                                     ) : (
                                         <motion.div
                                             key="listening"
-                                            animate={{
-                                                scale: [1, 1.1, 1],
-                                                boxShadow: [
-                                                    "0 0 0px rgba(59,130,246,0)",
-                                                    "0 0 30px rgba(59,130,246,0.5)",
-                                                    "0 0 0px rgba(59,130,246,0)",
-                                                ],
-                                            }}
-                                            transition={{
-                                                repeat: Infinity,
-                                                duration: 1.5,
-                                            }}
-                                            className="p-6 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full"
+                                            className="relative"
                                         >
-                                            <Mic
-                                                size={48}
-                                                className="text-white"
-                                            />
+                                            {/* Sonar pulses */}
+                                            {[1, 2, 3].map((i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ scale: 0.8, opacity: 0.5 }}
+                                                    animate={{ scale: 2, opacity: 0 }}
+                                                    transition={{
+                                                        repeat: Infinity,
+                                                        duration: 2,
+                                                        delay: i * 0.6,
+                                                    }}
+                                                    className="absolute inset-0 border border-plasma-blue rounded-full"
+                                                />
+                                            ))}
+                                            <div className="relative p-6 bg-arena-dark border-2 border-plasma-blue rounded-full shadow-[0_0_30px_rgba(0,212,255,0.3)]">
+                                                <Mic
+                                                    size={48}
+                                                    className="text-plasma-blue"
+                                                />
+                                            </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-
-                                {/* Waveform Animation (Only when listening) */}
-                                {isListening && !isProcessing && (
-                                    <div className="absolute -inset-4 flex items-center justify-center gap-1">
-                                        {[1, 2, 3, 4, 5].map((i) => (
-                                            <motion.div
-                                                key={i}
-                                                animate={{
-                                                    height: [10, 40, 10],
-                                                }}
-                                                transition={{
-                                                    repeat: Infinity,
-                                                    duration: 0.5,
-                                                    delay: i * 0.1,
-                                                }}
-                                                className="w-1 bg-blue-400/50 rounded-full"
-                                            />
-                                        ))}
-                                    </div>
-                                )}
                             </div>
 
-                            <div className="flex-grow">
-                                <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">
+                            <div className="grow">
+                                <h3 className="text-sm font-black text-slate-500 mb-1 uppercase tracking-[0.4em] font-orbitron">
                                     {isProcessing
-                                        ? "Analyzing Command"
+                                        ? "AI Processing"
                                         : error
-                                        ? "Error Occurred"
-                                        : "Listening..."}
+                                        ? "Neural Breach"
+                                        : "Voice Link Active"}
                                 </h3>
+                                <h2 className={`text-2xl font-black mb-3 ${error ? 'text-plasma-pink' : 'text-white'}`}>
+                                    {isProcessing
+                                        ? "Parsing Command..."
+                                        : error
+                                        ? "Command Rejected"
+                                        : "Awaiting Input"}
+                                </h2>
 
-                                <div className="min-h-[2rem] flex flex-col justify-center">
+                                <div className="min-h-10 flex flex-col justify-center border-l-2 border-plasma-blue/20 pl-4 py-1">
                                     {transcript ? (
                                         <motion.p
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-lg text-blue-200 italic font-medium line-clamp-1"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="text-lg text-plasma-blue font-bold tracking-wide italic"
                                         >
                                             "{transcript}"
                                         </motion.p>
                                     ) : (
                                         !error && (
-                                            <p className="text-slate-400 text-sm">
-                                                Say "Row 1 Column 2" or "Top
-                                                Left"
+                                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+                                                [ Speak move coordinates ]
                                             </p>
                                         )
                                     )}
@@ -167,7 +161,7 @@ const VoiceOverlay = ({
                             {error && (
                                 <button
                                     onClick={onClose}
-                                    className="flex-shrink-0 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors font-bold text-sm"
+                                    className="shrink-0 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors font-bold text-sm"
                                 >
                                     TRY AGAIN
                                 </button>

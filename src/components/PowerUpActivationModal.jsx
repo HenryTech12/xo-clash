@@ -30,208 +30,87 @@ const PowerUpActivationModal = ({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                className="fixed inset-0 bg-arena-dark/80 backdrop-blur-xl flex items-center justify-center z-50 p-4 font-rajdhani"
             >
+                <div className="absolute inset-0 scanlines opacity-30 pointer-events-none" />
+                
                 <motion.div
-                    initial={{ scale: 0.8, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.8, opacity: 0, y: 20 }}
-                    transition={{ type: "spring", damping: 20 }}
+                    initial={{ scale: 0.9, opacity: 0, rotateX: 20 }}
+                    animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ type: "spring", damping: 25 }}
                     onClick={(e) => e.stopPropagation()}
-                    className={`relative max-w-md w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border-2 ${powerupConfig.borderColor} overflow-hidden shadow-2xl`}
+                    className="relative max-w-lg w-full bg-arena-mid/95 border border-plasma-blue/30 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(0,212,255,0.2)]"
+                    style={{ perspective: 1000 }}
                 >
-                    {/* Animated background */}
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.1, 1],
-                            opacity: [0.3, 0.5, 0.3],
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className={`absolute inset-0 bg-gradient-to-br ${rarityColor} opacity-20`}
-                    />
-
-                    {/* Close button */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 z-10 p-2 hover:bg-slate-700/50 rounded-lg transition"
-                    >
-                        <X size={24} className="text-slate-400" />
-                    </button>
-
-                    {/* Content */}
-                    <div className="relative z-10 p-8">
-                        {/* Icon */}
-                        <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                ease: "linear",
-                            }}
-                            className={`w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br ${rarityColor} flex items-center justify-center shadow-lg`}
-                        >
-                            <IconComponent size={40} className="text-white" />
-                        </motion.div>
-
-                        {/* Power-up name */}
-                        <h2 className="text-3xl font-black text-center mb-2 text-white">
-                            {powerupConfig.name}
-                        </h2>
-
-                        {/* Rarity badge */}
-                        <div className="text-center mb-4">
-                            <span
-                                className={`inline-block px-3 py-1 text-sm font-bold rounded-full bg-gradient-to-r ${rarityColor} text-white uppercase tracking-wide`}
-                            >
-                                {powerupConfig.rarity}
-                            </span>
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-slate-300 text-center mb-6 text-lg">
-                            {powerupConfig.description}
+                    {/* Header: Identity */}
+                    <div className="bg-arena-dark p-8 text-center relative border-b border-plasma-blue/10">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-plasma-blue" />
+                        <p className="text-[10px] font-black font-orbitron text-plasma-blue/60 uppercase tracking-[0.5em] mb-4">
+                            Module Activation Sequence
                         </p>
-
-                        {/* Abilities */}
-                        <div className="space-y-3 mb-6">
-                            <h3 className="text-purple-300 font-bold text-sm uppercase tracking-wider">
-                                Abilities & Boosts
-                            </h3>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {/* Attack Boost */}
-                                {powerupConfig.attackBoost > 0 && (
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-center"
-                                    >
-                                        <div className="flex justify-center mb-1">
-                                            <Sword
-                                                size={20}
-                                                className="text-red-400"
-                                            />
-                                        </div>
-                                        <p className="text-xs font-bold text-red-300 mb-1">
-                                            Attack Boost
-                                        </p>
-                                        <p className="text-lg font-bold text-red-400">
-                                            +{powerupConfig.attackBoost}%
-                                        </p>
-                                    </motion.div>
-                                )}
-
-                                {/* Defense Boost */}
-                                {powerupConfig.defenseBoost > 0 && (
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 text-center"
-                                    >
-                                        <div className="flex justify-center mb-1">
-                                            <Trophy
-                                                size={20}
-                                                className="text-blue-400"
-                                            />
-                                        </div>
-                                        <p className="text-xs font-bold text-blue-300 mb-1">
-                                            Defense Boost
-                                        </p>
-                                        <p className="text-lg font-bold text-blue-400">
-                                            +{powerupConfig.defenseBoost}%
-                                        </p>
-                                    </motion.div>
-                                )}
-
-                                {/* Duration */}
-                                {powerupConfig.duration > 0 && (
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 text-center"
-                                    >
-                                        <div className="flex justify-center mb-1">
-                                            <Zap
-                                                size={20}
-                                                className="text-yellow-400"
-                                            />
-                                        </div>
-                                        <p className="text-xs font-bold text-yellow-300 mb-1">
-                                            Active
-                                        </p>
-                                        <p className="text-lg font-bold text-yellow-400">
-                                            {powerupConfig.duration}s
-                                        </p>
-                                    </motion.div>
-                                )}
-
-                                {/* Cooldown */}
-                                {powerupConfig.cooldown > 0 && (
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        className="bg-purple-500/20 border border-purple-500/50 rounded-lg p-3 text-center"
-                                    >
-                                        <div className="flex justify-center mb-1">
-                                            <Clock
-                                                size={20}
-                                                className="text-purple-400"
-                                            />
-                                        </div>
-                                        <p className="text-xs font-bold text-purple-300 mb-1">
-                                            Cooldown
-                                        </p>
-                                        <p className="text-lg font-bold text-purple-400">
-                                            {powerupConfig.cooldown}s
-                                        </p>
-                                    </motion.div>
-                                )}
+                        
+                        <div className="relative inline-block mb-6">
+                            <motion.div 
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                                className="absolute -inset-4 border border-dashed border-plasma-blue/30 rounded-full"
+                            />
+                            <div className="p-6 bg-arena-surface rounded-full border border-plasma-blue/50 shadow-[0_0_30px_rgba(0,212,255,0.3)]">
+                                <IconComponent size={48} className="text-plasma-blue" />
                             </div>
                         </div>
 
-                        {/* Hidden potential */}
-                        <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3 mb-6 flex gap-2">
-                            <AlertCircle
-                                size={20}
-                                className="text-blue-400 flex-shrink-0"
-                            />
-                            <p className="text-xs text-blue-300">
-                                {powerupConfig.potential}
-                            </p>
+                        <h2 className="text-4xl font-black font-orbitron text-white tracking-widest mb-2 uppercase">
+                            {powerupConfig.name}
+                        </h2>
+                        <div className="flex justify-center">
+                            <span className="px-3 py-1 bg-plasma-blue/10 border border-plasma-blue/30 rounded-lg text-[10px] font-black font-orbitron text-plasma-blue tracking-[0.2em] uppercase">
+                                Grade: {powerupConfig.rarity || 'Prime'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="p-10">
+                        <p className="text-lg text-slate-300 text-center mb-10 leading-relaxed italic">
+                            "{powerupConfig.description}"
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-4 mb-10">
+                             <div className="p-4 bg-arena-dark/40 border border-white/5 rounded-2xl text-center">
+                                <p className="text-[9px] font-black font-orbitron text-slate-500 uppercase mb-1">Impact Radius</p>
+                                <p className="text-xl font-black font-orbitron text-white">Precise</p>
+                             </div>
+                             <div className="p-4 bg-arena-dark/40 border border-white/5 rounded-2xl text-center">
+                                <p className="text-[9px] font-black font-orbitron text-slate-500 uppercase mb-1">Energy Cost</p>
+                                <p className="text-xl font-black font-orbitron text-plasma-blue">1 Unit</p>
+                             </div>
                         </div>
 
-                        {/* Action buttons */}
-                        <div className="flex gap-3">
-                            <button
-                                onClick={onClose}
-                                disabled={isLoading}
-                                className="flex-1 px-4 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition disabled:opacity-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
+                        <div className="flex flex-col gap-4 relative z-10">
+                            <motion.button
+                                whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(0,212,255,0.4)" }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={onConfirm}
                                 disabled={isLoading}
-                                className={`flex-1 px-4 py-3 rounded-lg bg-gradient-to-r ${rarityColor} hover:opacity-90 text-white font-bold transition disabled:opacity-50 flex items-center justify-center gap-2`}
+                                className="w-full py-5 bg-plasma-blue text-arena-dark rounded-2xl font-black font-orbitron text-sm tracking-[0.4em] uppercase transition-all flex items-center justify-center gap-3"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{
-                                                repeat: Infinity,
-                                                duration: 1,
-                                            }}
-                                        >
-                                            <Sparkles size={18} />
-                                        </motion.div>
-                                        Activating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Zap size={18} />
-                                        Activate
-                                    </>
+                                {isLoading ? "INITIATING..." : (
+                                    <>ENGAGE MODULE <Zap size={18} fill="currentColor" /></>
                                 )}
+                            </motion.button>
+                            
+                            <button
+                                onClick={onClose}
+                                className="w-full py-4 text-slate-500 hover:text-white transition-colors text-[10px] font-black font-orbitron tracking-widest uppercase"
+                            >
+                                Abort Sequence
                             </button>
                         </div>
                     </div>
+
+                    {/* Decorations */}
+                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-plasma-blue/20 to-transparent" />
                 </motion.div>
             </motion.div>
         </AnimatePresence>

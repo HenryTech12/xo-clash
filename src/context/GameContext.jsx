@@ -264,39 +264,21 @@ export const GameProvider = ({ children }) => {
 
                     // CRITICAL: Ensure we merge all fields correctly
                     setGameState((prevState) => {
-                        const nextBoard =
-                            msg.board || (prevState ? prevState.board : null);
-                        const nextPlayers =
-                            msg.players ||
-                            (prevState ? prevState.players : null);
-                        const winnerSymbol = checkWinnerLocal(nextBoard);
-                        const isDrawLocal =
-                            !winnerSymbol && checkDrawLocal(nextBoard);
-
-                        let gameOverLocal =
-                            msg.gameOver || !!winnerSymbol || isDrawLocal;
-                        let winnerLocal = msg.winner;
-                        if (winnerSymbol && !winnerLocal && nextPlayers) {
-                            winnerLocal = Object.keys(nextPlayers).find(
-                                (k) => nextPlayers[k] === winnerSymbol
-                            );
-                        }
-
                         const newState = {
                             ...prevState,
                             ...msg,
-                            board: nextBoard,
+                            board: msg.board || prevState?.board,
+                            players: msg.players || prevState?.players,
                             currentPlayer:
-                                msg.currentPlayer ||
-                                (prevState ? prevState.currentPlayer : null),
-                            players: nextPlayers,
+                                msg.currentPlayer || prevState?.currentPlayer,
                             gameOver:
-                                gameOverLocal ||
-                                (prevState && prevState.gameOver),
+                                msg.gameOver !== undefined
+                                    ? msg.gameOver
+                                    : prevState?.gameOver,
                             winner:
-                                winnerLocal ||
-                                (prevState && prevState.winner) ||
-                                null,
+                                msg.winner !== undefined
+                                    ? msg.winner
+                                    : prevState?.winner,
                         };
                         console.log("New Game State updated:", newState);
 
@@ -490,7 +472,6 @@ export const GameProvider = ({ children }) => {
                 // Send result via WebSocket instead of REST API
                 webSocketService.send(`/app/${gameState.sessionId}/game.end`, {
                     playerId: user.username,
-                    sessionId: gameState.sessionId,
                     againstPlayerId: opponentId,
                     win: isWin,
                     draw: isDraw,
@@ -573,7 +554,7 @@ export const GameProvider = ({ children }) => {
             sessionId: gameState.sessionId,
             row,
             col,
-            player: user.username,
+            playerId: user.username,
         });
     };
 
