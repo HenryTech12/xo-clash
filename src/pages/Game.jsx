@@ -176,7 +176,9 @@ const Game = () => {
     } = useGame();
 
     const mySymbol = gameState?.players?.[user?.username];
-    const isMyTurn = gameState?.currentPlayer === mySymbol;
+    const isMyTurn =
+        gameState?.currentPlayer === mySymbol ||
+        gameState?.currentPlayer === user?.username;
     const opponentName = gameState?.players ? Object.keys(gameState.players).find(u => u !== user?.username) : null;
     const isWinner = gameState?.winner === user?.username;
 
