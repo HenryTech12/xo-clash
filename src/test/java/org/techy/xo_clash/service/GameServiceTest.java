@@ -94,6 +94,52 @@ class GameServiceTest {
     }
 
     @Test
+    void canPlayExtraMove_beforeAnyMoveMade_doesNotThrow() {
+        // No initBoard() call here: simulates a power-up used before either
+        // player has made a first move on this session.
+        newSession("alice", "bob", "alice");
+
+        Map<String, Object> result = gameService.canPlayExtraMove(sessionId, "alice", "EXTRA_MOVE");
+
+        assertNotNull(result.get("board"));
+    }
+
+    @Test
+    void canSwapCell_beforeAnyMoveMade_doesNotThrow() {
+        newSession("alice", "bob", "alice");
+
+        assertDoesNotThrow(() -> gameService.canSwapCell(sessionId, "alice", 0, 0, "SWAP_CELL"));
+    }
+
+    @Test
+    void activateGhostMove_beforeAnyMoveMade_doesNotThrow() {
+        newSession("alice", "bob", "alice");
+
+        Map<String, Object> result = gameService.activateGhostMove(sessionId, 0, 0, "GHOST_MOVE");
+
+        assertNotNull(result.get("board"));
+    }
+
+    @Test
+    void activateBlockMove_beforeAnyMoveMade_doesNotThrow() {
+        newSession("alice", "bob", "alice");
+
+        Map<String, Object> result = gameService.activateBlockMove(sessionId, 0, 0, "BLOCK_CELL");
+
+        assertNotNull(result.get("board"));
+    }
+
+    @Test
+    void requestPlayAgain_unknownSession_throwsInsteadOfNpe() {
+        assertThrows(RuntimeException.class, () -> gameService.requestPlayAgain("no-such-session", "alice"));
+    }
+
+    @Test
+    void acceptPlayAgainRequest_unknownSession_throwsInsteadOfNpe() {
+        assertThrows(RuntimeException.class, () -> gameService.acceptPlayAgainRequest("no-such-session", "alice"));
+    }
+
+    @Test
     void canSwapCell_detectsWinAfterSwap() {
         newSession("alice", "bob", "alice");
         BoardState board = gameService.initBoard(sessionId);

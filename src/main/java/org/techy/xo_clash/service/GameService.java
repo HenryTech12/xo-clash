@@ -224,6 +224,9 @@ public class GameService {
         String currentPlayer = gameSession.getCurrentPlayer();
         if(currentPlayer.equals(playerId)) {
                BoardState boardState = boardStates.get(sessionId);
+               if(boardState == null) {
+                   boardState = initBoard(sessionId);
+               }
                String[][] board = boardState.getBoard();
                String currentSymbol = gameSession.getPlayers().get(playerId);
                if(!Objects.equals(board[targetRow][targetCol], null) && !board[targetRow][targetCol].equals(currentSymbol)) {
@@ -280,11 +283,12 @@ public class GameService {
 
     public Map<String, Object> canPlayExtraMove(String sessionId, String playerId, String powerUpName) {
         GameSession gameSession = gameSessions.get(sessionId);
-        Map<String,Object> result = new LinkedHashMap<>();
-
-        BoardState boardState = boardStates.get(sessionId);
         if(gameSession == null) {
             throw new RuntimeException("Game session not found, Invalid Game");
+        }
+        BoardState boardState = boardStates.get(sessionId);
+        if(boardState == null) {
+            boardState = initBoard(sessionId);
         }
         String currentPlayer = gameSession.getCurrentPlayer();
         if(currentPlayer.equals(playerId)) {
@@ -302,8 +306,14 @@ public class GameService {
     }
 
     public Map<String, Object> activateGhostMove(String sessionId, int row, int col, String powerUpName) {
-        BoardState boardState = boardStates.get(sessionId);
         GameSession gameSession = gameSessions.get(sessionId);
+        if(gameSession == null) {
+            throw new RuntimeException("Game session not found, Invalid Game");
+        }
+        BoardState boardState = boardStates.get(sessionId);
+        if(boardState == null) {
+            boardState = initBoard(sessionId);
+        }
         String[][] board = boardState.getBoard();
         if(!(Objects.equals(board[row][col], "X") || Objects.equals(board[row][col], "O"))) {
             board[row][col] = "G";
@@ -314,8 +324,14 @@ public class GameService {
     }
 
     public Map<String,Object> activateBlockMove(String sessionId, int row, int col, String powerUpName) {
-        BoardState boardState = boardStates.get(sessionId);
         GameSession gameSession = gameSessions.get(sessionId);
+        if(gameSession == null) {
+            throw new RuntimeException("Game session not found, Invalid Game");
+        }
+        BoardState boardState = boardStates.get(sessionId);
+        if(boardState == null) {
+            boardState = initBoard(sessionId);
+        }
         String[][] board = boardState.getBoard();
         if(!(Objects.equals(board[row][col], "X") || Objects.equals(board[row][col], "O"))) {
             board[row][col] = "B";
@@ -381,6 +397,9 @@ public class GameService {
 
     public void requestPlayAgain(String sessionId, String requesterUsername) {
         GameSession gameSession = gameSessions.get(sessionId);
+        if(gameSession == null) {
+            throw new RuntimeException("Game session not found, Invalid Game");
+        }
         String otherPlayer = getTheOtherPlayer(gameSession.getPlayers(), requesterUsername);
         if(!Objects.isNull(otherPlayer)) {
             actionsMessagingTemplate.convertAndSend("/topic/play-again/".concat(sessionId)+"/"+ otherPlayer, GameAction.PLAY_AGAIN);
@@ -389,6 +408,9 @@ public class GameService {
 
     public void rejectPlayAgainRequest(String sessionId, String rejectorUsername) {
         GameSession gameSession = gameSessions.get(sessionId);
+        if(gameSession == null) {
+            throw new RuntimeException("Game session not found, Invalid Game");
+        }
         String otherPlayer = getTheOtherPlayer(gameSession.getPlayers(), rejectorUsername);
 
         if (!Objects.isNull(otherPlayer)) {
@@ -407,6 +429,9 @@ public class GameService {
 
     public Map<String, Object> acceptPlayAgainRequest(String sessionId, String acceptorUsername) {
         GameSession gameSession = gameSessions.get(sessionId);
+        if(gameSession == null) {
+            throw new RuntimeException("Game session not found, Invalid Game");
+        }
         String otherPlayer = getTheOtherPlayer(gameSession.getPlayers(), acceptorUsername);
 
         if (!Objects.isNull(otherPlayer)) {
