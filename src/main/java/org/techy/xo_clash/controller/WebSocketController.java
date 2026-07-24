@@ -80,6 +80,9 @@ public class WebSocketController {
     @MessageMapping("/game/activate")
     @Async
     public void activatePowerUp(@Payload UsePowerUpsRequest request) {
-        powerUpsService.handlePowerUp(request);
+        Map<String,Object> result = powerUpsService.handlePowerUp(request);
+        if (result != null) {
+            messagingTemplate.convertAndSend("/topic/actions/".concat(request.getSessionId()), result);
+        }
     }
 }

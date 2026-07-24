@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.techy.xo_clash.engine.TicTacToeEngine;
 import org.techy.xo_clash.events.GameAction;
 import org.techy.xo_clash.events.PowerUp;
 import org.techy.xo_clash.events.RabbitMQProducer;
@@ -86,6 +85,12 @@ public class GameService {
         BoardState boardState = boardStates.get(gameMoveRequest.getSessionId());
         String gameTurn = gameSession.getPlayers().get(gameMoveRequest.getPlayer());
 
+        if(gameTurn == null) {
+            throw new RuntimeException("Player is not part of this game session");
+        }
+        if(gameMoveRequest.getRow() < 0 || gameMoveRequest.getRow() > 2 || gameMoveRequest.getCol() < 0 || gameMoveRequest.getCol() > 2) {
+            throw new RuntimeException("Invalid move coordinates");
+        }
 
         if((gameTurn.equalsIgnoreCase("X") || gameTurn.equalsIgnoreCase("O")) && gameMoveRequest.getPlayer().
                 equals(gameSession.getCurrentPlayer())) {
@@ -141,6 +146,10 @@ public class GameService {
         }
         else {
             rabbitMQProducer.handleNotifications("notifications.turn", "Invalid Game Turn, Player ".concat(gameTurn).concat(" Make your move"),gameMoveRequest.getSessionId());
+            if(boardState == null) {
+                boardState = initBoard(gameMoveRequest.getSessionId());
+            }
+            result = invalidMoveResponse(gameMoveRequest, boardState, gameSession, gameTurn, "It's not your turn");
         }
 
         gameSessions.replace(gameMoveRequest.getSessionId(),gameSession);
@@ -208,7 +217,6 @@ public class GameService {
 
     public Map<String, Object> canSwapCell(String sessionId, String playerId, int targetRow, int targetCol, String powerUpName) {
         GameSession gameSession = gameSessions.get(sessionId);
-        Map<String,Object> result = new LinkedHashMap<>();
 
         if(gameSession == null) {
             throw new RuntimeException("Game session not found, Invalid Game");
@@ -224,6 +232,25 @@ public class GameService {
                    boardState.setBoard(board);
                    boardStates.replace(sessionId, boardState);
                    rabbitMQProducer.handlePowerUp("powerUps.swap", "Cell swapped successfully", playerId, PowerUp.SWAP_CELL.name());
+
+                   String winner = checkWinner(board);
+                   if(winner != null) {
+                       gameSession.setGameOver(true);
+                       gameSessions.replace(sessionId, gameSession);
+                       Map<String,Object> result = powerUpActivationResponse(gameSession, sessionId, boardState.getBoard(), powerUpName);
+                       result.put("winner", playerId);
+                       result.put("gameOver", true);
+                       result.put("message", "Game Over! Winner: " + playerId);
+                       return result;
+                   } else if(isBoardFull(board)) {
+                       gameSession.setGameOver(true);
+                       gameSessions.replace(sessionId, gameSession);
+                       Map<String,Object> result = powerUpActivationResponse(gameSession, sessionId, boardState.getBoard(), powerUpName);
+                       result.put("winner", "DRAW");
+                       result.put("gameOver", true);
+                       result.put("message", "Game Over! It's a DRAW");
+                       return result;
+                   }
                    return powerUpActivationResponse(gameSession,sessionId, boardState.getBoard(), powerUpName);
                }
         }
@@ -278,7 +305,7 @@ public class GameService {
         BoardState boardState = boardStates.get(sessionId);
         GameSession gameSession = gameSessions.get(sessionId);
         String[][] board = boardState.getBoard();
-        if(!(Objects.equals(board[row][col], "X") && Objects.equals(board[row][col], "O"))) {
+        if(!(Objects.equals(board[row][col], "X") || Objects.equals(board[row][col], "O"))) {
             board[row][col] = "G";
         }
         boardState.setBoard(board);
@@ -290,7 +317,7 @@ public class GameService {
         BoardState boardState = boardStates.get(sessionId);
         GameSession gameSession = gameSessions.get(sessionId);
         String[][] board = boardState.getBoard();
-        if(!(Objects.equals(board[row][col], "X") && Objects.equals(board[row][col], "O"))) {
+        if(!(Objects.equals(board[row][col], "X") || Objects.equals(board[row][col], "O"))) {
             board[row][col] = "B";
         }
         boardState.setBoard(board);

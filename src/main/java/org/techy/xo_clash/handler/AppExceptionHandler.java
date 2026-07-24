@@ -27,6 +27,11 @@ public class AppExceptionHandler {
         return handleCustomMailException(userNotFoundException, "User details not found", request, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(org.techy.xo_clash.handlers.UsernameExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUsernameExistsException(org.techy.xo_clash.handlers.UsernameExistsException usernameExistsException, HttpServletRequest request) {
+        return handleCustomMailException(usernameExistsException, "Username already exists", request, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(io.jsonwebtoken.security.SignatureException.class)
     public ResponseEntity<Map<String, Object>> handleSignatureException(io.jsonwebtoken.security.SignatureException jwtSignatureException, HttpServletRequest request) {
         return handleCustomMailException(jwtSignatureException, "Invalid Jwt token signature", request, HttpStatus.UNAUTHORIZED);

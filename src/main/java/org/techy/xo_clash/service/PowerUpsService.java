@@ -54,7 +54,7 @@ public class PowerUpsService {
 
             if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.GHOST_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
                 updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
-                return gameService.activateGhostMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetRow(), PowerUp.GHOST_MOVE.name()
+                return gameService.activateGhostMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.GHOST_MOVE.name()
                 );
             }
             if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.BLOCK_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
@@ -95,7 +95,7 @@ public class PowerUpsService {
             for(String powerUpName : playerPowerUpsNames) {
                 PlayerPowerUps powerUps = new PlayerPowerUps();
                 powerUps.setPlayerName(playerUsername);
-                powerUps.setPowerupId(powerUpName);
+                powerUps.setPowerupId(playerUsername + ":" + powerUpName);
                 powerUps.setPowerupName(powerUpName);
                 powerUps.setCount(1);
                 toSave.add(powerUps);
