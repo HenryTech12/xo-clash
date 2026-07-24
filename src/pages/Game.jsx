@@ -333,7 +333,9 @@ const Game = () => {
             // if user has points OR if the backend specifically provided this power-up.
             // If the power-up is in availablePowerUps with count > 0, we trust the backend.
             const isActuallyUnlocked = availablePowerUps.some(
-                (up) => up.id === powerUp && up.count > 0
+                (up) =>
+                    (up.powerupName || up.id || up.powerupId) === powerUp &&
+                    up.count > 0
             );
 
             if (userPoints < requiredPoints && !isActuallyUnlocked) {
@@ -818,10 +820,13 @@ const Game = () => {
                         const powerUp =
                             typeof powerUpObj === "string"
                                 ? powerUpObj
-                                : powerUpObj.id || powerUpObj.powerupId;
+                                : powerUpObj.powerupName ||
+                                  powerUpObj.id ||
+                                  powerUpObj.powerupId;
                         const count = powerUpObj.count ?? 1;
                         
                         const config = POWER_UP_CONFIG[powerUp];
+                        if (!config) return null;
                         const pointsForUI = gameState?.rankPoints ?? playerRankPoints ?? 0;
                         const reqRankForUI = config?.unlockRank || "Bronze";
                         const reqPointsForUI = RANK_THRESHOLDS[reqRankForUI] || 0;
