@@ -49,20 +49,29 @@ public class PowerUpsService {
             }
 
             if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.SWAP_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                requireTargetCell(usePowerUpsRequest);
                 return gameService.canSwapCell(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.SWAP_CELL.name());
             }
 
             if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.GHOST_MOVE.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                requireTargetCell(usePowerUpsRequest);
                 updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
                 return gameService.activateGhostMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.GHOST_MOVE.name()
                 );
             }
             if (Objects.equals(usePowerUpsRequest.getPowerUpType(), PowerUp.BLOCK_CELL.name()) && verifyActivation(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType())) {
+                requireTargetCell(usePowerUpsRequest);
                 updatePlayerPowerUps(usePowerUpsRequest.getPlayerId(), usePowerUpsRequest.getPowerUpType());
                 return gameService.activateBlockMove(usePowerUpsRequest.getSessionId(), usePowerUpsRequest.getTargetRow(), usePowerUpsRequest.getTargetCol(), PowerUp.BLOCK_CELL.name());
             }
         }
         return null;
+    }
+
+    private void requireTargetCell(UsePowerUpsRequest usePowerUpsRequest) {
+        if (usePowerUpsRequest.getTargetRow() == null || usePowerUpsRequest.getTargetCol() == null) {
+            throw new IllegalArgumentException("targetRow and targetCol are required for " + usePowerUpsRequest.getPowerUpType());
+        }
     }
 
 
