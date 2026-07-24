@@ -84,7 +84,10 @@ export const GameProvider = ({ children }) => {
             )
                 .then((res) => (res.ok ? res.json() : null))
                 .then((data) => {
-                    if (data && data.unlockedPowerups) {
+                    // Backend returns a raw array of PlayerPowerUps (id: powerupId, count)
+                    if (Array.isArray(data) && data.length > 0) {
+                        setAvailablePowerUps(data);
+                    } else if (data && Array.isArray(data.unlockedPowerups)) {
                         setAvailablePowerUps(data.unlockedPowerups);
                     }
                 })
@@ -554,7 +557,7 @@ export const GameProvider = ({ children }) => {
             sessionId: gameState.sessionId,
             row,
             col,
-            playerId: user.username,
+            player: user.username,
         });
     };
 
