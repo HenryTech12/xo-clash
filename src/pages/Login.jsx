@@ -19,11 +19,7 @@ const Login = () => {
         try {
             const response = await authService.login(formData);
             const userObj = { username: formData.username };
-            login(
-                userObj,
-                response.accessToken.accessToken,
-                response.refreshToken.refreshToken
-            );
+            login(userObj, response.accessToken, response.refreshToken);
             navigate("/dashboard");
         } catch (err) {
             setError(

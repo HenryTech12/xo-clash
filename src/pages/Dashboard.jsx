@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useGame } from "../hooks/useGame";
 import { LogOut, Play, Zap, Trophy, Flame, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
 import { trackService, powerUpService } from "../services/api";
 import PlayerStatsCard from "../components/PlayerStatsCard";
 import PowerUpCard from "../components/PowerUpCard";
@@ -103,14 +104,16 @@ const Dashboard = () => {
                             await powerUpService.getPlayerPowerUps(
                                 user.username
                             );
+                        // Backend returns a raw array of PlayerPowerUps
+                        const powerupsList = Array.isArray(userPowerupsData)
+                            ? userPowerupsData
+                            : userPowerupsData?.unlockedPowerups || [];
                         // Extract power-up data into a map
                         const unlockedMap = {};
-                        (userPowerupsData.unlockedPowerups || []).forEach(
-                            (up) => {
-                                const id = up.powerupId || up.id;
-                                unlockedMap[id] = { ...up, id };
-                            }
-                        );
+                        powerupsList.forEach((up) => {
+                            const id = up.powerupId || up.id;
+                            unlockedMap[id] = { ...up, id };
+                        });
                         setUnlockedPowerUps(unlockedMap);
                     } catch (err) {
                         console.log("User power-ups not yet available:", err);
@@ -125,7 +128,7 @@ const Dashboard = () => {
     }, [user?.username]);
 
     const handlePowerUpSelect = (powerUp) => {
-        setSelectedPowerUp(powerUp);
+        setSelectedPowerUp(POWER_UP_CONFIG[powerUp] || null);
     };
 
     const handlePowerUpActivate = async () => {
@@ -154,9 +157,14 @@ const Dashboard = () => {
             if (response.ok) {
                 console.log(`Power-up ${selectedPowerUp.name} activated!`);
                 setSelectedPowerUp(null);
+            } else {
+                toast.error(
+                    "Power-ups can only be activated during an active match."
+                );
             }
         } catch (error) {
             console.error("Failed to activate power-up:", error);
+            toast.error("Failed to activate power-up. Please try again.");
         } finally {
             setActivatingPowerUp(false);
         }
@@ -452,7 +460,7 @@ const Dashboard = () => {
                                             </div>
                                             {unlocked && (
                                                 <div className="bg-plasma-blue/20 text-plasma-blue text-[10px] font-black px-2 py-1 rounded">
-                                                    x{unlocked.quantity || 0}
+                                                    x{unlocked.count ?? 0}
                                                 </div>
                                             )}
                                         </div>
@@ -477,11 +485,10 @@ const Dashboard = () => {
                 
                 
                 <PowerUpActivationModal
-                    isOpen={!!selectedPowerUp}
-                    powerUp={selectedPowerUp}
+                    powerupConfig={selectedPowerUp}
                     onClose={() => setSelectedPowerUp(null)}
-                    onActivate={handlePowerUpActivate}
-                    loading={activatingPowerUp}
+                    onConfirm={handlePowerUpActivate}
+                    isLoading={activatingPowerUp}
                 />
             </motion.div>
         </div>

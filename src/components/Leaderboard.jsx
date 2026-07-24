@@ -43,11 +43,18 @@ const Leaderboard = ({ username }) => {
 
             setRankings(sortedRankings);
 
-            // Find current player's rank
-            const currentPlayerRank = sortedRankings.find(
+            // Find current player's position in the leaderboard
+            const currentPlayerIndex = sortedRankings.findIndex(
                 (r) => (r.username || r.playerId || r.id) === username
             );
-            setPlayerRank(currentPlayerRank);
+            setPlayerRank(
+                currentPlayerIndex >= 0
+                    ? {
+                          ...sortedRankings[currentPlayerIndex],
+                          position: currentPlayerIndex + 1,
+                      }
+                    : null
+            );
         } catch (error) {
             console.error("Failed to fetch rankings:", error);
         } finally {
@@ -146,7 +153,7 @@ const Leaderboard = ({ username }) => {
                 >
                     <div className="absolute inset-0 scanlines opacity-5 pointer-events-none" />
                     <div className="h-10 w-10 rounded-lg bg-arena-dark border border-plasma-blue/30 flex items-center justify-center font-orbitron font-black text-plasma-blue">
-                        #{playerRank.rank}
+                        #{playerRank.position}
                     </div>
                     <div className="flex-1">
                         <p className="text-[10px] font-black text-plasma-blue/60 uppercase tracking-widest mb-0.5">Your Current Standing</p>

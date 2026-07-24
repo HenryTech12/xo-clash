@@ -22,7 +22,7 @@ class WebSocketService {
             heartbeatOutgoing: 4000,
             reconnectDelay: 5000,
             debug: (str) => {
-                if (process.env.NODE_ENV !== "production") {
+                if (import.meta.env.MODE !== "production") {
                     console.log(str);
                 }
             },

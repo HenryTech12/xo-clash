@@ -213,7 +213,14 @@ const Game = () => {
 
     // Track activated power-up for notification (Stubbed for now)
     const [activatedPowerUp, setActivatedPowerUp] = useState(null);
-    const activePowerUpsDisplay = activePowerUp ? [activePowerUp] : [];
+    const activePowerUpsDisplay = activePowerUp
+        ? [
+              {
+                  type: activePowerUp,
+                  duration: POWER_UP_CONFIG[activePowerUp]?.duration || 1,
+              },
+          ]
+        : [];
 
     // Wrap usePowerUp to track activation for notification
     const handleActivatePowerUp = useCallback(async (powerUpName, row, col) => {
@@ -853,8 +860,15 @@ const Game = () => {
 
             {/* Power-up Activation Notification */}
             <PowerUpActivationNotification
-                activatedPowerUp={activatedPowerUp}
-                playerName={user?.username}
+                notification={
+                    activatedPowerUp
+                        ? {
+                              powerUpType: activatedPowerUp,
+                              playerName: user?.username,
+                          }
+                        : null
+                }
+                onClear={() => setActivatedPowerUp(null)}
             />
 
             {/* Active Power-ups Panel */}
