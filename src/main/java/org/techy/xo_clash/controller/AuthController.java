@@ -38,8 +38,11 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity<Map<String,Object>> getNewAccessToken(HttpServletRequest servletRequest) {
         String token = extractToken(servletRequest); //refresh token
+        if(token == null || jwtService.isTokenInvalidated(token)) {
+            throw new InvalidateTokenException("Refresh token is invalid");
+        }
         String username = jwtService.extractUsername(token);
-        if(jwtService.isTokenInvalidated(token) && username.isEmpty()) {
+        if(username == null || username.isEmpty()) {
             throw new InvalidateTokenException("Refresh token is invalid");
         }
         return new ResponseEntity<>(Map.of("accessToken", jwtService.generateAccessToken(username), "refreshToken",token), HttpStatus.OK);
@@ -49,8 +52,11 @@ public class AuthController {
     @GetMapping("/validate/token")
     public ResponseEntity<Map<String,Object>> validateToken(HttpServletRequest servletRequest) {
         String token = extractToken(servletRequest); //access token
+        if(token == null || jwtService.isTokenInvalidated(token)) {
+            throw new InvalidateTokenException("Refresh token is invalid");
+        }
         String username = jwtService.extractUsername(token);
-        if(jwtService.isTokenInvalidated(token) || username.isEmpty()) {
+        if(username == null || username.isEmpty()) {
             throw new InvalidateTokenException("Refresh token is invalid");
         }
         return new ResponseEntity<>(Map.of("valid", true), HttpStatus.OK);

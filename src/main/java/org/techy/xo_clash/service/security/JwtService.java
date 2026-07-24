@@ -36,12 +36,12 @@ public class JwtService {
     }
 
 
-    public Map<String,Object> generateAccessToken(String subject) {
-        return Map.of("accessToken", generateToken(subject, accessTokenExpiryInMinutes * 60 * 1000));
+    public String generateAccessToken(String subject) {
+        return generateToken(subject, accessTokenExpiryInMinutes * 60 * 1000);
     }
 
-    public Map<String,Object> generateRefreshToken(String subject) {
-        return Map.of("refreshToken", generateToken(subject, refreshTokenExpiryInDays * 24 * 60 * 60 * 1000));
+    public String generateRefreshToken(String subject) {
+        return generateToken(subject, refreshTokenExpiryInDays * 24 * 60 * 60 * 1000);
     }
 
     public String generateToken(String subject, long expiry) {

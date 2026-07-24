@@ -81,15 +81,15 @@ public class SecurityConfiguration {
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             User user = userService.fetchByUsername(userPrincipal.getUsername());
 
-            Map<String, Object> accessToken = jwtService.generateAccessToken(user.getUsername());
-            Map<String, Object> refreshToken = jwtService.generateRefreshToken(user.getUsername());
+            String accessToken = jwtService.generateAccessToken(user.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
             response.getWriter().write(objectMapper.writeValueAsString(Map.of("accessToken", accessToken, "refreshToken", refreshToken, "message", "Login successful", "status", HttpServletResponse.SC_OK)));
         });
         authFilter.setAuthenticationFailureHandler((request, response, exception) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
             response.getWriter().write(objectMapper.writeValueAsString(Map.of("error", "Login failed: " + exception.getMessage(), "status", HttpServletResponse.SC_UNAUTHORIZED)));
-            response.getWriter().write("Login failed: " + exception.getMessage());
         });
         return authFilter;
     }

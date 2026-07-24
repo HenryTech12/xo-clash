@@ -71,6 +71,9 @@ public class GameController {
         String playerId = jwtService.extractUsername(token);
 
         Map<String,String> sessionDetails = matchMakingService.getActiveGameForPlayer(playerId);
+        if(sessionDetails == null) {
+            throw new RuntimeException("No active game found for player");
+        }
         String opponent = sessionDetails.get("opponent");
         String sessionIdFromMapping = sessionDetails.get("sessionId");
         List<String> players = List.of(playerId, opponent);
@@ -119,7 +122,7 @@ public class GameController {
     @GetMapping("/leave")
     public ResponseEntity<Map<String,Object>> leaveGame(HttpServletRequest request, @RequestBody LeaveGameRequest leaveGameRequest) {
         String token = AuthController.extractToken(request);
-        if(jwtService.isTokenInvalidated(token) && jwtService.isTokenInvalidated(token)) {
+        if(token == null || jwtService.isTokenInvalidated(token)) {
             throw new InvalidateTokenException("Invalid Token...");
         }
         String username = jwtService.extractUsername(token);

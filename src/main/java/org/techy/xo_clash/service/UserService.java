@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.techy.xo_clash.dto.UserDTO;
 import org.techy.xo_clash.dto.UserRole;
 import org.techy.xo_clash.handler.UserNotFoundException;
+import org.techy.xo_clash.handlers.UsernameExistsException;
 import org.techy.xo_clash.mapper.UserMapper;
 import org.techy.xo_clash.model.User;
 import org.techy.xo_clash.repository.UserRepository;
@@ -49,6 +50,9 @@ public class UserService {
     @CachePut(value = "users", key = "#result.username")
     public UserDTO createUser(UserDTO userDTO) {
         User user = userMapper.convertToEntity(userDTO);
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new UsernameExistsException("Username already exists: " + user.getUsername());
+        }
         user.setJoined(LocalDateTime.now());
         user.setRole(UserRole.USER.name());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -56,7 +60,9 @@ public class UserService {
             userRepository.save(user);
             log.info("user data saved to database....");
         }
-        catch(DataIntegrityViolationException dataIntegrityViolationException) {}
+        catch(DataIntegrityViolationException dataIntegrityViolationException) {
+            throw new UsernameExistsException("Username or email already exists: " + user.getUsername());
+        }
         return userMapper.convertToDTO(user);
     }
 
