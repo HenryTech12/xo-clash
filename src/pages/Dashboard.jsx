@@ -111,7 +111,11 @@ const Dashboard = () => {
                         // Extract power-up data into a map
                         const unlockedMap = {};
                         powerupsList.forEach((up) => {
-                            const id = up.powerupId || up.id;
+                            // Use powerupName (the plain power-up type, e.g.
+                            // "HINT") as the key: powerupId is now scoped
+                            // per-player (e.g. "alice:HINT") and won't match
+                            // the POWER_UP_CONFIG keys used elsewhere.
+                            const id = up.powerupName || up.powerupId || up.id;
                             unlockedMap[id] = { ...up, id };
                         });
                         setUnlockedPowerUps(unlockedMap);

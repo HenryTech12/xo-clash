@@ -84,7 +84,8 @@ export const GameProvider = ({ children }) => {
             )
                 .then((res) => (res.ok ? res.json() : null))
                 .then((data) => {
-                    // Backend returns a raw array of PlayerPowerUps (id: powerupId, count)
+                    // Backend returns a raw array of PlayerPowerUps
+                    // (type: powerupName, count); powerupId is per-player scoped
                     if (Array.isArray(data) && data.length > 0) {
                         setAvailablePowerUps(data);
                     } else if (data && Array.isArray(data.unlockedPowerups)) {
