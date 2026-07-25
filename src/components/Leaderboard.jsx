@@ -1,26 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { powerUpService } from "../services/api";
-import {
-    Trophy,
-    Crown,
-    Flame,
-    TrendingUp,
-    Search,
-    RefreshCw,
-} from "lucide-react";
-
-const RANK_ICONS = {
-    1: "🥇",
-    2: "🥈",
-    3: "🥉",
-};
-
-const RANK_COLORS = {
-    1: "from-yellow-400 to-yellow-600",
-    2: "from-gray-300 to-gray-500",
-    3: "from-orange-300 to-orange-600",
-};
+import { Trophy, Search, RefreshCw } from "lucide-react";
 
 const Leaderboard = ({ username }) => {
     const [rankings, setRankings] = useState([]);
@@ -94,37 +75,34 @@ const Leaderboard = ({ username }) => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="w-full max-w-4xl bg-arena-mid/95 backdrop-blur-2xl rounded-2xl border border-plasma-blue/20 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] font-rajdhani"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-4xl bg-surface/95 backdrop-blur-2xl rounded-[10px] border border-brand/20 overflow-hidden relative font-rajdhani"
         >
-            <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
-            
             {/* Header */}
-            <div className="bg-arena-dark px-8 py-8 border-b border-plasma-blue/20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-r from-plasma-blue/5 to-transparent pointer-events-none" />
+            <div className="bg-void px-8 py-8 border-b border-brand/20 relative overflow-hidden">
                 <div className="flex items-center justify-between mb-6 relative z-10">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-plasma-blue/10 rounded-xl border border-plasma-blue/30 shadow-[0_0_15px_rgba(0,212,255,0.2)]">
-                            <Trophy size={32} className="text-plasma-blue" />
+                        <div className="p-3 bg-brand/10 rounded-md border border-brand/30">
+                            <Trophy size={32} className="text-brand" />
                         </div>
                         <div>
                             <h2 className="text-3xl font-black font-orbitron text-white tracking-tighter">
-                                SECTOR RANKINGS
+                                Leaderboard
                             </h2>
-                            <p className="text-[10px] font-black font-orbitron text-plasma-blue tracking-[0.4em] uppercase">
-                                Global Tactical Standings
+                            <p className="text-[10px] font-black font-orbitron text-brand tracking-[0.4em] uppercase">
+                                Global Standings
                             </p>
                         </div>
                     </div>
                     <motion.button
-                        whileHover={{ rotate: 180, scale: 1.1 }}
+                        whileHover={{ rotate: 180 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={fetchRankings}
                         disabled={loading}
-                        className="p-3 bg-arena-surface border border-white/10 hover:border-plasma-blue/50 rounded-xl transition-all disabled:opacity-50"
+                        className="p-3 bg-surface-2 border border-white/10 hover:border-brand/50 rounded-md transition-all disabled:opacity-50"
                     >
-                        <RefreshCw size={20} className="text-plasma-blue" />
+                        <RefreshCw size={20} className="text-brand" />
                     </motion.button>
                 </div>
 
@@ -132,14 +110,14 @@ const Leaderboard = ({ username }) => {
                 <div className="relative max-w-md">
                     <Search
                         size={18}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-plasma-blue/40"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand/40"
                     />
                     <input
                         type="text"
-                        placeholder="SEARCH COMBATANT..."
+                        placeholder="Search player..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-arena-dark/50 border border-plasma-blue/20 rounded-xl text-white font-orbitron text-xs tracking-widest placeholder-slate-600 focus:outline-none focus:border-plasma-blue focus:ring-1 focus:ring-plasma-blue/30 transition-all"
+                        className="w-full pl-12 pr-4 py-3 bg-void/50 border border-brand/20 rounded-md text-white font-orbitron text-xs tracking-widest placeholder-slate-600 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/30 transition-all"
                     />
                 </div>
             </div>
@@ -147,41 +125,35 @@ const Leaderboard = ({ username }) => {
             {/* Current Player Status Bar */}
             {playerRank && (
                 <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="bg-plasma-blue/10 border-b border-plasma-blue/20 px-8 py-4 flex items-center gap-6 relative"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-brand/10 border-b border-brand/20 px-8 py-4 flex items-center gap-6 relative"
                 >
-                    <div className="absolute inset-0 scanlines opacity-5 pointer-events-none" />
-                    <div className="h-10 w-10 rounded-lg bg-arena-dark border border-plasma-blue/30 flex items-center justify-center font-orbitron font-black text-plasma-blue">
+                    <div className="h-10 w-10 rounded-md bg-void border border-brand/30 flex items-center justify-center font-data font-black text-brand">
                         #{playerRank.position}
                     </div>
                     <div className="flex-1">
-                        <p className="text-[10px] font-black text-plasma-blue/60 uppercase tracking-widest mb-0.5">Your Current Standing</p>
+                        <p className="text-[10px] font-black text-brand/60 uppercase tracking-widest mb-0.5">Your Current Standing</p>
                         <p className="text-xl font-black text-white font-orbitron">
                             {playerRank.username?.toUpperCase()}
                         </p>
                     </div>
                     <div className="text-right">
-                        <p className="text-2xl font-black text-plasma-gold font-orbitron drop-shadow-[0_0_10px_#FFD700]">
+                        <p className="text-2xl font-black text-rank-gold font-data">
                             {playerRank.rankPoints}
                         </p>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Combat Points</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Rank Points</p>
                     </div>
                 </motion.div>
             )}
 
             {/* Rankings List */}
-            <div className="overflow-y-auto max-h-112.5 p-4 bg-arena-dark/30">
+            <div className="overflow-y-auto max-h-112.5 p-4 bg-void/30">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <motion.div
-                            animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className="w-12 h-12 border-2 border-dashed border-plasma-blue rounded-full"
-                        />
-                        <p className="text-[10px] font-black font-orbitron text-plasma-blue tracking-[0.3em] animate-pulse">
-                            DOWNLOADING DATA...
-                        </p>
+                    <div className="space-y-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="h-16 bg-surface/40 border border-white/5 rounded-md animate-pulse" />
+                        ))}
                     </div>
                 ) : filteredRankings.length > 0 ? (
                     <motion.div
@@ -200,38 +172,37 @@ const Leaderboard = ({ username }) => {
                                 <motion.div
                                     key={index}
                                     variants={itemVariants}
-                                    whileHover={{ x: 10, backgroundColor: 'rgba(0, 212, 255, 0.05)' }}
-                                    className={`px-6 py-4 rounded-xl border flex items-center gap-6 transition-all group ${
-                                        isMe 
-                                            ? 'bg-plasma-blue/10 border-plasma-blue/40 shadow-[0_0_20px_rgba(0,212,255,0.1)]' 
-                                            : 'bg-arena-mid/40 border-white/5 hover:border-plasma-blue/20'
+                                    className={`px-6 py-4 rounded-md border flex items-center gap-6 transition-colors group ${
+                                        isMe
+                                            ? 'bg-brand/10 border-brand/40'
+                                            : 'bg-surface/40 border-white/5 hover:border-brand/20'
                                     }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-orbitron font-black text-sm relative ${
-                                        position === 1 ? 'bg-plasma-gold/20 text-plasma-gold border border-plasma-gold/40 shadow-[0_0_10px_#FFD700]' :
+                                    <div className={`w-10 h-10 rounded-md flex items-center justify-center font-data font-black text-sm relative ${
+                                        position === 1 ? 'bg-rank-gold/20 text-rank-gold border border-rank-gold/40' :
                                         position === 2 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/40' :
                                         position === 3 ? 'bg-orange-400/20 text-orange-400 border border-orange-400/40' :
-                                        'bg-arena-dark border border-white/5 text-slate-500'
+                                        'bg-void border border-white/5 text-slate-500'
                                     }`}>
                                         {position}
                                     </div>
 
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className={`font-orbitron font-bold tracking-wider ${isMe ? 'text-plasma-blue' : 'text-slate-200'}`}>
+                                            <p className={`font-orbitron font-bold tracking-wider ${isMe ? 'text-brand' : 'text-slate-200'}`}>
                                                 {currUsername.toUpperCase()}
                                             </p>
-                                            {isMe && <span className="text-[8px] bg-plasma-blue text-arena-dark px-1.5 py-0.5 rounded font-black">YOU</span>}
+                                            {isMe && <span className="text-[8px] bg-brand text-void px-1.5 py-0.5 rounded font-black">YOU</span>}
                                         </div>
-                                        <div className="flex gap-4 mt-1 opacity-60">
-                                            <span className="text-[10px] text-slate-500">W: <span className="text-green-400 font-bold">{rankObj.numOfWins || 0}</span></span>
-                                            <span className="text-[10px] text-slate-500">L: <span className="text-plasma-pink font-bold">{rankObj.numOfLosses || 0}</span></span>
-                                            <span className="text-[10px] text-slate-500">WR: <span className="text-white font-bold">{rankObj.winRate || 0}%</span></span>
+                                        <div className="flex gap-4 mt-1 opacity-60 font-data">
+                                            <span className="text-[10px] text-slate-500">W <span className="text-live font-bold">{rankObj.numOfWins || 0}</span></span>
+                                            <span className="text-[10px] text-slate-500">L <span className="text-danger font-bold">{rankObj.numOfLosses || 0}</span></span>
+                                            <span className="text-[10px] text-slate-500">WR <span className="text-white font-bold">{rankObj.winRate || 0}%</span></span>
                                         </div>
                                     </div>
 
                                     <div className="text-right">
-                                        <p className={`text-xl font-black font-orbitron ${isTop3 ? 'text-plasma-gold' : 'text-plasma-blue/80'}`}>
+                                        <p className={`text-xl font-black font-data ${isTop3 ? 'text-rank-gold' : 'text-brand/80'}`}>
                                             {rankObj.rankPoints || 0}
                                         </p>
                                         <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Points</p>
@@ -242,7 +213,7 @@ const Leaderboard = ({ username }) => {
                     </motion.div>
                 ) : (
                     <div className="text-center py-20">
-                        <p className="text-slate-500 font-orbitron text-xs tracking-widest uppercase">No combatants found in this sector</p>
+                        <p className="text-slate-500 font-orbitron text-xs tracking-widest uppercase">No players found</p>
                     </div>
                 )}
             </div>

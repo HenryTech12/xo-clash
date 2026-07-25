@@ -1,5 +1,5 @@
 // Power-up configuration mapping actual backend power-ups
-import { Zap, Lock, RotateCcw, Shuffle, Lightbulb, Ghost } from "lucide-react";
+import { Zap, Lock, RotateCcw, ArrowLeftRight, Lightbulb, Ghost } from "lucide-react";
 
 export const POWER_UP_CONFIG = {
     EXTRA_MOVE: {
@@ -54,7 +54,7 @@ export const POWER_UP_CONFIG = {
         id: "SWAP_CELL",
         name: "Swap Cell",
         description: "Exchange contents of any two cells on the board",
-        icon: Shuffle,
+        icon: ArrowLeftRight,
         type: "TACTICAL",
         rarity: "epic",
         attackBoost: 60,
@@ -98,6 +98,18 @@ export const POWER_UP_CONFIG = {
         color: "from-pink-400 to-pink-600",
         borderColor: "border-pink-500",
     },
+};
+
+// Rank-point thresholds, shared between power-up unlock checks (Game.jsx)
+// and any UI that shows progress toward the next rank (PlayerStatsCard).
+export const RANK_THRESHOLDS = {
+    Bronze: 0,
+    Silver: 200,
+    Gold: 380,
+    Platinum: 450,
+    Diamond: 600,
+    Master: 800,
+    Grandmaster: 1000,
 };
 
 export const RARITY_COLORS = {
