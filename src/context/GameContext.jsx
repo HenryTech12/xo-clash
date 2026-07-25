@@ -87,12 +87,10 @@ export const GameProvider = ({ children }) => {
     const [playAgainFrom, setPlayAgainFrom] = useState(null); // username of the player requesting play again
 
     // Power up State
-    const [availablePowerUps, setAvailablePowerUps] = useState([
-        { id: "EXTRA_MOVE", count: 2 },
-        { id: "BLOCK_CELL", count: 1 },
-        { id: "UNDO_MOVE", count: 1 },
-        { id: "HINT", count: 5 },
-    ]);
+    // Real counts arrive from the player-powerups fetch below; starting
+    // empty (rather than a fabricated default) avoids briefly showing
+    // made-up quantities - or omitting power-ups entirely - before it resolves.
+    const [availablePowerUps, setAvailablePowerUps] = useState([]);
     const [playerStats, setPlayerStats] = useState(null);
     const [activePowerUp, setActivePowerUp] = useState(null); // Power-up currently selected to be used
 

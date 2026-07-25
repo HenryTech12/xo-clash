@@ -227,7 +227,7 @@ const Game = () => {
         fetchPlayerStats();
     }, [user?.username]);
 
-    // Track activated power-up for notification (Stubbed for now)
+    // Track activated power-up for notification
     const [activatedPowerUp, setActivatedPowerUp] = useState(null);
     const activePowerUpsDisplay = activePowerUp
         ? [
@@ -641,6 +641,7 @@ const Game = () => {
                         symbol={mySymbol}
                         isTurn={isMyTurn && !gameState.gameOver}
                         isSelf={true}
+                        connected={connected}
                     />
 
                     <div className="relative flex flex-col items-center justify-center px-4">
@@ -882,7 +883,7 @@ const Game = () => {
     );
 };
 
-const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
+const PlayerCard = ({ name, symbol, isTurn, isSelf, connected }) => (
     <motion.div
         animate={
             isTurn
@@ -937,8 +938,10 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
                     </motion.span>
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black font-orbitron uppercase text-slate-500 tracking-[0.2em] mb-1">
-                        {isSelf ? "Cortex Link: 100%" : "Neutral Link: OK"}
+                    <p className={`text-[9px] font-black font-orbitron uppercase tracking-[0.2em] mb-1 ${
+                        isSelf && !connected ? "text-warn" : "text-slate-500"
+                    }`}>
+                        {isSelf ? (connected ? "Connected" : "Reconnecting") : "In Match"}
                     </p>
                     <h3 className="text-sm font-bold text-white truncate font-orbitron tracking-tight uppercase">
                         {name}
