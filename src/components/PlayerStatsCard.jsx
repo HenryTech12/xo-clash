@@ -1,5 +1,4 @@
-import React from "react";
-import { TrendingUp, TrendingDown, Target, Medal, Gem, Crown } from "lucide-react";
+import { TrendingUp, TrendingDown, Equal, Target, Medal, Gem, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import { RANK_THRESHOLDS } from "../config/powerUpConfig";
 
@@ -48,6 +47,7 @@ const PlayerStatsCard = ({ stats }) => {
 
     const wins = stats.totalWins ?? stats.numOfWins ?? 0;
     const losses = stats.totalLosses ?? stats.numOfLosses ?? 0;
+    const draws = stats.totalDraws ?? stats.numOfDraws ?? 0;
     const points = stats.rankPoints ?? stats.points ?? 0;
 
     const winRate =
@@ -118,6 +118,15 @@ const PlayerStatsCard = ({ stats }) => {
                             <div>
                                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Losses</p>
                                 <p className="text-xl font-black font-data text-danger">{losses}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/5 rounded-md border border-white/10">
+                                <Equal size={16} className="text-slate-400" />
+                            </div>
+                            <div>
+                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Draws</p>
+                                <p className="text-xl font-black font-data text-slate-400">{draws}</p>
                             </div>
                         </div>
                     </div>

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useGame } from "../hooks/useGame";
-import { LogOut, Play, Zap, Trophy, Lock, AlertTriangle, X } from "lucide-react";
+import { LogOut, Play, Zap, Trophy, AlertTriangle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { trackService, powerUpService } from "../services/api";
 import PowerUpActivationModal from "../components/PowerUpActivationModal";
+import PowerUpCard from "../components/PowerUpCard";
+import PlayerStatsCard from "../components/PlayerStatsCard";
 import Leaderboard from "../components/Leaderboard";
 import { POWER_UP_CONFIG } from "../config/powerUpConfig";
 
@@ -15,29 +17,6 @@ const formatQueueTime = (seconds) => {
         .padStart(2, "0");
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
-};
-
-// Win-rate ring - a single small SVG, not worth its own component for one call site.
-const WinRateRing = ({ winRate }) => {
-    const circumference = 2 * Math.PI * 26;
-    return (
-        <div className="relative w-16 h-16 shrink-0">
-            <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
-                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-                <motion.circle
-                    cx="32" cy="32" r="26" fill="none" stroke="#5b6ef5" strokeWidth="6"
-                    strokeDasharray={circumference}
-                    strokeLinecap="round"
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: circumference - (circumference * winRate) / 100 }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-data text-[11px] text-white">{winRate}%</span>
-            </div>
-        </div>
-    );
 };
 
 const IdentitySkeleton = () => (
@@ -69,7 +48,6 @@ const Dashboard = () => {
         rankPoints: 0,
     });
 
-    const [availablePowerUps, setAvailablePowerUps] = useState([]);
     const [unlockedPowerUps, setUnlockedPowerUps] = useState([]);
     const [selectedPowerUp, setSelectedPowerUp] = useState(null);
     const [activatingPowerUp, setActivatingPowerUp] = useState(false);
@@ -119,14 +97,6 @@ const Dashboard = () => {
                 console.error("Both stats endpoints failed", fallbackErr);
                 setStatsError("Couldn't load your stats.");
             }
-        }
-
-        try {
-            const allPowerUps = await powerUpService.getAvailablePowerUps();
-            setAvailablePowerUps(allPowerUps);
-        } catch (err) {
-            console.error("Failed to fetch power-ups:", err);
-            setAvailablePowerUps(Object.keys(POWER_UP_CONFIG));
         }
 
         try {
@@ -250,9 +220,9 @@ const Dashboard = () => {
                         {loading ? (
                             <IdentitySkeleton />
                         ) : (
-                            <div className="bg-surface/80 border border-brand/30 p-6 rounded-[10px] shadow-[0_0_30px_rgba(91,110,245,0.05)] relative overflow-hidden">
+                            <>
                                 {statsError && (
-                                    <div className="mb-5 flex items-center justify-between gap-3 rounded-md border border-warn/30 bg-warn/10 px-4 py-3">
+                                    <div className="flex items-center justify-between gap-3 rounded-md border border-warn/30 bg-warn/10 px-4 py-3">
                                         <div className="flex items-center gap-2">
                                             <AlertTriangle size={14} className="text-warn shrink-0" />
                                             <p className="font-data text-[11px] text-warn">{statsError}</p>
@@ -266,56 +236,23 @@ const Dashboard = () => {
                                     </div>
                                 )}
 
-                                <div className="absolute top-0 right-0 p-4">
-                                    <Trophy size={20} className="text-rank-gold drop-shadow-[0_0_10px_#e8b84b]" />
-                                </div>
-
-                                <div className="flex items-center gap-5 mt-4">
+                                <div className="flex items-center gap-5 bg-surface/80 border border-brand/30 p-6 rounded-[10px]">
                                     <div className="relative">
-                                        <div className="w-20 h-20 bg-surface-2 border-2 border-brand rounded-[10px] flex items-center justify-center text-4xl font-black font-orbitron text-brand shadow-[0_0_20px_rgba(91,110,245,0.3)]">
+                                        <div className="w-16 h-16 bg-surface-2 border-2 border-brand rounded-[10px] flex items-center justify-center text-3xl font-black font-orbitron text-brand">
                                             {user?.username?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="absolute -bottom-2 -right-2 bg-rank-gold text-void text-[10px] font-black px-2 py-1 rounded border border-void uppercase">
                                             Lvl {dashboardData.level || 1}
                                         </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h2 className="text-2xl font-black font-orbitron text-white tracking-widest truncate">
-                                            {user?.username}
-                                        </h2>
-                                        <p className="text-rank-gold font-bold text-xs uppercase tracking-widest mt-1">
-                                            {dashboardData.rank || "Unranked"}
-                                        </p>
-                                    </div>
-                                    <WinRateRing winRate={dashboardData.winRate || 0} />
+                                    <h2 className="flex-1 min-w-0 text-2xl font-black font-orbitron text-white tracking-widest truncate">
+                                        {user?.username}
+                                    </h2>
                                 </div>
 
-                                <div className="mt-8 flex items-center justify-between gap-3 rounded-md border border-white/5 bg-void/50 px-4 py-3">
-                                    <span className="font-data text-[10px] uppercase tracking-widest text-slate-500">
-                                        Rank Points
-                                    </span>
-                                    <span className="font-data text-lg text-brand">{dashboardData.rankPoints || 0}</span>
-                                </div>
-                            </div>
+                                <PlayerStatsCard stats={dashboardData} />
+                            </>
                         )}
-
-                        <div className="grid grid-cols-3 gap-2">
-                            {[
-                                { label: "W", value: dashboardData.numOfWins, color: "text-live" },
-                                { label: "L", value: dashboardData.numOfLosses, color: "text-danger" },
-                                { label: "D", value: dashboardData.numOfDraws, color: "text-slate-400" },
-                            ].map((stat) => (
-                                <div
-                                    key={stat.label}
-                                    className="bg-surface/30 border border-white/5 p-3 rounded-md text-center backdrop-blur-sm"
-                                >
-                                    <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">
-                                        {stat.label}
-                                    </p>
-                                    <p className={`font-data text-lg tabular-nums ${stat.color}`}>{stat.value ?? 0}</p>
-                                </div>
-                            ))}
-                        </div>
 
                         {matchmaking ? (
                             <div className="w-full rounded-[10px] border border-brand/30 bg-surface/80 px-5 py-4 flex items-center justify-between gap-4">
@@ -380,53 +317,16 @@ const Dashboard = () => {
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                 {Object.keys(POWER_UP_CONFIG).map((powerUpKey) => {
-                                    const config = POWER_UP_CONFIG[powerUpKey];
                                     const unlocked = unlockedPowerUps[powerUpKey];
-                                    const isAvailable = availablePowerUps.includes(powerUpKey);
-                                    const PowerUpIcon = config.icon || Zap;
 
                                     return (
-                                        <motion.div
+                                        <PowerUpCard
                                             key={powerUpKey}
-                                            whileHover={{ scale: 1.02 }}
-                                            onClick={() => handlePowerUpSelect(powerUpKey)}
-                                            className={`cursor-pointer p-5 rounded-[10px] border transition-colors relative overflow-hidden group ${
-                                                unlocked
-                                                    ? "bg-surface/80 border-brand/20 hover:border-brand"
-                                                    : "bg-surface-2/40 border-white/5 opacity-60 grayscale"
-                                            }`}
-                                        >
-                                            {!unlocked && (
-                                                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-void/95 backdrop-blur-sm">
-                                                    <Lock size={24} className="text-slate-500 mb-2" />
-                                                    <p className="text-[10px] font-black font-orbitron uppercase text-slate-400">
-                                                        Locked{isAvailable === false ? "" : ` · ${config.unlockRank || "Bronze"}`}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="p-3 bg-void rounded-md border border-white/5 group-hover:border-brand/50 transition-colors">
-                                                    <PowerUpIcon size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
-                                                </div>
-                                                {unlocked && (
-                                                    <div className="bg-brand/20 text-brand font-data text-[10px] font-black px-2 py-1 rounded">
-                                                        x{unlocked.count ?? 0}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <h4 className="font-orbitron font-bold text-xs tracking-wider mb-2 text-white">
-                                                {config.name}
-                                            </h4>
-                                            <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2">
-                                                {config.description}
-                                            </p>
-
-                                            {unlocked && (
-                                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            )}
-                                        </motion.div>
+                                            powerupType={powerUpKey}
+                                            isUnlocked={!!unlocked}
+                                            count={unlocked?.count ?? 0}
+                                            onActivate={() => handlePowerUpSelect(powerUpKey)}
+                                        />
                                     );
                                 })}
                             </div>
