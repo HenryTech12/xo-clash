@@ -69,61 +69,45 @@ const Login = () => {
             </div>
 
             <motion.div
-                initial={{ opacity: 0, y: 100, filter: 'blur(20px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
                 className="max-w-md w-full relative z-10"
-                style={{ perspective: 1000 }}
             >
-                <div 
-                    className="w-full bg-surface/80 backdrop-blur-xl border border-brand/30 p-8 rounded-2xl shadow-[0_0_40px_rgba(91, 110, 245,0.1),0_0_100px_rgba(185, 143, 240,0.05),inset_0_0_40px_rgba(91, 110, 245,0.03)] relative overflow-hidden"
-                    style={{ transform: "perspective(1000px) rotateX(2deg)" }}
-                >
-                    <div className="text-center mb-8 relative">
-                        <motion.div className="flex justify-center items-center gap-2 mb-2">
-                             <motion.h1 
-                                className="text-6xl font-black font-orbitron text-brand drop-shadow-[0_0_15px_rgba(91, 110, 245,0.5)]"
-                                animate={{ opacity: [0.8, 1, 0.8] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >X</motion.h1>
-                            <motion.div 
-                                animate={{ opacity: [1, 0.5, 1], scale: [1, 1.1, 1] }}
-                                transition={{ duration: 0.5, repeat: Infinity }}
-                                className="text-danger"
-                            >
+                <div className="w-full bg-surface/80 backdrop-blur-xl border border-brand/30 p-8 rounded-[10px] shadow-[0_0_40px_rgba(91,110,245,0.1)] relative overflow-hidden">
+                    <motion.div variants={itemVariants} className="text-center mb-8 relative">
+                        <div className="flex justify-center items-center gap-2 mb-2">
+                            <h1 className="text-6xl font-black font-orbitron text-brand drop-shadow-[0_0_15px_rgba(91,110,245,0.5)]">X</h1>
+                            <div className="text-danger">
                                 <Zap size={30} fill="currentColor" />
-                            </motion.div>
-                            <motion.h1 
-                                className="text-6xl font-black font-orbitron text-master drop-shadow-[0_0_15px_rgba(185, 143, 240,0.5)]"
-                                animate={{ opacity: [0.8, 1, 0.8] }}
-                                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                            >O</motion.h1>
-                        </motion.div>
-                        <motion.p className="text-slate-400 font-medium tracking-[0.2em] uppercase text-xs">
-                            Access Terminal
-                        </motion.p>
-                    </div>
+                            </div>
+                            <h1 className="text-6xl font-black font-orbitron text-master drop-shadow-[0_0_15px_rgba(185,143,240,0.5)]">O</h1>
+                        </div>
+                        <p className="text-slate-400 font-medium tracking-[0.2em] uppercase text-xs">
+                            Sign in to continue
+                        </p>
+                    </motion.div>
 
                     {error && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-danger/15 border border-danger/50 text-danger p-4 rounded-lg mb-6 text-sm font-bold backdrop-blur-sm shadow-[0_0_15px_rgba(255, 84, 104,0.2)]"
+                            className="bg-danger/15 border border-danger/50 text-danger p-4 rounded-md mb-6 text-sm font-bold backdrop-blur-sm"
                         >
                             <X className="inline-block mr-2" size={16} /> {error}
                         </motion.div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="group">
+                        <motion.div variants={itemVariants} className="group">
                             <label className="block text-[10px] uppercase font-bold text-brand/70 mb-1 tracking-widest px-1">
-                                Player Identity
+                                Username
                             </label>
                             <div className="relative">
                                 <input
                                     type="text"
                                     required
-                                    className="w-full bg-surface-2 border-b-2 border-brand/30 rounded-t-lg px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand transition-all focus:bg-surface-2/80"
+                                    className="w-full bg-surface-2 border-b-2 border-brand/30 rounded-t-md px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand transition-all focus:bg-surface-2/80"
                                     placeholder="Enter username"
                                     value={formData.username}
                                     onChange={(e) =>
@@ -135,17 +119,17 @@ const Login = () => {
                                 />
                                 <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand shadow-[0_0_10px_#5b6ef5] transition-all duration-500 group-focus-within:w-full" />
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="group">
+                        <motion.div variants={itemVariants} className="group">
                             <label className="block text-[10px] uppercase font-bold text-brand/70 mb-1 tracking-widest px-1">
-                                Secure Key
+                                Password
                             </label>
                             <div className="relative">
                                 <input
                                     type="password"
                                     required
-                                    className="w-full bg-surface-2 border-b-2 border-brand/30 rounded-t-lg px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand transition-all focus:bg-surface-2/80"
+                                    className="w-full bg-surface-2 border-b-2 border-brand/30 rounded-t-md px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand transition-all focus:bg-surface-2/80"
                                     placeholder="Enter password"
                                     value={formData.password}
                                     onChange={(e) =>
@@ -157,47 +141,46 @@ const Login = () => {
                                 />
                                 <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand shadow-[0_0_10px_#5b6ef5] transition-all duration-500 group-focus-within:w-full" />
                             </div>
-                        </div>
+                        </motion.div>
 
                         <motion.button
-                            whileHover={{ scale: 1.02, translateY: -3 }}
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={loading}
-                            className="w-full plasma-border group relative overflow-hidden p-0.5 rounded-xl font-orbitron font-bold text-sm tracking-[0.2em] transition-all shadow-[0_0_30px_rgba(91, 110, 245,0.2)]"
+                            className="w-full bg-brand hover:bg-[#6d7ef7] rounded-md py-4 font-orbitron font-bold text-sm tracking-[0.2em] transition-colors flex items-center justify-center gap-2 text-white"
                         >
-                            <div className="bg-void py-4 rounded-[10px] w-full h-full flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors">
-                                {loading ? (
-                                    <div className="flex gap-1">
-                                        {[1,2,3].map(i => (
-                                            <motion.div 
-                                                key={i}
-                                                animate={{ scaleY: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                                                transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.1 }}
-                                                className="w-1 h-3 bg-brand"
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <>
-                                        AUTHENTICATE <LogIn size={18} />
-                                    </>
-                                )}
-                            </div>
+                            {loading ? (
+                                <div className="flex gap-1">
+                                    {[1,2,3].map(i => (
+                                        <motion.div
+                                            key={i}
+                                            animate={{ scaleY: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                                            transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.1 }}
+                                            className="w-1 h-3 bg-white"
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <>
+                                    Log In <LogIn size={18} />
+                                </>
+                            )}
                         </motion.button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+                    <motion.div variants={itemVariants} className="mt-8 pt-6 border-t border-slate-800 text-center">
                         <p className="text-slate-500 text-xs tracking-widest uppercase">
-                            New Combatant?{" "}
+                            New here?{" "}
                             <Link
                                 to="/signup"
                                 className="text-brand hover:text-white transition-colors font-bold ml-1"
                             >
-                                Register Signal
+                                Sign Up
                             </Link>
                         </p>
-                    </div>
+                    </motion.div>
                 </div>
             </motion.div>
         </div>
