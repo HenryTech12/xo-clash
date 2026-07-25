@@ -23,8 +23,8 @@ const VoiceOverlay = ({
                         initial={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
                         animate={{ scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' }}
                         exit={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
-                        className={`relative w-full max-w-lg overflow-hidden bg-surface/95 backdrop-blur-xl border-t-2 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] pointer-events-auto font-rajdhani ${
-                            error ? "border-danger shadow-[0_0_30px_rgba(255, 84, 104,0.3)]" : "border-brand shadow-[0_0_30_rgba(91, 110, 245,0.2)]"
+                        className={`relative w-full max-w-lg overflow-hidden bg-surface/95 backdrop-blur-xl border-t-2 rounded-[10px] pointer-events-auto font-rajdhani ${
+                            error ? "border-danger" : "border-brand"
                         }`}
                     >
                         {/* Scanlines layer */}
@@ -161,7 +161,7 @@ const VoiceOverlay = ({
                             {error && (
                                 <button
                                     onClick={onClose}
-                                    className="shrink-0 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors font-bold text-sm"
+                                    className="shrink-0 px-6 py-2 bg-surface-2 hover:bg-surface-3 text-white rounded-full transition-colors font-bold text-sm"
                                 >
                                     TRY AGAIN
                                 </button>

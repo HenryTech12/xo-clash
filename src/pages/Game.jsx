@@ -11,11 +11,12 @@ import {
     Lock,
     RefreshCcw,
     Zap,
+    Ghost,
 } from "lucide-react";
 import { gameService } from "../services/api";
 import confetti from "canvas-confetti";
 import { toast } from "react-hot-toast";
-import { POWER_UP_CONFIG } from "../config/powerUpConfig";
+import { POWER_UP_CONFIG, RANK_THRESHOLDS } from "../config/powerUpConfig";
 import PowerUpActivationNotification from "../components/PowerUpActivationNotification";
 import ActivePowerUpsPanel from "../components/ActivePowerUpsPanel";
 import VoiceOverlay from "../components/VoiceOverlay";
@@ -81,7 +82,7 @@ const BoardCell = memo(
                 {/* Ghosted Effect Overlay */}
                 {isGhosted && (
                     <div className="absolute inset-0 bg-brand/10 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                         <Zap className="text-brand opacity-50 animate-pulse" size={32} />
+                         <Ghost className="text-brand opacity-50 animate-pulse" size={32} />
                     </div>
                 )}
 
@@ -169,16 +170,6 @@ const StatusPill = ({ tone, children }) => (
     </div>
 );
 
-// Rank thresholds for power-up unlocking
-const RANK_THRESHOLDS = {
-    Bronze: 0,
-    Silver: 200,
-    Gold: 380,
-    Platinum: 450,
-    Diamond: 600,
-    Master: 800,
-    Grandmaster: 1000,
-};
 
 const Game = () => {
     const { user } = useAuth();
@@ -838,6 +829,7 @@ const Game = () => {
                         const reqPointsForUI = RANK_THRESHOLDS[reqRankForUI] || 0;
                         const isLockedUI = pointsForUI < reqPointsForUI;
                         const isZero = count <= 0;
+                        const PowerUpIcon = config.icon || Zap;
 
                         return (
                             <motion.button
@@ -853,7 +845,7 @@ const Game = () => {
                                         : "bg-surface-2/40 text-slate-600 border border-white/5 cursor-not-allowed"
                                 }`}
                             >
-                                <Zap size={14} className={activePowerUp === powerUp ? "text-white" : !isZero && !isLockedUI ? "text-brand" : "text-slate-700"} />
+                                <PowerUpIcon size={14} className={activePowerUp === powerUp ? "text-white" : !isZero && !isLockedUI ? "text-brand" : "text-slate-700"} />
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-orbitron uppercase tracking-widest">{config.name}</span>
                                     {isLockedUI ? (

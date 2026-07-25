@@ -383,6 +383,7 @@ const Dashboard = () => {
                                     const config = POWER_UP_CONFIG[powerUpKey];
                                     const unlocked = unlockedPowerUps[powerUpKey];
                                     const isAvailable = availablePowerUps.includes(powerUpKey);
+                                    const PowerUpIcon = config.icon || Zap;
 
                                     return (
                                         <motion.div
@@ -406,7 +407,7 @@ const Dashboard = () => {
 
                                             <div className="flex justify-between items-start mb-4">
                                                 <div className="p-3 bg-void rounded-md border border-white/5 group-hover:border-brand/50 transition-colors">
-                                                    <Zap size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
+                                                    <PowerUpIcon size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
                                                 </div>
                                                 {unlocked && (
                                                     <div className="bg-brand/20 text-brand font-data text-[10px] font-black px-2 py-1 rounded">
