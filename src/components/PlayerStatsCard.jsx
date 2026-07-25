@@ -27,10 +27,10 @@ const PlayerStatsCard = ({ stats }) => {
         const rankMap = {
             Bronze: { color: "from-amber-700/20 to-amber-900/40", plasma: "text-amber-500", glow: "shadow-amber-500/20", icon: "🥉" },
             Silver: { color: "from-slate-400/20 to-slate-600/40", plasma: "text-slate-300", glow: "shadow-slate-300/20", icon: "🥈" },
-            Gold: { color: "from-plasma-gold/20 to-plasma-gold/40", plasma: "text-plasma-gold", glow: "shadow-plasma-gold/20", icon: "🥇" },
-            Platinum: { color: "from-plasma-blue/20 to-plasma-blue/40", plasma: "text-plasma-blue", glow: "shadow-plasma-blue/20", icon: "💎" },
-            Diamond: { color: "from-plasma-purple/20 to-plasma-purple/40", plasma: "text-plasma-purple", glow: "shadow-plasma-purple/20", icon: "👑" },
-            Legend: { color: "from-plasma-pink/20 to-plasma-pink/40", plasma: "text-plasma-pink", glow: "shadow-plasma-pink/20", icon: "⭐" },
+            Gold: { color: "from-rank-gold/20 to-rank-gold/40", plasma: "text-rank-gold", glow: "shadow-rank-gold/20", icon: "🥇" },
+            Platinum: { color: "from-brand/20 to-brand/40", plasma: "text-brand", glow: "shadow-brand/20", icon: "💎" },
+            Diamond: { color: "from-master/20 to-master/40", plasma: "text-master", glow: "shadow-master/20", icon: "👑" },
+            Legend: { color: "from-danger/20 to-danger/40", plasma: "text-danger", glow: "shadow-danger/20", icon: "⭐" },
         };
         return rankMap[safeRank] || rankMap["Bronze"];
     };
@@ -50,7 +50,7 @@ const PlayerStatsCard = ({ stats }) => {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl border border-white/10 bg-arena-mid/90 backdrop-blur-xl shadow-2xl font-rajdhani"
+            className="relative overflow-hidden rounded-2xl border border-white/10 bg-surface/90 backdrop-blur-xl shadow-2xl font-rajdhani"
         >
             <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
             
@@ -72,14 +72,14 @@ const PlayerStatsCard = ({ stats }) => {
                     <motion.div
                         animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
                         transition={{ duration: 4, repeat: Infinity }}
-                        className={`text-5xl p-4 rounded-xl bg-arena-dark border border-white/10 shadow-xl ${rankInfo.glow}`}
+                        className={`text-5xl p-4 rounded-xl bg-void border border-white/10 shadow-xl ${rankInfo.glow}`}
                     >
                         {rankInfo.icon}
                     </motion.div>
                 </div>
 
                 {/* Technical points readout */}
-                <div className="bg-arena-dark/80 border border-white/5 rounded-xl p-5 mb-8 relative group overflow-hidden">
+                <div className="bg-void/80 border border-white/5 rounded-xl p-5 mb-8 relative group overflow-hidden">
                     <div className="absolute top-0 right-0 p-2 opacity-20"><Crown size={40} className={rankInfo.plasma} /></div>
                     <p className="text-[9px] font-black font-orbitron text-slate-600 uppercase tracking-widest mb-1">
                         Combat Points Accumulation
@@ -112,24 +112,24 @@ const PlayerStatsCard = ({ stats }) => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-plasma-pink/10 rounded-lg border border-plasma-pink/20">
-                                <TrendingDown size={16} className="text-plasma-pink" />
+                            <div className="p-2 bg-danger/10 rounded-lg border border-danger/20">
+                                <TrendingDown size={16} className="text-danger" />
                             </div>
                             <div>
                                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Defeats</p>
-                                <p className="text-xl font-black font-orbitron text-plasma-pink">{losses}</p>
+                                <p className="text-xl font-black font-orbitron text-danger">{losses}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="bg-area-dark/40 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative group">
-                        <Target size={40} className="absolute opacity-5 text-plasma-blue group-hover:scale-150 transition-transform duration-1000" />
+                        <Target size={40} className="absolute opacity-5 text-brand group-hover:scale-150 transition-transform duration-1000" />
                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Success Rate</p>
                         <div className="relative">
                             <svg viewBox="0 0 100 100" className="w-20 h-20">
                                 <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
                                 <motion.circle 
-                                    cx="50" cy="50" r="45" fill="none" stroke="#00D4FF" strokeWidth="8"
+                                    cx="50" cy="50" r="45" fill="none" stroke="#5b6ef5" strokeWidth="8"
                                     strokeDasharray="283"
                                     initial={{ strokeDashoffset: 283 }}
                                     animate={{ strokeDashoffset: 283 - (283 * winRate) / 100 }}

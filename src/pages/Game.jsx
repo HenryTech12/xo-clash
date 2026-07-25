@@ -45,11 +45,11 @@ const BoardCell = memo(
                     canClick
                         ? {
                               backgroundColor: isTargeting
-                                  ? "rgba(255, 45, 120, 0.15)"
-                                  : "rgba(0, 212, 255, 0.08)",
+                                  ? "rgba(255, 84, 104, 0.15)"
+                                  : "rgba(91, 110, 245, 0.08)",
                               boxShadow: isTargeting
-                                  ? "0 0 25px rgba(255, 45, 120, 0.4), inset 0 0 15px rgba(255, 45, 120, 0.2)"
-                                  : "0 0 25px rgba(0, 212, 255, 0.2), inset 0 0 15px rgba(0, 212, 255, 0.1)",
+                                  ? "0 0 25px rgba(255, 84, 104, 0.4), inset 0 0 15px rgba(255, 84, 104, 0.2)"
+                                  : "0 0 25px rgba(91, 110, 245, 0.2), inset 0 0 15px rgba(91, 110, 245, 0.1)",
                               scale: 1.02,
                               translateZ: 20
                           }
@@ -61,32 +61,32 @@ const BoardCell = memo(
                 className={`w-full h-full rounded-xl flex items-center justify-center transition-all border relative overflow-hidden group
       ${
           isTargeting
-              ? "bg-plasma-pink/10 border-plasma-pink cursor-crosshair shadow-[0_0_15px_rgba(255,45,120,0.2)]"
+              ? "bg-danger/10 border-danger cursor-crosshair shadow-[0_0_15px_rgba(255, 84, 104,0.2)]"
               : isSuggested
-              ? "bg-plasma-gold/20 border-plasma-gold shadow-[0_0_20px_rgba(255,215,0,0.4)] animate-pulse"
+              ? "bg-rank-gold/20 border-rank-gold shadow-[0_0_20px_rgba(232, 184, 75,0.4)] animate-pulse"
               : !value && canClick
-              ? "bg-arena-surface/40 border-plasma-blue/20 cursor-pointer hover:border-plasma-blue/60"
-              : "bg-arena-surface/60 border-white/5 cursor-default"
+              ? "bg-surface-2/40 border-brand/20 cursor-pointer hover:border-brand/60"
+              : "bg-surface-2/60 border-white/5 cursor-default"
       }
     `}
     style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* Visual indicator for Blocked (B) or Ghosted (G) cells */}
                 {isBlocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-plasma-pink/10 backdrop-blur-[2px] z-20">
-                        <Lock className="text-plasma-pink opacity-80 drop-shadow-[0_0_8px_#FF2D78]" size={36} />
+                    <div className="absolute inset-0 flex items-center justify-center bg-danger/10 backdrop-blur-[2px] z-20">
+                        <Lock className="text-danger opacity-80 drop-shadow-[0_0_8px_#ff5468]" size={36} />
                     </div>
                 )}
                 
                 {/* Ghosted Effect Overlay */}
                 {isGhosted && (
-                    <div className="absolute inset-0 bg-plasma-blue/10 backdrop-blur-[1px] z-10 flex items-center justify-center">
-                         <Zap className="text-plasma-blue opacity-50 animate-pulse" size={32} />
+                    <div className="absolute inset-0 bg-brand/10 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                         <Zap className="text-brand opacity-50 animate-pulse" size={32} />
                     </div>
                 )}
 
                 {/* Grid Lines Glow Emulation */}
-                <div className="absolute inset-0 border border-plasma-blue/5 pointer-events-none group-hover:border-plasma-blue/20 transition-colors" />
+                <div className="absolute inset-0 border border-brand/5 pointer-events-none group-hover:border-brand/20 transition-colors" />
 
                 {/* Hover Ghost Symbol */}
                 {isGhostValue && !isTargeting && (
@@ -104,34 +104,34 @@ const BoardCell = memo(
                             className="relative z-10 w-[80%] h-[80%] flex items-center justify-center"
                         >
                             {isX ? (
-                                <svg viewBox="0 0 100 100" className="w-full h-full p-2 drop-shadow-[0_0_12px_#00D4FF]">
+                                <svg viewBox="0 0 100 100" className="w-full h-full p-2 drop-shadow-[0_0_12px_#5b6ef5]">
                                     <motion.line
                                         x1="20" y1="20" x2="80" y2="80"
-                                        stroke="#00D4FF" strokeWidth="12" strokeLinecap="round"
+                                        stroke="#5b6ef5" strokeWidth="12" strokeLinecap="round"
                                         initial={{ pathLength: 0 }}
                                         animate={{ pathLength: 1 }}
                                         transition={{ duration: 0.4, ease: "easeOut" }}
                                     />
                                     <motion.line
                                         x1="80" y1="20" x2="20" y2="80"
-                                        stroke="#00D4FF" strokeWidth="12" strokeLinecap="round"
+                                        stroke="#5b6ef5" strokeWidth="12" strokeLinecap="round"
                                         initial={{ pathLength: 0 }}
                                         animate={{ pathLength: 1 }}
                                         transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
                                     />
                                 </svg>
                             ) : isO ? (
-                                <svg viewBox="0 0 100 100" className="w-full h-full p-2 drop-shadow-[0_0_12px_#BF5FFF]">
+                                <svg viewBox="0 0 100 100" className="w-full h-full p-2 drop-shadow-[0_0_12px_#b98ff0]">
                                     <motion.circle
                                         cx="50" cy="50" r="35"
-                                        stroke="#BF5FFF" strokeWidth="12" strokeLinecap="round" fill="transparent"
+                                        stroke="#b98ff0" strokeWidth="12" strokeLinecap="round" fill="transparent"
                                         initial={{ pathLength: 0, rotate: -90 }}
                                         animate={{ pathLength: 1, rotate: 270 }}
                                         transition={{ duration: 0.6, ease: "easeInOut" }}
                                     />
                                 </svg>
                             ) : (
-                                <span className={`text-4xl font-black font-orbitron ${value === 'B' ? 'text-plasma-pink' : 'text-plasma-blue'}`}>
+                                <span className={`text-4xl font-black font-orbitron ${value === 'B' ? 'text-danger' : 'text-brand'}`}>
                                     {value}
                                 </span>
                             )}
@@ -144,6 +144,30 @@ const BoardCell = memo(
 );
 
 BoardCell.displayName = "BoardCell";
+
+// Status-pill tone system: one primitive every state in the match HUD
+// renders through, instead of a bespoke style per state.
+const STATUS_TONE_CLASSES = {
+    live: "text-live border-live/30 bg-live/10",
+    warn: "text-warn border-warn/30 bg-warn/10",
+    danger: "text-danger border-danger/30 bg-danger/10",
+    brand: "text-brand border-brand/30 bg-brand/10",
+};
+
+const StatusPill = ({ tone, children }) => (
+    <div
+        className={`inline-flex items-center gap-2.5 rounded-full border px-6 py-2.5 font-data text-xs uppercase tracking-[0.25em] transition-colors duration-500 ${
+            STATUS_TONE_CLASSES[tone] || STATUS_TONE_CLASSES.brand
+        }`}
+    >
+        <span
+            className={`h-2 w-2 rounded-full bg-current shrink-0 ${
+                tone === "live" || tone === "warn" ? "animate-pulse" : ""
+            }`}
+        />
+        {children}
+    </div>
+);
 
 // Rank thresholds for power-up unlocking
 const RANK_THRESHOLDS = {
@@ -162,6 +186,7 @@ const Game = () => {
     const [voiceLang, setVoiceLang] = useState("en");
     const {
         gameState,
+        connected,
         makeMove,
         usePowerUp: activatePowerUp,
         availablePowerUps,
@@ -446,7 +471,7 @@ const Game = () => {
                 particleCount: 200,
                 spread: 90,
                 origin: { y: 0.5 },
-                colors: ["#FFD700", "#00D4FF", "#BF5FFF"],
+                colors: ["#e8b84b", "#5b6ef5", "#b98ff0"],
                 gravity: 0.8,
                 decay: 0.95,
             });
@@ -461,6 +486,23 @@ const Game = () => {
         ["", "", ""],
         ["", "", ""],
     ];
+
+    // One resolution encodes the whole HUD status-pill state machine:
+    // connection drop takes priority, then match-over, then whose turn it is.
+    const matchStatus = !connected
+        ? { tone: "warn", label: "Reconnecting" }
+        : gameState.gameOver
+        ? gameState.winner
+            ? { tone: isWinner ? "live" : "danger", label: isWinner ? "Victory" : "Defeated" }
+            : { tone: "brand", label: "Stalemate" }
+        : isMyTurn
+        ? {
+              tone: "live",
+              label: activePowerUp
+                  ? `Calibrating ${activePowerUp.replace("_", " ")}`
+                  : "Your Turn",
+          }
+        : { tone: "brand", label: "Opponent's Turn" };
 
     const renderCell = (row, col) => {
         const value = board[row][col];
@@ -514,7 +556,7 @@ const Game = () => {
     };
 
     return (
-        <div className="min-h-screen bg-arena-dark p-4 md:p-8 flex flex-col items-center text-white overflow-hidden relative font-rajdhani">
+        <div className="min-h-screen bg-void p-4 md:p-8 flex flex-col items-center text-white overflow-hidden relative font-rajdhani">
             <VoiceOverlay
                 isVisible={showPopup}
                 isListening={isListening}
@@ -532,12 +574,12 @@ const Game = () => {
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
                     transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-plasma-blue blur-[120px] rounded-full"
+                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-brand blur-[120px] rounded-full"
                 />
                 <motion.div
                     animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.08, 0.05] }}
                     transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-plasma-purple blur-[120px] rounded-full"
+                    className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-master blur-[120px] rounded-full"
                 />
             </div>
 
@@ -552,12 +594,12 @@ const Game = () => {
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={resetGame}
-                        className="p-3 bg-arena-surface/40 hover:bg-arena-surface/60 rounded-xl border border-white/10 backdrop-blur-md group shadow-lg"
+                        className="p-3 bg-surface-2/40 hover:bg-surface-2/60 rounded-xl border border-white/10 backdrop-blur-md group shadow-lg"
                     >
-                        <ArrowLeft size={20} className="text-plasma-blue group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={20} className="text-brand group-hover:-translate-x-1 transition-transform" />
                     </motion.button>
                     <div>
-                        <h2 className="text-xs font-black font-orbitron text-plasma-blue uppercase tracking-[0.4em] drop-shadow-[0_0_8px_#00D4FF]">
+                        <h2 className="text-xs font-black font-orbitron text-brand uppercase tracking-[0.4em] drop-shadow-[0_0_8px_#5b6ef5]">
                             Neural Arena
                         </h2>
                         <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
@@ -571,19 +613,19 @@ const Game = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setVoiceLang(prev => prev === "en" ? "es" : "en")}
-                        className="px-4 py-2 bg-arena-surface/40 text-plasma-blue rounded-xl border border-white/10 backdrop-blur-md text-[10px] font-black font-orbitron shadow-lg"
+                        className="px-4 py-2 bg-surface-2/40 text-brand rounded-xl border border-white/10 backdrop-blur-md text-[10px] font-black font-orbitron shadow-lg"
                     >
                         LANG: {voiceLang.toUpperCase()}
                     </motion.button>
 
                     <motion.button
-                        whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(191,95,255,0.4)" }}
+                        whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(185, 143, 240,0.4)" }}
                         whileTap={{ scale: 0.9 }}
                         onClick={isVoiceActive ? () => setShowPopup(true) : startListening}
                         className={`p-3 rounded-xl border backdrop-blur-md shadow-lg flex items-center justify-center transition-all ${
                             isVoiceActive
-                                ? "bg-plasma-purple border-plasma-purple text-white shadow-[0_0_20px_#BF5FFF]"
-                                : "bg-plasma-blue/10 border-plasma-blue/30 text-plasma-blue"
+                                ? "bg-master border-master text-white shadow-[0_0_20px_#b98ff0]"
+                                : "bg-brand/10 border-brand/30 text-brand"
                         }`}
                     >
                         <Mic size={20} className={isVoiceActive ? "animate-pulse" : ""} />
@@ -591,7 +633,7 @@ const Game = () => {
 
                     <button
                         onClick={leaveSession}
-                        className="p-3 bg-plasma-pink/10 hover:bg-plasma-pink/20 text-plasma-pink rounded-xl border border-plasma-pink/30 shadow-lg group transition-all"
+                        className="p-3 bg-danger/10 hover:bg-danger/20 text-danger rounded-xl border border-danger/30 shadow-lg group transition-all"
                     >
                         <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
                     </button>
@@ -612,7 +654,7 @@ const Game = () => {
 
                     <div className="relative flex flex-col items-center justify-center px-4">
                         {/* Plasma Divider Line */}
-                        <div className="absolute h-32 w-px bg-linear-to-b from-transparent via-plasma-blue to-transparent opacity-50 hidden md:block" />
+                        <div className="absolute h-32 w-px bg-linear-to-b from-transparent via-brand to-transparent opacity-50 hidden md:block" />
                         <motion.div 
                             animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
                             transition={{ repeat: Infinity, duration: 3 }}
@@ -620,7 +662,7 @@ const Game = () => {
                         >
                             VS
                         </motion.div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-plasma-blue/10 blur-3xl rounded-full" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-brand/10 blur-3xl rounded-full" />
                     </div>
 
                     <PlayerCard
@@ -639,7 +681,7 @@ const Game = () => {
                 initial={{ rotateX: 20, opacity: 0, y: 50 }}
                 animate={{ rotateX: 8, opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative p-8 bg-arena-mid/40 rounded-4xl border border-plasma-blue/20 backdrop-blur-xl shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_60px_rgba(0,212,255,0.05)] z-10"
+                className="relative p-8 bg-surface/40 rounded-4xl border border-brand/20 backdrop-blur-xl shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_60px_rgba(91, 110, 245,0.05)] z-10"
                 style={{ transformStyle: 'preserve-3d', perspective: 800 }}
             >
                 <div className="grid grid-cols-3 gap-5 w-80 h-80 md:w-md md:h-112">
@@ -661,13 +703,13 @@ const Game = () => {
                                 backdropFilter: "blur(12px)",
                             }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-4xl bg-arena-dark/80 p-6"
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-4xl bg-void/80 p-6"
                         >
                             <motion.div
                                 initial={{ scale: 0.5, y: 40, filter: 'blur(10px)' }}
                                 animate={{ scale: 1, y: 0, filter: 'blur(0px)' }}
                                 transition={{ type: "spring", damping: 15 }}
-                                className="bg-arena-surface border border-plasma-blue/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(0,212,255,0.2)] text-center w-full max-w-xs relative overflow-hidden"
+                                className="bg-surface-2 border border-brand/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(91, 110, 245,0.2)] text-center w-full max-w-xs relative overflow-hidden"
                             >
                                 <div className="absolute inset-0 scanlines opacity-50 pointer-events-none" />
                                 
@@ -675,8 +717,8 @@ const Game = () => {
                                     className={`text-5xl font-black font-orbitron mb-6 italic tracking-tighter relative ${
                                         gameState.winner
                                             ? isWinner
-                                                ? "text-plasma-gold drop-shadow-[0_0_15px_#FFD700]"
-                                                : "text-plasma-pink glitch-text drop-shadow-[0_0_15px_#FF2D78]"
+                                                ? "text-live drop-shadow-[0_0_15px_#2fbe8f]"
+                                                : "text-danger glitch-text drop-shadow-[0_0_15px_#ff5468]"
                                             : "text-slate-400"
                                     }`}
                                     data-text={gameState.winner && !isWinner ? "DEFEATED" : ""}
@@ -698,34 +740,34 @@ const Game = () => {
                                     {/* Play Again Request Pending - Show Accept/Reject */}
                                     {playAgainRequest === "pending" ? (
                                         <>
-                                            <motion.p className="text-center text-plasma-purple font-black font-orbitron text-[10px] tracking-widest animate-pulse mb-2 uppercase">
+                                            <motion.p className="text-center text-master font-black font-orbitron text-[10px] tracking-widest animate-pulse mb-2 uppercase">
                                                 Incoming Rematch Request
                                             </motion.p>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <motion.button
-                                                    whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00D4FF" }}
+                                                    whileHover={{ scale: 1.05, boxShadow: "0 0 15px #5b6ef5" }}
                                                     whileTap={{ scale: 0.95 }}
                                                     onClick={acceptPlayAgainGame}
-                                                    className="py-3 bg-plasma-blue text-arena-dark rounded-xl font-black font-orbitron text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all"
+                                                    className="py-3 bg-brand text-void rounded-xl font-black font-orbitron text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all"
                                                 >
                                                     CONFIRM
                                                 </motion.button>
                                                 <motion.button
-                                                    whileHover={{ scale: 1.05, border: "1px solid #FF2D78" }}
+                                                    whileHover={{ scale: 1.05, border: "1px solid #ff5468" }}
                                                     whileTap={{ scale: 0.95 }}
                                                     onClick={rejectPlayAgainGame}
-                                                    className="py-3 bg-arena-dark border border-plasma-pink/50 text-plasma-pink rounded-xl font-black font-orbitron text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all"
+                                                    className="py-3 bg-void border border-danger/50 text-danger rounded-xl font-black font-orbitron text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all"
                                                 >
                                                     DENY
                                                 </motion.button>
                                             </div>
                                         </>
                                     ) : playAgainRequest === "requested" ? (
-                                        <div className="py-4 border border-plasma-blue/20 rounded-xl bg-plasma-blue/5">
+                                        <div className="py-4 border border-brand/20 rounded-xl bg-brand/5">
                                             <motion.p 
                                                 animate={{ opacity: [0.4, 1, 0.4] }}
                                                 transition={{ repeat: Infinity, duration: 2 }}
-                                                className="text-center text-plasma-blue font-black font-orbitron text-[10px] tracking-widest uppercase"
+                                                className="text-center text-brand font-black font-orbitron text-[10px] tracking-widest uppercase"
                                             >
                                                 📡 Transmitting Signal...
                                             </motion.p>
@@ -737,15 +779,15 @@ const Game = () => {
                                             </motion.p>
                                         </div>
                                     ) : playAgainRequest === "rejected" ? (
-                                        <div className="py-4 bg-plasma-pink/10 border border-plasma-pink/30 rounded-xl">
-                                            <motion.p className="text-center text-plasma-pink font-black font-orbitron text-[10px] tracking-widest uppercase">❌ Request Denied</motion.p>
+                                        <div className="py-4 bg-danger/10 border border-danger/30 rounded-xl">
+                                            <motion.p className="text-center text-danger font-black font-orbitron text-[10px] tracking-widest uppercase">❌ Request Denied</motion.p>
                                         </div>
                                     ) : (
                                         <motion.button
-                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0,212,255,0.4)" }}
+                                            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(91, 110, 245,0.4)" }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={requestPlayAgainGame}
-                                            className="w-full py-4 bg-transparent border-2 border-plasma-blue text-plasma-blue rounded-xl font-black font-orbitron text-xs tracking-[0.3em] uppercase hover:bg-plasma-blue hover:text-arena-dark transition-all"
+                                            className="w-full py-4 bg-transparent border-2 border-brand text-brand rounded-xl font-black font-orbitron text-xs tracking-[0.3em] uppercase hover:bg-brand hover:text-void transition-all"
                                         >
                                             Rematch
                                         </motion.button>
@@ -764,49 +806,13 @@ const Game = () => {
                 </AnimatePresence>
             </motion.div>
 
-            {/* Turn Status Bar */}
+            {/* Match Status Pill */}
             <motion.div
-                animate={
-                    isMyTurn && !gameState.gameOver ? { y: [0, -4, 0] } : {}
-                }
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="mt-12 w-full max-w-md overflow-hidden relative"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-12"
             >
-                <div className={`px-8 py-4 bg-arena-mid/80 border rounded-2xl backdrop-blur-md transition-colors duration-500 flex items-center justify-center gap-4 ${
-                    isMyTurn && !gameState.gameOver 
-                        ? "border-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.15)]" 
-                        : "border-white/5 opacity-60"
-                }`}>
-                     {isMyTurn && !gameState.gameOver ? (
-                        <>
-                            <motion.div
-                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                                transition={{ repeat: Infinity, duration: 1.5 }}
-                                className="h-3 w-3 rounded-full bg-plasma-blue shadow-[0_0_10px_#00D4FF]"
-                            />
-                            <p className="text-xs font-black font-orbitron tracking-[0.3em] text-plasma-blue uppercase -mb-0.5">
-                                {activePowerUp
-                                    ? `Calibrating ${activePowerUp.replace("_", " ")}`
-                                    : "Strike Initiated"}
-                            </p>
-                        </>
-                    ) : gameState.gameOver ? (
-                        <p className="text-xs font-black font-orbitron tracking-[0.3em] text-plasma-gold uppercase -mb-0.5">
-                            Match Concluded
-                        </p>
-                    ) : (
-                        <>
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                                className="h-4 w-4 border-2 border-t-transparent border-white/20 rounded-full"
-                            />
-                            <p className="text-xs font-black font-orbitron tracking-[0.3em] text-slate-500 uppercase -mb-0.5">
-                                Opponent Calculating...
-                            </p>
-                        </>
-                    )}
-                </div>
+                <StatusPill tone={matchStatus.tone}>{matchStatus.label}</StatusPill>
             </motion.div>
 
             {/* Power Ups Chip Bar */}
@@ -841,19 +847,19 @@ const Game = () => {
                                 onClick={() => handlePowerUpClick(powerUp, count)}
                                 className={`px-4 py-3 rounded-xl font-bold transition-all flex items-center gap-3 relative overflow-hidden ${
                                     activePowerUp === powerUp
-                                        ? "bg-plasma-purple text-white border-plasma-purple shadow-[0_0_15px_#BF5FFF] scale-105"
+                                        ? "bg-master text-white border-master shadow-[0_0_15px_#b98ff0] scale-105"
                                         : !isZero && !isLockedUI
-                                        ? "bg-arena-mid/80 text-plasma-blue border border-plasma-blue/20 hover:border-plasma-blue"
-                                        : "bg-arena-surface/40 text-slate-600 border border-white/5 cursor-not-allowed"
+                                        ? "bg-surface/80 text-brand border border-brand/20 hover:border-brand"
+                                        : "bg-surface-2/40 text-slate-600 border border-white/5 cursor-not-allowed"
                                 }`}
                             >
-                                <Zap size={14} className={activePowerUp === powerUp ? "text-white" : !isZero && !isLockedUI ? "text-plasma-blue" : "text-slate-700"} />
+                                <Zap size={14} className={activePowerUp === powerUp ? "text-white" : !isZero && !isLockedUI ? "text-brand" : "text-slate-700"} />
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-orbitron uppercase tracking-widest">{config.name}</span>
                                     {isLockedUI ? (
-                                        <span className="text-[8px] text-plasma-pink uppercase font-bold tracking-tighter">REQ: {reqRankForUI}</span>
+                                        <span className="text-[8px] text-danger uppercase font-bold tracking-tighter">REQ: {reqRankForUI}</span>
                                     ) : (
-                                        <span className={`text-[8px] font-black ${isZero ? 'text-slate-500' : 'text-plasma-blue'}`}>QTY: {count}</span>
+                                        <span className={`text-[8px] font-black ${isZero ? 'text-slate-500' : 'text-brand'}`}>QTY: {count}</span>
                                     )}
                                 </div>
                                 {(isZero || isLockedUI) && <Lock size={12} className="absolute top-1 right-1 opacity-40" />}
@@ -890,10 +896,10 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
             isTurn
                 ? {
                       scale: 1.05,
-                      borderColor: symbol === "X" ? "#00D4FF" : "#BF5FFF",
+                      borderColor: symbol === "X" ? "#5b6ef5" : "#b98ff0",
                       boxShadow: symbol === "X" 
-                        ? "0 0 30px rgba(0, 212, 255, 0.3), inset 0 0 15px rgba(0, 212, 255, 0.1)"
-                        : "0 0 30px rgba(191, 95, 255, 0.3), inset 0 0 15px rgba(191, 95, 255, 0.1)",
+                        ? "0 0 30px rgba(91, 110, 245, 0.3), inset 0 0 15px rgba(91, 110, 245, 0.1)"
+                        : "0 0 30px rgba(185, 143, 240, 0.3), inset 0 0 15px rgba(185, 143, 240, 0.1)",
                   }
                 : {
                       scale: 1,
@@ -903,13 +909,13 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
                   }
         }
         transition={{ duration: 0.4 }}
-        className="p-4 rounded-xl border bg-arena-mid/80 backdrop-blur-xl relative overflow-hidden transition-all group font-rajdhani flex-1 w-full md:max-w-70"
+        className="p-4 rounded-xl border bg-surface/80 backdrop-blur-xl relative overflow-hidden transition-all group font-rajdhani flex-1 w-full md:max-w-70"
     >
         <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
         
         {isTurn && (
             <motion.div
-                className={`absolute inset-0 z-0 opacity-10 ${symbol === "X" ? "bg-plasma-blue" : "bg-plasma-purple"}`}
+                className={`absolute inset-0 z-0 opacity-10 ${symbol === "X" ? "bg-brand" : "bg-master"}`}
                 animate={{ opacity: [0.05, 0.15, 0.05] }}
                 transition={{ repeat: Infinity, duration: 2 }}
             />
@@ -918,21 +924,21 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
         <div className="relative z-10 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div className="w-14 h-14 relative shrink-0 flex items-center justify-center">
-                    <div className={`absolute inset-0 ${symbol === "X" ? "text-plasma-blue/20" : "text-plasma-purple/20"}`}>
+                    <div className={`absolute inset-0 ${symbol === "X" ? "text-brand/20" : "text-master/20"}`}>
                         <svg viewBox="0 0 100 100" className="w-full h-full fill-current">
                             <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" />
                         </svg>
                     </div>
-                    <div className={`absolute inset-0 ${symbol === "X" ? "text-plasma-blue" : "text-plasma-purple"} opacity-40`}>
+                    <div className={`absolute inset-0 ${symbol === "X" ? "text-brand" : "text-master"} opacity-40`}>
                         <svg viewBox="0 0 100 100" className="w-full h-full fill-none stroke-current" strokeWidth="2">
                             <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" />
                         </svg>
                     </div>
                     <motion.span
-                        animate={isTurn ? { scale: [1, 1.2, 1], filter: symbol === "X" ? "drop-shadow(0 0 8px #00D4FF)" : "drop-shadow(0 0 8px #BF5FFF)" } : {}}
+                        animate={isTurn ? { scale: [1, 1.2, 1], filter: symbol === "X" ? "drop-shadow(0 0 8px #5b6ef5)" : "drop-shadow(0 0 8px #b98ff0)" } : {}}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         className={`text-2xl font-black font-orbitron z-10 ${
-                            symbol === "X" ? "text-plasma-blue" : "text-plasma-purple"
+                            symbol === "X" ? "text-brand" : "text-master"
                         }`}
                     >
                         {symbol}
@@ -954,7 +960,7 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
                     <motion.div 
                         animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                         transition={{ repeat: Infinity, duration: 1 }}
-                        className={`w-2 h-2 rounded-full ${symbol === "X" ? "bg-plasma-blue shadow-[0_0_10px_#00D4FF]" : "bg-plasma-purple shadow-[0_0_10px_#BF5FFF]"}`}
+                        className={`w-2 h-2 rounded-full ${symbol === "X" ? "bg-brand shadow-[0_0_10px_#5b6ef5]" : "bg-master shadow-[0_0_10px_#b98ff0]"}`}
                     />
                 ) : (
                     <motion.div
@@ -969,7 +975,7 @@ const PlayerCard = ({ name, symbol, isTurn, isSelf }) => (
         </div>
 
         {isTurn && (
-            <div className={`absolute bottom-0 left-0 h-0.5 ${symbol === "X" ? "bg-plasma-blue" : "bg-plasma-purple"} shadow-[0_0_10px_currentColor]`} style={{ width: '100%' }} />
+            <div className={`absolute bottom-0 left-0 h-0.5 ${symbol === "X" ? "bg-brand" : "bg-master"} shadow-[0_0_10px_currentColor]`} style={{ width: '100%' }} />
         )}
     </motion.div>
 );

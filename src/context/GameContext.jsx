@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import webSocketService from "../services/websocket";
 import { gameService, trackService } from "../services/api";
 import { useAuth } from "./AuthContext";
@@ -38,11 +38,50 @@ const checkDrawLocal = (board) => {
     return !board.flat().includes("") && !board.flat().includes(null);
 };
 
+// Anchor persisted across refreshes so a reload mid-match can attempt to
+// rejoin the still-live session instead of silently falling back to the
+// Dashboard. Only {sessionId, username} is stored — the board itself is
+// always re-fetched from the server via gameService.join().
+const SESSION_ANCHOR_KEY = "xo-clash-active-session";
+
+const readSessionAnchor = () => {
+    try {
+        const raw = sessionStorage.getItem(SESSION_ANCHOR_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+};
+
+const writeSessionAnchor = (sessionId, username) => {
+    try {
+        sessionStorage.setItem(
+            SESSION_ANCHOR_KEY,
+            JSON.stringify({ sessionId, username })
+        );
+    } catch {
+        // sessionStorage unavailable (private mode, etc.) - reconnect-on-refresh
+        // just won't be available; the rest of the app is unaffected.
+    }
+};
+
+const clearSessionAnchor = () => {
+    try {
+        sessionStorage.removeItem(SESSION_ANCHOR_KEY);
+    } catch {
+        // ignore
+    }
+};
+
 export const GameProvider = ({ children }) => {
     const { isAuthenticated, user } = useAuth();
     const [gameState, setGameState] = useState(null);
     const [matchmaking, setMatchmaking] = useState(false);
     const [connected, setConnected] = useState(false);
+    // True while we're checking a stale session anchor against the server on
+    // mount, so GameSwitch can show a "Reconnecting" state instead of
+    // flashing the Dashboard before falling back (or restoring the match).
+    const [reconnecting, setReconnecting] = useState(() => !!readSessionAnchor());
     const [notifications, setNotifications] = useState([]);
     const [playAgainRequest, setPlayAgainRequest] = useState(null); // null, 'requested', 'pending', 'accepted', 'rejected'
     const [playAgainFrom, setPlayAgainFrom] = useState(null); // username of the player requesting play again
@@ -58,12 +97,67 @@ export const GameProvider = ({ children }) => {
     const [activePowerUp, setActivePowerUp] = useState(null); // Power-up currently selected to be used
 
     const resetGame = () => {
+        clearSessionAnchor();
         setGameState(null);
         setMatchmaking(false);
         setPlayAgainRequest(null);
         setPlayAgainFrom(null);
         setActivePowerUp(null);
     };
+
+    // On mount, if a previous match left a session anchor behind (e.g. this
+    // tab was refreshed mid-match), check whether the backend still has that
+    // session alive - within its reconnect grace window - before falling
+    // back to the Dashboard.
+    const attemptedReconnectRef = useRef(false);
+    useEffect(() => {
+        if (!isAuthenticated || !user?.username) return;
+        if (attemptedReconnectRef.current) return;
+        attemptedReconnectRef.current = true;
+
+        const anchor = readSessionAnchor();
+        if (!anchor || anchor.username !== user.username) {
+            clearSessionAnchor();
+            setReconnecting(false);
+            return;
+        }
+
+        (async () => {
+            try {
+                const state = await gameService.join();
+                if (state && state.sessionId) {
+                    setGameState({
+                        ...state,
+                        board: state.board || [
+                            ["", "", ""],
+                            ["", "", ""],
+                            ["", "", ""],
+                        ],
+                    });
+                } else {
+                    // Grace window already elapsed, or the session genuinely
+                    // ended - nothing to restore.
+                    clearSessionAnchor();
+                }
+            } catch (error) {
+                console.error("Failed to reconnect to previous session:", error);
+                clearSessionAnchor();
+            } finally {
+                setReconnecting(false);
+            }
+        })();
+    }, [isAuthenticated, user?.username]);
+
+    // Keep the anchor in sync with the live session so a refresh always has
+    // an up-to-date {sessionId, username} to reconnect against.
+    useEffect(() => {
+        if (!gameState?.sessionId || !user?.username) return;
+        if (gameState.gameOver) {
+            clearSessionAnchor();
+        } else {
+            writeSessionAnchor(gameState.sessionId, user.username);
+        }
+    }, [gameState?.sessionId, gameState?.gameOver, user?.username]);
 
     // Fetch user power-ups periodically or when authenticated
     useEffect(() => {
@@ -654,6 +748,7 @@ export const GameProvider = ({ children }) => {
         () => ({
             gameState,
             connected,
+            reconnecting,
             notifications,
             playAgainRequest,
             playAgainFrom,
@@ -665,7 +760,14 @@ export const GameProvider = ({ children }) => {
             rejectPlayAgainGame,
             sendVoiceMove,
         }),
-        [gameState, connected, notifications, playAgainRequest, playAgainFrom]
+        [
+            gameState,
+            connected,
+            reconnecting,
+            notifications,
+            playAgainRequest,
+            playAgainFrom,
+        ]
     );
 
     const matchmakingValue = useMemo(

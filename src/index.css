@@ -3,7 +3,7 @@
 body {
     @apply bg-slate-950 text-slate-100;
     margin: 0;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
@@ -12,8 +12,8 @@ body {
 /* Holographic grid background */
 .holo-grid {
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.07) 1px, transparent 1px);
+    linear-gradient(rgba(91, 110, 245, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 110, 245, 0.07) 1px, transparent 1px);
   background-size: 40px 40px;
   animation: grid-drift 20s linear infinite;
 }
@@ -29,7 +29,7 @@ body {
   100% { background-position: 0% 50%; }
 }
 .plasma-border {
-  background: linear-gradient(270deg, #00D4FF, #BF5FFF, #FF2D78, #00D4FF);
+  background: linear-gradient(270deg, #5b6ef5, #b98ff0, #ff5468, #5b6ef5);
   background-size: 400% 400%;
   animation: plasma-orbit 3s ease infinite;
 }
@@ -54,13 +54,13 @@ body {
   background: conic-gradient(
     from 0deg,
     transparent,
-    #00D4FF,
+    #5b6ef5,
     transparent 25%,
-    #BF5FFF,
+    #b98ff0,
     transparent 50%,
-    #FF2D78,
+    #ff5468,
     transparent 75%,
-    #00D4FF
+    #5b6ef5
   );
   animation: spin 4s linear infinite;
 }
@@ -81,11 +81,11 @@ body {
   content: attr(data-text);
   position: absolute;
   top: 0; left: 0;
-  color: #FF2D78;
+  color: #ff5468;
   animation: glitch 0.4s infinite;
 }
 .glitch-text::after {
-  color: #00D4FF;
+  color: #5b6ef5;
   animation-delay: 0.1s;
 }
 
@@ -98,8 +98,8 @@ body {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 212, 255, 0.015) 2px,
-    rgba(0, 212, 255, 0.015) 4px
+    rgba(91, 110, 245, 0.015) 2px,
+    rgba(91, 110, 245, 0.015) 4px
   );
   pointer-events: none;
   z-index: 1;
@@ -111,11 +111,11 @@ body {
 }
 
 .font-orbitron {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Chakra Petch', 'Arial Narrow', sans-serif;
 }
 
 .font-rajdhani {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
 }
 
 .bg-gradient-xo {

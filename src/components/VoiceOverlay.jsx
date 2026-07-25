@@ -23,8 +23,8 @@ const VoiceOverlay = ({
                         initial={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
                         animate={{ scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' }}
                         exit={{ scale: 0.9, opacity: 0, y: 50, filter: 'blur(10px)' }}
-                        className={`relative w-full max-w-lg overflow-hidden bg-arena-mid/95 backdrop-blur-xl border-t-2 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] pointer-events-auto font-rajdhani ${
-                            error ? "border-plasma-pink shadow-[0_0_30px_rgba(255,45,120,0.3)]" : "border-plasma-blue shadow-[0_0_30_rgba(0,212,255,0.2)]"
+                        className={`relative w-full max-w-lg overflow-hidden bg-surface/95 backdrop-blur-xl border-t-2 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] pointer-events-auto font-rajdhani ${
+                            error ? "border-danger shadow-[0_0_30px_rgba(255, 84, 104,0.3)]" : "border-brand shadow-[0_0_30_rgba(91, 110, 245,0.2)]"
                         }`}
                     >
                         {/* Scanlines layer */}
@@ -34,8 +34,8 @@ const VoiceOverlay = ({
                         <div
                             className={`absolute inset-0 opacity-10 bg-linear-to-br transition-colors duration-500 ${
                                 error
-                                    ? "from-plasma-pink to-transparent"
-                                    : "from-plasma-blue to-plasma-purple"
+                                    ? "from-danger to-transparent"
+                                    : "from-brand to-master"
                             }`}
                         />
 
@@ -62,23 +62,23 @@ const VoiceOverlay = ({
                                                     repeat: Infinity,
                                                     ease: "linear",
                                                 }}
-                                                className="absolute -inset-2 border-2 border-dashed border-plasma-blue rounded-full"
+                                                className="absolute -inset-2 border-2 border-dashed border-brand rounded-full"
                                             />
-                                            <div className="p-5 bg-arena-dark rounded-full border border-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.4)]">
+                                            <div className="p-5 bg-void rounded-full border border-brand shadow-[0_0_20px_rgba(91, 110, 245,0.4)]">
                                                 <Loader2
                                                     size={40}
-                                                    className="text-plasma-blue animate-spin"
+                                                    className="text-brand animate-spin"
                                                 />
                                             </div>
                                         </motion.div>
                                     ) : error ? (
                                         <motion.div
                                             key="error"
-                                            className="p-5 bg-plasma-pink/20 rounded-full border border-plasma-pink shadow-[0_0_20px_rgba(255,45,120,0.4)]"
+                                            className="p-5 bg-danger/20 rounded-full border border-danger shadow-[0_0_20px_rgba(255, 84, 104,0.4)]"
                                         >
                                             <X
                                                 size={40}
-                                                className="text-plasma-pink"
+                                                className="text-danger"
                                             />
                                         </motion.div>
                                     ) : (
@@ -97,13 +97,13 @@ const VoiceOverlay = ({
                                                         duration: 2,
                                                         delay: i * 0.6,
                                                     }}
-                                                    className="absolute inset-0 border border-plasma-blue rounded-full"
+                                                    className="absolute inset-0 border border-brand rounded-full"
                                                 />
                                             ))}
-                                            <div className="relative p-6 bg-arena-dark border-2 border-plasma-blue rounded-full shadow-[0_0_30px_rgba(0,212,255,0.3)]">
+                                            <div className="relative p-6 bg-void border-2 border-brand rounded-full shadow-[0_0_30px_rgba(91, 110, 245,0.3)]">
                                                 <Mic
                                                     size={48}
-                                                    className="text-plasma-blue"
+                                                    className="text-brand"
                                                 />
                                             </div>
                                         </motion.div>
@@ -119,7 +119,7 @@ const VoiceOverlay = ({
                                         ? "Neural Breach"
                                         : "Voice Link Active"}
                                 </h3>
-                                <h2 className={`text-2xl font-black mb-3 ${error ? 'text-plasma-pink' : 'text-white'}`}>
+                                <h2 className={`text-2xl font-black mb-3 ${error ? 'text-danger' : 'text-white'}`}>
                                     {isProcessing
                                         ? "Parsing Command..."
                                         : error
@@ -127,12 +127,12 @@ const VoiceOverlay = ({
                                         : "Awaiting Input"}
                                 </h2>
 
-                                <div className="min-h-10 flex flex-col justify-center border-l-2 border-plasma-blue/20 pl-4 py-1">
+                                <div className="min-h-10 flex flex-col justify-center border-l-2 border-brand/20 pl-4 py-1">
                                     {transcript ? (
                                         <motion.p
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            className="text-lg text-plasma-blue font-bold tracking-wide italic"
+                                            className="text-lg text-brand font-bold tracking-wide italic"
                                         >
                                             "{transcript}"
                                         </motion.p>

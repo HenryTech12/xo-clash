@@ -176,7 +176,7 @@ const Dashboard = () => {
 
     if (matchmaking) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-arena-dark p-4 text-center overflow-hidden relative font-rajdhani">
+            <div className="min-h-screen flex items-center justify-center bg-void p-4 text-center overflow-hidden relative font-rajdhani">
                 {/* Holographic Grid floor */}
                 <div className="fixed inset-0 holo-grid pointer-events-none opacity-40" />
                 <div className="fixed inset-0 scanlines pointer-events-none" />
@@ -186,7 +186,7 @@ const Dashboard = () => {
                     <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-plasma-blue/20 blur-[120px] rounded-full"
+                        className="absolute inset-0 bg-brand/20 blur-[120px] rounded-full"
                     />
                 </div>
 
@@ -194,27 +194,27 @@ const Dashboard = () => {
                     initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
                     animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                     transition={{ duration: 0.6 }}
-                    className="bg-arena-mid/90 shadow-[0_0_60px_rgba(0,212,255,0.2)] border border-plasma-blue/30 backdrop-blur-xl p-12 rounded-3xl max-w-md w-full relative z-10"
+                    className="bg-surface/90 shadow-[0_0_60px_rgba(91, 110, 245,0.2)] border border-brand/30 backdrop-blur-xl p-12 rounded-3xl max-w-md w-full relative z-10"
                     style={{ transform: "perspective(1000px) rotateX(4deg)" }}
                 >
                     <div className="relative mb-8 w-24 h-24 mx-auto">
                         <motion.div
-                            className="absolute inset-0 bg-plasma-blue/30 rounded-full blur-xl"
+                            className="absolute inset-0 bg-brand/30 rounded-full blur-xl"
                             animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
                             transition={{ repeat: Infinity, duration: 2 }}
                         />
                         <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                            className="absolute inset-0 border-2 border-dashed border-plasma-blue rounded-full"
+                            className="absolute inset-0 border-2 border-dashed border-brand rounded-full"
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Zap size={48} className="text-plasma-blue drop-shadow-[0_0_10px_#00D4FF]" />
+                            <Zap size={48} className="text-brand drop-shadow-[0_0_10px_#5b6ef5]" />
                         </div>
                     </div>
 
                     <motion.h2
-                        className="text-4xl font-black font-orbitron mb-4 text-plasma-blue drop-shadow-[0_0_10px_rgba(0,212,255,0.5)] tracking-tighter"
+                        className="text-4xl font-black font-orbitron mb-4 text-brand drop-shadow-[0_0_10px_rgba(91, 110, 245,0.5)] tracking-tighter"
                     >
                         SCANNING ARENA
                     </motion.h2>
@@ -228,7 +228,7 @@ const Dashboard = () => {
                                 key={i}
                                 animate={{ 
                                     scaleY: [0.3, 1, 0.3],
-                                    backgroundColor: ['#00D4FF', '#BF5FFF', '#00D4FF']
+                                    backgroundColor: ['#5b6ef5', '#b98ff0', '#5b6ef5']
                                 }}
                                 transition={{
                                     repeat: Infinity,
@@ -241,10 +241,10 @@ const Dashboard = () => {
                     </div>
 
                     <motion.button
-                        whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,45,120,0.4)" }}
+                        whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 84, 104,0.4)" }}
                         whileTap={{ scale: 0.95 }}
                         onClick={cancelMatchmaking}
-                        className="w-full py-4 bg-transparent border-2 border-plasma-pink text-plasma-pink rounded-xl transition-all font-orbitron font-bold text-xs tracking-widest uppercase hover:bg-plasma-pink hover:text-white"
+                        className="w-full py-4 bg-transparent border-2 border-danger text-danger rounded-xl transition-all font-orbitron font-bold text-xs tracking-widest uppercase hover:bg-danger hover:text-white"
                     >
                         Abort Protocol
                     </motion.button>
@@ -256,24 +256,24 @@ const Dashboard = () => {
                         initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
                         animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
                         exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-arena-dark/60"
+                        className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-void/60"
                         style={{ pointerEvents: 'auto' }}
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 20, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
                             exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                            className="w-full max-w-4xl bg-arena-mid border border-plasma-purple/30 rounded-3xl shadow-[0_0_50px_rgba(191,95,255,0.2)] overflow-hidden relative h-[80vh] flex flex-col"
+                            className="w-full max-w-4xl bg-surface border border-master/30 rounded-3xl shadow-[0_0_50px_rgba(185, 143, 240,0.2)] overflow-hidden relative h-[80vh] flex flex-col"
                         >
                             <div className="absolute inset-0 scanlines opacity-20 pointer-events-none" />
                             
-                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-arena-dark/50">
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-void/50">
                                 <div className="flex items-center gap-3">
-                                    <Trophy className="text-plasma-gold" size={24} />
+                                    <Trophy className="text-rank-gold" size={24} />
                                     <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">GLOBAL STANDINGS</h2>
                                 </div>
                                 <motion.button
-                                    whileHover={{ scale: 1.1, color: '#FF2D78' }}
+                                    whileHover={{ scale: 1.1, color: '#ff5468' }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowLeaderboard(false)}
                                     className="text-slate-500 font-black font-orbitron text-xs tracking-widest uppercase p-2"
@@ -295,7 +295,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-arena-dark p-6 overflow-hidden relative font-rajdhani">
+        <div className="min-h-screen bg-void p-6 overflow-hidden relative font-rajdhani">
             {/* Holographic grid floor simulation */}
             <div className="fixed inset-0 holo-grid pointer-events-none opacity-20" />
             <div className="fixed inset-0 scanlines pointer-events-none" />
@@ -305,12 +305,12 @@ const Dashboard = () => {
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
                     transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-plasma-blue blur-[120px] rounded-full"
+                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-brand blur-[120px] rounded-full"
                 />
                 <motion.div
                     animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.08, 0.05] }}
                     transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-plasma-purple blur-[120px] rounded-full"
+                    className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-master blur-[120px] rounded-full"
                 />
             </div>
 
@@ -320,15 +320,15 @@ const Dashboard = () => {
                 className="max-w-7xl mx-auto relative z-10"
             >
                 {/* Header */}
-                <div className="flex justify-between items-end mb-12 border-b border-plasma-blue/20 pb-6">
+                <div className="flex justify-between items-end mb-12 border-b border-brand/20 pb-6">
                     <div>
                          <motion.div className="flex items-center gap-2 mb-1">
                              <motion.h1 
-                                className="text-5xl font-black font-orbitron text-plasma-blue drop-shadow-[0_0_10px_#00D4FF]"
+                                className="text-5xl font-black font-orbitron text-brand drop-shadow-[0_0_10px_#5b6ef5]"
                             >XO</motion.h1>
-                            <div className="h-8 w-0.5 bg-plasma-blue/30 rotate-12" />
+                            <div className="h-8 w-0.5 bg-brand/30 rotate-12" />
                             <motion.h1 
-                                className="text-5xl font-black font-orbitron text-plasma-purple drop-shadow-[0_0_10px_#BF5FFF]"
+                                className="text-5xl font-black font-orbitron text-master drop-shadow-[0_0_10px_#b98ff0]"
                             >CLASH</motion.h1>
                         </motion.div>
                         <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.4em] ml-1">
@@ -339,7 +339,7 @@ const Dashboard = () => {
                         whileHover={{ scale: 1.05, x: 5 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={logout}
-                        className="flex items-center gap-3 px-6 py-2 bg-plasma-pink/10 hover:bg-plasma-pink/20 text-plasma-pink rounded-lg transition-all font-orbitron font-bold text-[10px] tracking-widest border border-plasma-pink/30 uppercase"
+                        className="flex items-center gap-3 px-6 py-2 bg-danger/10 hover:bg-danger/20 text-danger rounded-lg transition-all font-orbitron font-bold text-[10px] tracking-widest border border-danger/30 uppercase"
                     >
                         Disconnect <LogOut size={16} />
                     </motion.button>
@@ -351,21 +351,21 @@ const Dashboard = () => {
                         <motion.div 
                             whileHover={{ rotateY: 5, rotateX: -2, translateZ: 10 }}
                             style={{ perspective: 1000 }}
-                            className="bg-arena-mid/80 border border-plasma-blue/30 p-6 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(0,212,255,0.05)] relative overflow-hidden group"
+                            className="bg-surface/80 border border-brand/30 p-6 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(91, 110, 245,0.05)] relative overflow-hidden group"
                         >
                             <div className="absolute top-0 right-0 p-4">
-                                <Trophy size={20} className="text-plasma-gold drop-shadow-[0_0_10px_#FFD700]" />
+                                <Trophy size={20} className="text-rank-gold drop-shadow-[0_0_10px_#e8b84b]" />
                             </div>
                             
                             <div className="flex items-center gap-5 mt-4">
                                 <div className="relative">
-                                    <div className="w-20 h-20 bg-arena-surface border-2 border-plasma-blue rounded-xl flex items-center justify-center text-4xl font-black font-orbitron text-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.3)]">
+                                    <div className="w-20 h-20 bg-surface-2 border-2 border-brand rounded-xl flex items-center justify-center text-4xl font-black font-orbitron text-brand shadow-[0_0_20px_rgba(91, 110, 245,0.3)]">
                                         {user?.username?.charAt(0).toUpperCase()}
                                     </div>
                                     <motion.div 
                                         animate={{ scale: [1, 1.2, 1] }}
                                         transition={{ repeat: Infinity, duration: 2 }}
-                                        className="absolute -bottom-2 -right-2 bg-plasma-gold text-arena-dark text-[10px] font-black px-2 py-1 rounded border border-arena-dark uppercase"
+                                        className="absolute -bottom-2 -right-2 bg-rank-gold text-void text-[10px] font-black px-2 py-1 rounded border border-void uppercase"
                                     >
                                         Lvl {dashboardData.level || 1}
                                     </motion.div>
@@ -374,20 +374,20 @@ const Dashboard = () => {
                                     <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">
                                         {user?.username}
                                     </h2>
-                                    <p className="text-plasma-gold font-bold text-xs uppercase tracking-widest mt-1">
+                                    <p className="text-rank-gold font-bold text-xs uppercase tracking-widest mt-1">
                                          {dashboardData.rank || "Unranked"} Signal
                                     </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3 mt-8">
-                                <div className="bg-arena-dark/50 border border-white/5 p-3 rounded-lg text-center">
+                                <div className="bg-void/50 border border-white/5 p-3 rounded-lg text-center">
                                     <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Rank Points</p>
-                                    <p className="text-xl font-orbitron text-plasma-blue">{dashboardData.rankPoints || 0}</p>
+                                    <p className="text-xl font-orbitron text-brand">{dashboardData.rankPoints || 0}</p>
                                 </div>
-                                <div className="bg-arena-dark/50 border border-white/5 p-3 rounded-lg text-center">
+                                <div className="bg-void/50 border border-white/5 p-3 rounded-lg text-center">
                                     <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Win Rate</p>
-                                    <p className="text-xl font-orbitron text-plasma-purple">{dashboardData.winRate || 0}%</p>
+                                    <p className="text-xl font-orbitron text-master">{dashboardData.winRate || 0}%</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -395,10 +395,10 @@ const Dashboard = () => {
                         <div className="grid grid-cols-3 gap-2">
                              {[
                                 { label: 'Wins', value: dashboardData.numOfWins, color: 'text-green-400' },
-                                { label: 'Losses', value: dashboardData.numOfLosses, color: 'text-plasma-pink' },
+                                { label: 'Losses', value: dashboardData.numOfLosses, color: 'text-danger' },
                                 { label: 'Stalemates', value: dashboardData.numOfDraws, color: 'text-slate-400' }
                              ].map((stat, i) => (
-                                <div key={i} className="bg-arena-mid/30 border border-white/5 p-3 rounded-lg text-center backdrop-blur-sm">
+                                <div key={i} className="bg-surface/30 border border-white/5 p-3 rounded-lg text-center backdrop-blur-sm">
                                     <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{stat.label}</p>
                                     <p className={`text-lg font-orbitron ${stat.color}`}>{stat.value}</p>
                                 </div>
@@ -406,20 +406,20 @@ const Dashboard = () => {
                         </div>
 
                          <motion.button
-                            whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 0 40px rgba(0,212,255,0.4)" }}
+                            whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 0 40px rgba(91, 110, 245,0.4)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => startMatchmaking()}
                             className="w-full h-20 hero-plasma-glow p-0.5 rounded-2xl font-orbitron font-black text-xl tracking-[0.3em] mt-4 shadow-2xl transition-all"
                         >
-                            <div className="bg-arena-dark hover:bg-transparent transition-all w-full h-full rounded-[14px] flex items-center justify-center gap-3 relative z-10 text-white">
+                            <div className="bg-void hover:bg-transparent transition-all w-full h-full rounded-[14px] flex items-center justify-center gap-3 relative z-10 text-white">
                                 ENTER THE ARENA <Play size={24} fill="currentColor" />
                             </div>
                         </motion.button>
                         
                         <motion.button
-                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(191, 95, 255, 0.1)' }}
+                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(185, 143, 240, 0.1)' }}
                             onClick={() => setShowLeaderboard(!showLeaderboard)}
-                            className="w-full py-4 border border-plasma-purple/30 text-plasma-purple rounded-xl font-orbitron font-bold text-[10px] tracking-[0.3em] uppercase flex items-center justify-center gap-2"
+                            className="w-full py-4 border border-master/30 text-master rounded-xl font-orbitron font-bold text-[10px] tracking-[0.3em] uppercase flex items-center justify-center gap-2"
                         >
                             <Trophy size={16} /> Global Standings
                         </motion.button>
@@ -428,9 +428,9 @@ const Dashboard = () => {
                     {/* Right Column: Tactical Power-ups */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
                         <div className="flex items-center gap-3 px-2">
-                            <Zap size={20} className="text-plasma-blue" />
+                            <Zap size={20} className="text-brand" />
                             <h3 className="font-orbitron font-bold text-sm tracking-[0.2em] uppercase text-white">Tactical Loadout</h3>
-                            <div className="flex-1 h-px bg-plasma-blue/20" />
+                            <div className="flex-1 h-px bg-brand/20" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -447,23 +447,23 @@ const Dashboard = () => {
                                         onClick={() => handlePowerUpSelect(powerUpKey)}
                                         className={`cursor-pointer p-5 rounded-2xl border transition-all relative overflow-hidden group ${
                                             unlocked 
-                                                ? 'bg-arena-mid/80 border-plasma-blue/20 hover:border-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.05)]' 
-                                                : 'bg-arena-surface/40 border-white/5 opacity-60 grayscale'
+                                                ? 'bg-surface/80 border-brand/20 hover:border-brand shadow-[0_0_20px_rgba(91, 110, 245,0.05)]' 
+                                                : 'bg-surface-2/40 border-white/5 opacity-60 grayscale'
                                         }`}
                                     >
                                         {!unlocked && (
-                                            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-arena-dark/60 backdrop-blur-sm">
+                                            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-void/60 backdrop-blur-sm">
                                                 <Lock size={24} className="text-slate-500 mb-2" />
                                                 <p className="text-[10px] font-black font-orbitron uppercase text-slate-400">Locked</p>
                                             </div>
                                         )}
                                         
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-arena-dark rounded-xl border border-white/5 group-hover:border-plasma-blue/50 transition-colors">
-                                                <Zap size={20} className={unlocked ? "text-plasma-blue" : "text-slate-600"} />
+                                            <div className="p-3 bg-void rounded-xl border border-white/5 group-hover:border-brand/50 transition-colors">
+                                                <Zap size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
                                             </div>
                                             {unlocked && (
-                                                <div className="bg-plasma-blue/20 text-plasma-blue text-[10px] font-black px-2 py-1 rounded">
+                                                <div className="bg-brand/20 text-brand text-[10px] font-black px-2 py-1 rounded">
                                                     x{unlocked.count ?? 0}
                                                 </div>
                                             )}
@@ -477,7 +477,7 @@ const Dashboard = () => {
                                         </p>
                                         
                                         {unlocked && (
-                                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-plasma-blue opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#00D4FF]" />
+                                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#5b6ef5]" />
                                         )}
                                     </motion.div>
                                 );

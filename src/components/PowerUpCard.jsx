@@ -33,19 +33,19 @@ const PowerUpCard = ({
                 scale: 1.05, 
                 rotateY: 10,
                 rotateX: -5,
-                boxShadow: "0 0 30px rgba(0, 212, 255, 0.2)"
+                boxShadow: "0 0 30px rgba(91, 110, 245, 0.2)"
             } : {}}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className={`relative h-72 rounded-xl border transition-all cursor-pointer font-rajdhani overflow-hidden group ${
-                !isUsable ? "opacity-30 grayscale cursor-not-allowed border-white/5" : "border-plasma-blue/20 bg-arena-mid/90"
-            } ${isActive ? "border-plasma-blue ring-1 ring-plasma-blue shadow-[0_0_20px_rgba(0,212,255,0.3)]" : ""}`}
+                !isUsable ? "opacity-30 grayscale cursor-not-allowed border-white/5" : "border-brand/20 bg-surface/90"
+            } ${isActive ? "border-brand ring-1 ring-brand shadow-[0_0_20px_rgba(91, 110, 245,0.3)]" : ""}`}
             onClick={handleClick}
             style={{ perspective: 1000, transformStyle: "preserve-3d" }}
         >
             <div className="absolute inset-0 scanlines opacity-10 pointer-events-none" />
             
             {/* Background Gradient */}
-            <div className={`absolute inset-0 bg-linear-to-b from-plasma-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+            <div className={`absolute inset-0 bg-linear-to-b from-brand/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
 
             {/* Content */}
             <div className="relative h-full flex flex-col p-5 z-10">
@@ -54,22 +54,22 @@ const PowerUpCard = ({
                     <motion.div
                         animate={isActive ? { rotate: 360 } : {}}
                         transition={{ repeat: isActive ? Infinity : 0, duration: 3, ease: "linear" }}
-                        className={`p-3 rounded-xl bg-arena-dark border border-white/10 ${isUsable ? 'text-plasma-blue shadow-[0_0_15px_rgba(0,212,255,0.2)]' : 'text-slate-600'}`}
+                        className={`p-3 rounded-xl bg-void border border-white/10 ${isUsable ? 'text-brand shadow-[0_0_15px_rgba(91, 110, 245,0.2)]' : 'text-slate-600'}`}
                     >
                         <IconComponent size={28} />
                     </motion.div>
                     
                     {isUnlocked && (
-                        <div className="bg-arena-dark px-3 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
+                        <div className="bg-void px-3 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
                             <span className="text-[8px] font-black font-orbitron text-slate-500 uppercase">Qty</span>
-                            <span className="text-sm font-black font-orbitron text-plasma-blue">{count}</span>
+                            <span className="text-sm font-black font-orbitron text-brand">{count}</span>
                         </div>
                     )}
                 </div>
 
                 {/* Body: Title & Meta */}
                 <div className="mb-4">
-                    <p className="text-[8px] font-black font-orbitron text-plasma-blue/60 uppercase tracking-[0.3em] mb-1">Tactical Module</p>
+                    <p className="text-[8px] font-black font-orbitron text-brand/60 uppercase tracking-[0.3em] mb-1">Tactical Module</p>
                     <h3 className="font-black font-orbitron text-white text-sm tracking-widest uppercase">
                         {powerupConfig.name}
                     </h3>
@@ -83,13 +83,13 @@ const PowerUpCard = ({
                 {/* Footer: Requirements or Status */}
                 <div className="pt-4 border-t border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                         <div className={`w-2 h-2 rounded-full ${isUsable ? 'bg-plasma-blue animate-pulse' : 'bg-slate-700'}`} />
+                         <div className={`w-2 h-2 rounded-full ${isUsable ? 'bg-brand animate-pulse' : 'bg-slate-700'}`} />
                          <span className="text-[9px] font-black font-orbitron text-slate-500 uppercase tracking-widest">
                             {isUsable ? 'System Integrated' : 'Locked'}
                          </span>
                     </div>
                     {powerupConfig.unlockRank && (
-                         <span className="text-[9px] font-black font-orbitron text-plasma-gold">
+                         <span className="text-[9px] font-black font-orbitron text-rank-gold">
                             {powerupConfig.unlockRank.toUpperCase()}
                          </span>
                     )}
@@ -98,7 +98,7 @@ const PowerUpCard = ({
 
             {/* Action overlay on hover */}
             {isUsable && (
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-plasma-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 shadow-[0_0_10px_#00D4FF]" />
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-brand transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 shadow-[0_0_10px_#5b6ef5]" />
             )}
         </motion.div>
     );

@@ -45,31 +45,31 @@ const PowerUpActivationNotification = ({ notification, onClear }) => {
                     exit={{ opacity: 0, scale: 1.2, filter: 'blur(20px)' }}
                     className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] pointer-events-none font-rajdhani"
                 >
-                    <div className="bg-arena-mid/95 border border-plasma-blue/30 rounded-[2rem] p-10 backdrop-blur-2xl shadow-[0_0_80px_rgba(0,212,255,0.3)] flex flex-col items-center gap-6 min-w-[300px]">
+                    <div className="bg-surface/95 border border-brand/30 rounded-[2rem] p-10 backdrop-blur-2xl shadow-[0_0_80px_rgba(91, 110, 245,0.3)] flex flex-col items-center gap-6 min-w-[300px]">
                         <div className="absolute inset-0 scanlines opacity-30 pointer-events-none rounded-[2rem]" />
                         
                         <motion.div
                             animate={{
                                 scale: [1, 1.3, 1],
-                                boxShadow: ["0 0 20px rgba(0,212,255,0)", "0 0 40px rgba(0,212,255,0.4)", "0 0 20px rgba(0,212,255,0)"]
+                                boxShadow: ["0 0 20px rgba(91, 110, 245,0)", "0 0 40px rgba(91, 110, 245,0.4)", "0 0 20px rgba(91, 110, 245,0)"]
                             }}
                             transition={{ duration: 0.8, repeat: Infinity }}
-                            className="bg-arena-dark p-5 rounded-2xl border border-plasma-blue shadow-lg relative z-10"
+                            className="bg-void p-5 rounded-2xl border border-brand shadow-lg relative z-10"
                         >
-                            <Icon size={44} className="text-plasma-blue" />
+                            <Icon size={44} className="text-brand" />
                         </motion.div>
                         
                         <div className="text-center relative z-10">
-                            <p className="text-[10px] font-black font-orbitron text-plasma-blue/60 uppercase tracking-[0.5em] mb-2">Tactical Alert</p>
+                            <p className="text-[10px] font-black font-orbitron text-brand/60 uppercase tracking-[0.5em] mb-2">Tactical Alert</p>
                             <h3 className="text-3xl font-black text-white mb-2 uppercase tracking-widest font-orbitron italic">
                                 {notification.powerUpType.replace("_", " ")}
                             </h3>
                             <div className="flex items-center justify-center gap-2">
-                                <span className="h-[1px] w-4 bg-plasma-purple/50" />
-                                <p className="text-plasma-purple font-black text-xs uppercase tracking-widest font-orbitron">
+                                <span className="h-[1px] w-4 bg-master/50" />
+                                <p className="text-master font-black text-xs uppercase tracking-widest font-orbitron">
                                     USER: {notification.playerName?.toUpperCase()}
                                 </p>
-                                <span className="h-[1px] w-4 bg-plasma-purple/50" />
+                                <span className="h-[1px] w-4 bg-master/50" />
                             </div>
                         </div>
                     </div>
