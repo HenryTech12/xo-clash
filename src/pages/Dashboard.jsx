@@ -1,15 +1,60 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useGame } from "../hooks/useGame";
-import { LogOut, Play, Zap, Trophy, Flame, Lock } from "lucide-react";
+import { LogOut, Play, Zap, Trophy, Lock, AlertTriangle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { trackService, powerUpService } from "../services/api";
-import PlayerStatsCard from "../components/PlayerStatsCard";
-import PowerUpCard from "../components/PowerUpCard";
 import PowerUpActivationModal from "../components/PowerUpActivationModal";
 import Leaderboard from "../components/Leaderboard";
 import { POWER_UP_CONFIG } from "../config/powerUpConfig";
+
+const formatQueueTime = (seconds) => {
+    const m = Math.floor(seconds / 60)
+        .toString()
+        .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+};
+
+// Win-rate ring - a single small SVG, not worth its own component for one call site.
+const WinRateRing = ({ winRate }) => {
+    const circumference = 2 * Math.PI * 26;
+    return (
+        <div className="relative w-16 h-16 shrink-0">
+            <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
+                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                <motion.circle
+                    cx="32" cy="32" r="26" fill="none" stroke="#5b6ef5" strokeWidth="6"
+                    strokeDasharray={circumference}
+                    strokeLinecap="round"
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: circumference - (circumference * winRate) / 100 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-data text-[11px] text-white">{winRate}%</span>
+            </div>
+        </div>
+    );
+};
+
+const IdentitySkeleton = () => (
+    <div className="bg-surface/80 border border-surface-2 p-6 rounded-[10px] animate-pulse space-y-6">
+        <div className="flex items-center gap-5">
+            <div className="w-20 h-20 bg-surface-2 rounded-[10px]" />
+            <div className="space-y-2 flex-1">
+                <div className="h-5 w-32 bg-surface-2 rounded" />
+                <div className="h-3 w-24 bg-surface-2 rounded" />
+            </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+            <div className="h-14 bg-surface-2/60 rounded-[10px]" />
+            <div className="h-14 bg-surface-2/60 rounded-[10px]" />
+        </div>
+    </div>
+);
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
@@ -24,112 +69,98 @@ const Dashboard = () => {
         rankPoints: 0,
     });
 
-    const [playerStats, setPlayerStats] = useState(null);
     const [availablePowerUps, setAvailablePowerUps] = useState([]);
     const [unlockedPowerUps, setUnlockedPowerUps] = useState([]);
     const [selectedPowerUp, setSelectedPowerUp] = useState(null);
     const [activatingPowerUp, setActivatingPowerUp] = useState(false);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [statsError, setStatsError] = useState(null);
+    const [queueStartedAt, setQueueStartedAt] = useState(null);
+    const [queueElapsed, setQueueElapsed] = useState(0);
+    const [retryTick, setRetryTick] = useState(0);
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (user?.username) {
-                try {
-                    // Fetch main dashboard data
-                    try {
-                        const dashResFallback = await fetch(
-                            `${import.meta.env.VITE_API_URL}/api/v1/players/${user.username}/stats`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${localStorage.getItem(
-                                        "token"
-                                    )}`,
-                                },
-                            }
-                        );
-                        if (dashResFallback.ok) {
-                            const data = await dashResFallback.json();
-                            setDashboardData(data);
-                            setPlayerStats(data);
-                            // Store rank points in localStorage for consistency across components
-                            const points = data.rankPoints ?? data.points ?? 0;
-                            localStorage.setItem(
-                                "rankPoints",
-                                points.toString()
-                            );
-                        } else {
-                            throw new Error("Stats endpoint not OK");
-                        }
-                    } catch (e) {
-                        // Fallback: If new stats endpoint fails, try older dashboard data
-                        try {
-                            const dashRes = await trackService.getDashboardData(
-                                user.username
-                            );
-                            if (dashRes && dashRes.dashboardData) {
-                                setDashboardData(dashRes.dashboardData);
-                                setPlayerStats(dashRes.dashboardData);
-                                // Store rank points in localStorage for consistency across components
-                                const points =
-                                    dashRes.dashboardData.rankPoints ??
-                                    dashRes.dashboardData.points ??
-                                    0;
-                                localStorage.setItem(
-                                    "rankPoints",
-                                    points.toString()
-                                );
-                            }
-                        } catch (fallbackErr) {
-                            console.error(
-                                "Both stats endpoints failed",
-                                fallbackErr
-                            );
-                        }
-                    }
+      const fetchData = async () => {
+        if (!user?.username) return;
+        setLoading(true);
+        setStatsError(null);
 
-                    // Fetch available power-ups from backend
-                    try {
-                        const allPowerUps =
-                            await powerUpService.getAvailablePowerUps();
-                        setAvailablePowerUps(allPowerUps);
-                    } catch (err) {
-                        console.error("Failed to fetch power-ups:", err);
-                        // Fallback to config keys if API fails
-                        setAvailablePowerUps(Object.keys(POWER_UP_CONFIG));
-                    }
-
-                    // Fetch player's unlocked power-ups from backend
-                    try {
-                        const userPowerupsData =
-                            await powerUpService.getPlayerPowerUps(
-                                user.username
-                            );
-                        // Backend returns a raw array of PlayerPowerUps
-                        const powerupsList = Array.isArray(userPowerupsData)
-                            ? userPowerupsData
-                            : userPowerupsData?.unlockedPowerups || [];
-                        // Extract power-up data into a map
-                        const unlockedMap = {};
-                        powerupsList.forEach((up) => {
-                            // Use powerupName (the plain power-up type, e.g.
-                            // "HINT") as the key: powerupId is now scoped
-                            // per-player (e.g. "alice:HINT") and won't match
-                            // the POWER_UP_CONFIG keys used elsewhere.
-                            const id = up.powerupName || up.powerupId || up.id;
-                            unlockedMap[id] = { ...up, id };
-                        });
-                        setUnlockedPowerUps(unlockedMap);
-                    } catch (err) {
-                        console.log("User power-ups not yet available:", err);
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch dashboard data:", err);
+        try {
+            const dashResFallback = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/v1/players/${user.username}/stats`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
                 }
+            );
+            if (dashResFallback.ok) {
+                const data = await dashResFallback.json();
+                setDashboardData(data);
+                const points = data.rankPoints ?? data.points ?? 0;
+                localStorage.setItem("rankPoints", points.toString());
+            } else {
+                throw new Error("Stats endpoint not OK");
             }
-        };
+        } catch {
+            // Fallback: if the new stats endpoint fails, try the older dashboard data
+            try {
+                const dashRes = await trackService.getDashboardData(user.username);
+                if (dashRes && dashRes.dashboardData) {
+                    setDashboardData(dashRes.dashboardData);
+                    const points =
+                        dashRes.dashboardData.rankPoints ?? dashRes.dashboardData.points ?? 0;
+                    localStorage.setItem("rankPoints", points.toString());
+                } else {
+                    throw new Error("No dashboard data returned");
+                }
+            } catch (fallbackErr) {
+                console.error("Both stats endpoints failed", fallbackErr);
+                setStatsError("Couldn't load your stats.");
+            }
+        }
 
-        fetchData();
-    }, [user?.username]);
+        try {
+            const allPowerUps = await powerUpService.getAvailablePowerUps();
+            setAvailablePowerUps(allPowerUps);
+        } catch (err) {
+            console.error("Failed to fetch power-ups:", err);
+            setAvailablePowerUps(Object.keys(POWER_UP_CONFIG));
+        }
+
+        try {
+            const userPowerupsData = await powerUpService.getPlayerPowerUps(user.username);
+            const powerupsList = Array.isArray(userPowerupsData)
+                ? userPowerupsData
+                : userPowerupsData?.unlockedPowerups || [];
+            const unlockedMap = {};
+            powerupsList.forEach((up) => {
+                // Use powerupName (the plain power-up type, e.g. "HINT") as the
+                // key: powerupId is now scoped per-player (e.g. "alice:HINT")
+                // and won't match the POWER_UP_CONFIG keys used elsewhere.
+                const id = up.powerupName || up.powerupId || up.id;
+                unlockedMap[id] = { ...up, id };
+            });
+            setUnlockedPowerUps(unlockedMap);
+        } catch (err) {
+            console.log("User power-ups not yet available:", err);
+        }
+
+        setLoading(false);
+      };
+      fetchData();
+    }, [user?.username, retryTick]);
+
+    // Queue timer - only ticks once a queueStartedAt timestamp has been set
+    // (by the Enter Queue button's click handler, not reactively in here).
+    useEffect(() => {
+        if (queueStartedAt == null) return;
+        const interval = setInterval(() => {
+            setQueueElapsed(Math.floor((Date.now() - queueStartedAt) / 1000));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [queueStartedAt]);
 
     const handlePowerUpSelect = (powerUp) => {
         setSelectedPowerUp(POWER_UP_CONFIG[powerUp] || null);
@@ -140,16 +171,13 @@ const Dashboard = () => {
 
         setActivatingPowerUp(true);
         try {
-            // Call API to activate power-up
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/v1/powerups/activate`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                        )}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                     body: JSON.stringify({
                         powerUpType: selectedPowerUp.id,
@@ -159,12 +187,9 @@ const Dashboard = () => {
             );
 
             if (response.ok) {
-                console.log(`Power-up ${selectedPowerUp.name} activated!`);
                 setSelectedPowerUp(null);
             } else {
-                toast.error(
-                    "Power-ups can only be activated during an active match."
-                );
+                toast.error("Power-ups can only be activated during an active match.");
             }
         } catch (error) {
             console.error("Failed to activate power-up:", error);
@@ -174,133 +199,11 @@ const Dashboard = () => {
         }
     };
 
-    if (matchmaking) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-void p-4 text-center overflow-hidden relative font-rajdhani">
-                {/* Holographic Grid floor */}
-                <div className="fixed inset-0 holo-grid pointer-events-none opacity-40" />
-                <div className="fixed inset-0 scanlines pointer-events-none" />
-
-                {/* Animated Background Orbs */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-brand/20 blur-[120px] rounded-full"
-                    />
-                </div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    transition={{ duration: 0.6 }}
-                    className="bg-surface/90 shadow-[0_0_60px_rgba(91, 110, 245,0.2)] border border-brand/30 backdrop-blur-xl p-12 rounded-3xl max-w-md w-full relative z-10"
-                    style={{ transform: "perspective(1000px) rotateX(4deg)" }}
-                >
-                    <div className="relative mb-8 w-24 h-24 mx-auto">
-                        <motion.div
-                            className="absolute inset-0 bg-brand/30 rounded-full blur-xl"
-                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                        />
-                        <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                            className="absolute inset-0 border-2 border-dashed border-brand rounded-full"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <Zap size={48} className="text-brand drop-shadow-[0_0_10px_#5b6ef5]" />
-                        </div>
-                    </div>
-
-                    <motion.h2
-                        className="text-4xl font-black font-orbitron mb-4 text-brand drop-shadow-[0_0_10px_rgba(91, 110, 245,0.5)] tracking-tighter"
-                    >
-                        SCANNING ARENA
-                    </motion.h2>
-                    <p className="text-slate-400 mb-8 text-sm uppercase tracking-[0.3em] font-bold">
-                        Locating Hostile Signals...
-                    </p>
-
-                    <div className="flex gap-2 mb-10 overflow-hidden px-4">
-                        {[0, 1, 2, 3, 4, 5].map((i) => (
-                            <motion.div
-                                key={i}
-                                animate={{ 
-                                    scaleY: [0.3, 1, 0.3],
-                                    backgroundColor: ['#5b6ef5', '#b98ff0', '#5b6ef5']
-                                }}
-                                transition={{
-                                    repeat: Infinity,
-                                    duration: 0.8,
-                                    delay: i * 0.1,
-                                }}
-                                className="flex-1 h-12 rounded-full opacity-60 shadow-[0_0_10px_currentColor]"
-                            />
-                        ))}
-                    </div>
-
-                    <motion.button
-                        whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255, 84, 104,0.4)" }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={cancelMatchmaking}
-                        className="w-full py-4 bg-transparent border-2 border-danger text-danger rounded-xl transition-all font-orbitron font-bold text-xs tracking-widest uppercase hover:bg-danger hover:text-white"
-                    >
-                        Abort Protocol
-                    </motion.button>
-                </motion.div>
-            {/* Leaderboard overlay placed at top-level to avoid stacking context issues */}
-            <AnimatePresence>
-                {showLeaderboard && (
-                    <motion.div 
-                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
-                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-void/60"
-                        style={{ pointerEvents: 'auto' }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20, opacity: 0 }}
-                            animate={{ scale: 1, y: 0, opacity: 1 }}
-                            exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                            className="w-full max-w-4xl bg-surface border border-master/30 rounded-3xl shadow-[0_0_50px_rgba(185, 143, 240,0.2)] overflow-hidden relative h-[80vh] flex flex-col"
-                        >
-                            <div className="absolute inset-0 scanlines opacity-20 pointer-events-none" />
-                            
-                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-void/50">
-                                <div className="flex items-center gap-3">
-                                    <Trophy className="text-rank-gold" size={24} />
-                                    <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">GLOBAL STANDINGS</h2>
-                                </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.1, color: '#ff5468' }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => setShowLeaderboard(false)}
-                                    className="text-slate-500 font-black font-orbitron text-xs tracking-widest uppercase p-2"
-                                >
-                                    [ CLOSE SIGNAL ]
-                                </motion.button>
-                            </div>
-                            
-                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                                <Leaderboard username={user?.username} />
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-        </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-void p-6 overflow-hidden relative font-rajdhani">
-            {/* Holographic grid floor simulation */}
             <div className="fixed inset-0 holo-grid pointer-events-none opacity-20" />
             <div className="fixed inset-0 scanlines pointer-events-none" />
 
-            {/* Animated Background Orbs */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
@@ -322,24 +225,20 @@ const Dashboard = () => {
                 {/* Header */}
                 <div className="flex justify-between items-end mb-12 border-b border-brand/20 pb-6">
                     <div>
-                         <motion.div className="flex items-center gap-2 mb-1">
-                             <motion.h1 
-                                className="text-5xl font-black font-orbitron text-brand drop-shadow-[0_0_10px_#5b6ef5]"
-                            >XO</motion.h1>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h1 className="text-5xl font-black font-orbitron text-brand drop-shadow-[0_0_10px_#5b6ef5]">XO</h1>
                             <div className="h-8 w-0.5 bg-brand/30 rotate-12" />
-                            <motion.h1 
-                                className="text-5xl font-black font-orbitron text-master drop-shadow-[0_0_10px_#b98ff0]"
-                            >CLASH</motion.h1>
-                        </motion.div>
+                            <h1 className="text-5xl font-black font-orbitron text-master drop-shadow-[0_0_10px_#b98ff0]">CLASH</h1>
+                        </div>
                         <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.4em] ml-1">
-                             Command Center // v2.0.4-beta
+                            Command Center // v2.0.4-beta
                         </p>
                     </div>
                     <motion.button
                         whileHover={{ scale: 1.05, x: 5 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={logout}
-                        className="flex items-center gap-3 px-6 py-2 bg-danger/10 hover:bg-danger/20 text-danger rounded-lg transition-all font-orbitron font-bold text-[10px] tracking-widest border border-danger/30 uppercase"
+                        className="flex items-center gap-3 px-6 py-2 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-all font-orbitron font-bold text-[10px] tracking-widest border border-danger/30 uppercase"
                     >
                         Disconnect <LogOut size={16} />
                     </motion.button>
@@ -348,146 +247,192 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Column: Player Identity */}
                     <div className="lg:col-span-4 space-y-6">
-                        <motion.div 
-                            whileHover={{ rotateY: 5, rotateX: -2, translateZ: 10 }}
-                            style={{ perspective: 1000 }}
-                            className="bg-surface/80 border border-brand/30 p-6 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(91, 110, 245,0.05)] relative overflow-hidden group"
-                        >
-                            <div className="absolute top-0 right-0 p-4">
-                                <Trophy size={20} className="text-rank-gold drop-shadow-[0_0_10px_#e8b84b]" />
-                            </div>
-                            
-                            <div className="flex items-center gap-5 mt-4">
-                                <div className="relative">
-                                    <div className="w-20 h-20 bg-surface-2 border-2 border-brand rounded-xl flex items-center justify-center text-4xl font-black font-orbitron text-brand shadow-[0_0_20px_rgba(91, 110, 245,0.3)]">
-                                        {user?.username?.charAt(0).toUpperCase()}
+                        {loading ? (
+                            <IdentitySkeleton />
+                        ) : (
+                            <div className="bg-surface/80 border border-brand/30 p-6 rounded-[10px] shadow-[0_0_30px_rgba(91,110,245,0.05)] relative overflow-hidden">
+                                {statsError && (
+                                    <div className="mb-5 flex items-center justify-between gap-3 rounded-md border border-warn/30 bg-warn/10 px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <AlertTriangle size={14} className="text-warn shrink-0" />
+                                            <p className="font-data text-[11px] text-warn">{statsError}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setRetryTick((t) => t + 1)}
+                                            className="font-data text-[10px] uppercase tracking-wider text-warn underline underline-offset-2 shrink-0"
+                                        >
+                                            Retry
+                                        </button>
                                     </div>
-                                    <motion.div 
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ repeat: Infinity, duration: 2 }}
-                                        className="absolute -bottom-2 -right-2 bg-rank-gold text-void text-[10px] font-black px-2 py-1 rounded border border-void uppercase"
-                                    >
-                                        Lvl {dashboardData.level || 1}
-                                    </motion.div>
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-black font-orbitron text-white tracking-widest">
-                                        {user?.username}
-                                    </h2>
-                                    <p className="text-rank-gold font-bold text-xs uppercase tracking-widest mt-1">
-                                         {dashboardData.rank || "Unranked"} Signal
-                                    </p>
-                                </div>
-                            </div>
+                                )}
 
-                            <div className="grid grid-cols-2 gap-3 mt-8">
-                                <div className="bg-void/50 border border-white/5 p-3 rounded-lg text-center">
-                                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Rank Points</p>
-                                    <p className="text-xl font-orbitron text-brand">{dashboardData.rankPoints || 0}</p>
+                                <div className="absolute top-0 right-0 p-4">
+                                    <Trophy size={20} className="text-rank-gold drop-shadow-[0_0_10px_#e8b84b]" />
                                 </div>
-                                <div className="bg-void/50 border border-white/5 p-3 rounded-lg text-center">
-                                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Win Rate</p>
-                                    <p className="text-xl font-orbitron text-master">{dashboardData.winRate || 0}%</p>
+
+                                <div className="flex items-center gap-5 mt-4">
+                                    <div className="relative">
+                                        <div className="w-20 h-20 bg-surface-2 border-2 border-brand rounded-[10px] flex items-center justify-center text-4xl font-black font-orbitron text-brand shadow-[0_0_20px_rgba(91,110,245,0.3)]">
+                                            {user?.username?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="absolute -bottom-2 -right-2 bg-rank-gold text-void text-[10px] font-black px-2 py-1 rounded border border-void uppercase">
+                                            Lvl {dashboardData.level || 1}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h2 className="text-2xl font-black font-orbitron text-white tracking-widest truncate">
+                                            {user?.username}
+                                        </h2>
+                                        <p className="text-rank-gold font-bold text-xs uppercase tracking-widest mt-1">
+                                            {dashboardData.rank || "Unranked"}
+                                        </p>
+                                    </div>
+                                    <WinRateRing winRate={dashboardData.winRate || 0} />
+                                </div>
+
+                                <div className="mt-8 flex items-center justify-between gap-3 rounded-md border border-white/5 bg-void/50 px-4 py-3">
+                                    <span className="font-data text-[10px] uppercase tracking-widest text-slate-500">
+                                        Rank Points
+                                    </span>
+                                    <span className="font-data text-lg text-brand">{dashboardData.rankPoints || 0}</span>
                                 </div>
                             </div>
-                        </motion.div>
+                        )}
 
                         <div className="grid grid-cols-3 gap-2">
-                             {[
-                                { label: 'Wins', value: dashboardData.numOfWins, color: 'text-green-400' },
-                                { label: 'Losses', value: dashboardData.numOfLosses, color: 'text-danger' },
-                                { label: 'Stalemates', value: dashboardData.numOfDraws, color: 'text-slate-400' }
-                             ].map((stat, i) => (
-                                <div key={i} className="bg-surface/30 border border-white/5 p-3 rounded-lg text-center backdrop-blur-sm">
-                                    <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{stat.label}</p>
-                                    <p className={`text-lg font-orbitron ${stat.color}`}>{stat.value}</p>
+                            {[
+                                { label: "W", value: dashboardData.numOfWins, color: "text-live" },
+                                { label: "L", value: dashboardData.numOfLosses, color: "text-danger" },
+                                { label: "D", value: dashboardData.numOfDraws, color: "text-slate-400" },
+                            ].map((stat) => (
+                                <div
+                                    key={stat.label}
+                                    className="bg-surface/30 border border-white/5 p-3 rounded-md text-center backdrop-blur-sm"
+                                >
+                                    <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">
+                                        {stat.label}
+                                    </p>
+                                    <p className={`font-data text-lg tabular-nums ${stat.color}`}>{stat.value ?? 0}</p>
                                 </div>
-                             ))}
+                            ))}
                         </div>
 
-                         <motion.button
-                            whileHover={{ scale: 1.02, translateY: -2, boxShadow: "0 0 40px rgba(91, 110, 245,0.4)" }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => startMatchmaking()}
-                            className="w-full h-20 hero-plasma-glow p-0.5 rounded-2xl font-orbitron font-black text-xl tracking-[0.3em] mt-4 shadow-2xl transition-all"
-                        >
-                            <div className="bg-void hover:bg-transparent transition-all w-full h-full rounded-[14px] flex items-center justify-center gap-3 relative z-10 text-white">
-                                ENTER THE ARENA <Play size={24} fill="currentColor" />
+                        {matchmaking ? (
+                            <div className="w-full rounded-[10px] border border-brand/30 bg-surface/80 px-5 py-4 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-brand shrink-0 animate-pulse" />
+                                    <div className="min-w-0">
+                                        <p className="font-orbitron font-bold text-xs tracking-widest text-brand uppercase truncate">
+                                            In Queue
+                                        </p>
+                                        <p className="font-data text-[11px] text-slate-400 tabular-nums">
+                                            {formatQueueTime(queueElapsed)}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        cancelMatchmaking();
+                                        setQueueStartedAt(null);
+                                        setQueueElapsed(0);
+                                    }}
+                                    className="shrink-0 px-4 py-2 rounded-md border border-danger/40 text-danger font-orbitron font-bold text-[10px] tracking-widest uppercase hover:bg-danger/10 transition-colors"
+                                >
+                                    Abort
+                                </button>
                             </div>
-                        </motion.button>
-                        
-                        <motion.button
-                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(185, 143, 240, 0.1)' }}
+                        ) : (
+                            <motion.button
+                                whileHover={{ scale: 1.02, translateY: -2 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => {
+                                    setQueueStartedAt(Date.now());
+                                    startMatchmaking();
+                                }}
+                                className="w-full h-16 bg-brand hover:bg-[#6d7ef7] rounded-[10px] font-orbitron font-black text-lg tracking-[0.2em] shadow-lg transition-colors flex items-center justify-center gap-3 text-white"
+                            >
+                                ENTER QUEUE <Play size={20} fill="currentColor" />
+                            </motion.button>
+                        )}
+
+                        <button
                             onClick={() => setShowLeaderboard(!showLeaderboard)}
-                            className="w-full py-4 border border-master/30 text-master rounded-xl font-orbitron font-bold text-[10px] tracking-[0.3em] uppercase flex items-center justify-center gap-2"
+                            className="w-full py-3 border border-master/30 text-master rounded-[10px] font-orbitron font-bold text-[10px] tracking-[0.3em] uppercase flex items-center justify-center gap-2 hover:bg-master/10 transition-colors"
                         >
-                            <Trophy size={16} /> Global Standings
-                        </motion.button>
+                            <Trophy size={16} /> Leaderboard
+                        </button>
                     </div>
 
-                    {/* Right Column: Tactical Power-ups */}
+                    {/* Right Column: Loadout */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
                         <div className="flex items-center gap-3 px-2">
                             <Zap size={20} className="text-brand" />
-                            <h3 className="font-orbitron font-bold text-sm tracking-[0.2em] uppercase text-white">Tactical Loadout</h3>
+                            <h3 className="font-orbitron font-bold text-sm tracking-[0.2em] uppercase text-white">Loadout</h3>
                             <div className="flex-1 h-px bg-brand/20" />
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {Object.keys(POWER_UP_CONFIG).map((powerUpKey) => {
-                                const config = POWER_UP_CONFIG[powerUpKey];
-                                const unlocked = unlockedPowerUps[powerUpKey];
-                                const isAvailable = availablePowerUps.includes(powerUpKey);
-                                
-                                return (
-                                    <motion.div
-                                        key={powerUpKey}
-                                        whileHover={{ rotateY: 8, rotateX: -4, translateZ: 15, scale: 1.03 }}
-                                        style={{ transformPerspective: 800 }}
-                                        onClick={() => handlePowerUpSelect(powerUpKey)}
-                                        className={`cursor-pointer p-5 rounded-2xl border transition-all relative overflow-hidden group ${
-                                            unlocked 
-                                                ? 'bg-surface/80 border-brand/20 hover:border-brand shadow-[0_0_20px_rgba(91, 110, 245,0.05)]' 
-                                                : 'bg-surface-2/40 border-white/5 opacity-60 grayscale'
-                                        }`}
-                                    >
-                                        {!unlocked && (
-                                            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-void/60 backdrop-blur-sm">
-                                                <Lock size={24} className="text-slate-500 mb-2" />
-                                                <p className="text-[10px] font-black font-orbitron uppercase text-slate-400">Locked</p>
-                                            </div>
-                                        )}
-                                        
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-void rounded-xl border border-white/5 group-hover:border-brand/50 transition-colors">
-                                                <Zap size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
-                                            </div>
-                                            {unlocked && (
-                                                <div className="bg-brand/20 text-brand text-[10px] font-black px-2 py-1 rounded">
-                                                    x{unlocked.count ?? 0}
+                        {loading ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="h-32 bg-surface/40 border border-white/5 rounded-[10px] animate-pulse" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {Object.keys(POWER_UP_CONFIG).map((powerUpKey) => {
+                                    const config = POWER_UP_CONFIG[powerUpKey];
+                                    const unlocked = unlockedPowerUps[powerUpKey];
+                                    const isAvailable = availablePowerUps.includes(powerUpKey);
+
+                                    return (
+                                        <motion.div
+                                            key={powerUpKey}
+                                            whileHover={{ scale: 1.02 }}
+                                            onClick={() => handlePowerUpSelect(powerUpKey)}
+                                            className={`cursor-pointer p-5 rounded-[10px] border transition-colors relative overflow-hidden group ${
+                                                unlocked
+                                                    ? "bg-surface/80 border-brand/20 hover:border-brand"
+                                                    : "bg-surface-2/40 border-white/5 opacity-60 grayscale"
+                                            }`}
+                                        >
+                                            {!unlocked && (
+                                                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-void/95 backdrop-blur-sm">
+                                                    <Lock size={24} className="text-slate-500 mb-2" />
+                                                    <p className="text-[10px] font-black font-orbitron uppercase text-slate-400">
+                                                        Locked{isAvailable === false ? "" : ` · ${config.unlockRank || "Bronze"}`}
+                                                    </p>
                                                 </div>
                                             )}
-                                        </div>
-                                        
-                                        <h4 className="font-orbitron font-bold text-xs tracking-wider mb-2 text-white">
-                                            {config.name}
-                                        </h4>
-                                        <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2">
-                                            {config.description}
-                                        </p>
-                                        
-                                        {unlocked && (
-                                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#5b6ef5]" />
-                                        )}
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
+
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="p-3 bg-void rounded-md border border-white/5 group-hover:border-brand/50 transition-colors">
+                                                    <Zap size={20} className={unlocked ? "text-brand" : "text-slate-600"} />
+                                                </div>
+                                                {unlocked && (
+                                                    <div className="bg-brand/20 text-brand font-data text-[10px] font-black px-2 py-1 rounded">
+                                                        x{unlocked.count ?? 0}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <h4 className="font-orbitron font-bold text-xs tracking-wider mb-2 text-white">
+                                                {config.name}
+                                            </h4>
+                                            <p className="text-slate-500 text-[10px] leading-relaxed line-clamp-2">
+                                                {config.description}
+                                            </p>
+
+                                            {unlocked && (
+                                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            )}
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                
-                
                 <PowerUpActivationModal
                     powerupConfig={selectedPowerUp}
                     onClose={() => setSelectedPowerUp(null)}
@@ -495,6 +440,43 @@ const Dashboard = () => {
                     isLoading={activatingPowerUp}
                 />
             </motion.div>
+
+            {/* Leaderboard overlay placed at top-level to avoid stacking context issues */}
+            <AnimatePresence>
+                {showLeaderboard && (
+                    <motion.div
+                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-void/60"
+                        style={{ pointerEvents: "auto" }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                            className="w-full max-w-4xl bg-surface border border-master/30 rounded-[10px] shadow-[0_0_50px_rgba(185,143,240,0.2)] overflow-hidden relative h-[80vh] flex flex-col"
+                        >
+                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-void/50">
+                                <div className="flex items-center gap-3">
+                                    <Trophy className="text-rank-gold" size={22} />
+                                    <h2 className="text-xl font-black font-orbitron text-white tracking-widest">Leaderboard</h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowLeaderboard(false)}
+                                    className="text-slate-500 hover:text-danger p-2 transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                                <Leaderboard username={user?.username} />
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

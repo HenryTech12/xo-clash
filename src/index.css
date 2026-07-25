@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* Tailwind v4 reads custom theme values from this @theme block, not from
+   tailwind.config.js (that file is a v3-era format v4 never loads without
+   an explicit @config directive - keeping colors here is what makes
+   opacity-modifier utilities like bg-brand/20 actually work). */
+@theme {
+  --color-brand: #5b6ef5;
+  --color-master: #b98ff0;
+  --color-danger: #ff5468;
+  --color-rank-gold: #e8b84b;
+  --color-live: #2fbe8f;
+  --color-warn: #e8a63b;
+  --color-void: #0b0e13;
+  --color-surface: #12161d;
+  --color-surface-2: #1a2029;
+  --color-surface-3: #232a35;
+  --color-grid-line: rgba(91, 110, 245, 0.15);
+
+  --font-orbitron: "Chakra Petch", "Arial Narrow", sans-serif;
+  --font-rajdhani: "IBM Plex Sans", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", "Courier New", monospace;
+}
+
 body {
     @apply bg-slate-950 text-slate-100;
     margin: 0;
